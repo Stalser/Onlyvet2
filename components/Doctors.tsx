@@ -1,8 +1,14 @@
+'use client';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useState } from 'react';
 import { doctors } from '@/lib/data';
+import DoctorModal from '@/components/DoctorModal';
 
 export default function Doctors() {
+  const [openId, setOpenId] = useState<string | null>(null);
+  const doc = doctors.find(d => d.id === openId);
+
   return (
     <section id="doctors" className="container py-16">
       <h2 className="text-3xl font-bold mb-10" style={{fontFamily: 'var(--font-montserrat)'}}>Наши врачи</h2>
@@ -19,12 +25,14 @@ export default function Doctors() {
             </div>
             <p className="text-sm opacity-80 mt-4">{d.bio}</p>
             <div className="mt-4 flex gap-3">
-              <Link href={`/booking?doctorId=${d.id}`} className="btn btn-primary flex-1">Записаться</Link>
-              <a href="#feedback" className="btn btn-secondary">Задать вопрос</a>
+              <button className="btn btn-secondary flex-1" onClick={()=>setOpenId(d.id)}>Подробнее</button>
+              <Link href={`/booking?doctorId=${d.id}`} className="btn btn-primary">Записаться</Link>
             </div>
           </div>
         ))}
       </div>
+
+      {doc && <DoctorModal doctor={doc as any} onClose={()=>setOpenId(null)} />}
     </section>
   );
 }

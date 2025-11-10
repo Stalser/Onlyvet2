@@ -15,10 +15,13 @@ type BookingPayload = {
 export default function BookingWidget() {
   const params = useSearchParams();
   const presetDoctorId = params.get('doctorId') || '';
+  const presetDate = params.get('date') || '';
+  const presetTime = params.get('time') || '';
+
   const [specialty, setSpecialty] = useState<string>('');
   const [doctorId, setDoctorId] = useState<string>(presetDoctorId);
-  const [date, setDate] = useState<string>('');
-  const [time, setTime] = useState<string>('');
+  const [date, setDate] = useState<string>(presetDate);
+  const [time, setTime] = useState<string>(presetTime);
   const [petType, setPetType] = useState<string>('Кошка');
   const [ownerName, setOwnerName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
@@ -40,7 +43,10 @@ export default function BookingWidget() {
   }, [presetDoctorId]);
 
   const days = Array.from({ length: 14 }, (_, i) => {
-    const dt = new Date(); dt.setDate(dt.getDate() + i); dt.setHours(0,0,0,0); return dt;
+    const dt = new Date();
+    dt.setDate(dt.getDate() + i);
+    dt.setHours(0,0,0,0);
+    return dt;
   });
   const slots = createTimeSlots(10, 20, 60);
 
@@ -77,14 +83,14 @@ export default function BookingWidget() {
       <div className="grid md:grid-cols-2 gap-5">
         <div>
           <label className="label">Специальность</label>
-          <select className="select" value={specialty} onChange={(e)=>setSpecialty(e.target.value)}>
+          <select className="select" value={specialty} onChange={(e) => setSpecialty(e.target.value)}>
             <option value="">Выберите…</option>
             {specialties.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
         </div>
         <div>
           <label className="label">Врач</label>
-          <select className="select" value={doctorId} onChange={(e)=>setDoctorId(e.target.value)}>
+          <select className="select" value={doctorId} onChange={(e) => setDoctorId(e.target.value)}>
             <option value="">Выберите…</option>
             {filteredDoctors.map(d => <option key={d.id} value={d.id}>{d.name} — {d.specialty}</option>)}
           </select>
@@ -97,7 +103,7 @@ export default function BookingWidget() {
         </div>
         <div>
           <label className="label">Имя питомца</label>
-          <input className="input" value={petName} onChange={(e)=>setPetName(e.target.value)} placeholder="Мурзик"/>
+          <input className="input" value={petName} onChange={(e)=>setPetName(e.target.value)} placeholder="Мурзик" />
         </div>
 
         <div className="md:col-span-2">
@@ -108,8 +114,8 @@ export default function BookingWidget() {
               const isSel = date === val;
               return (
                 <button key={val} type="button" onClick={()=>setDate(val)} className={`p-3 rounded-xl border text-sm ${isSel ? 'bg-teal text-white border-teal' : 'bg-white hover:bg-cloud border-gray-200'}`}>
-                  <div className="font-semibold">{d.toLocaleDateString('ru-RU',{weekday:'short'})}</div>
-                  <div>{d.getDate()} {d.toLocaleDateString('ru-RU',{month:'short'})}</div>
+                  <div className="font-semibold">{d.toLocaleDateString('ru-RU', { weekday: 'short' })}</div>
+                  <div>{d.getDate()} {d.toLocaleDateString('ru-RU', { month: 'short' })}</div>
                 </button>
               );
             })}
@@ -130,44 +136,38 @@ export default function BookingWidget() {
 
         <div>
           <label className="label">Ваше имя</label>
-          <input className="input" value={ownerName} onChange={(e)=>setOwnerName(e.target.value)} placeholder="Иван"/>
+          <input className="input" value={ownerName} onChange={(e)=>setOwnerName(e.target.value)} placeholder="Иван" />
         </div>
         <div>
           <label className="label">Email</label>
-          <input className="input" type="email" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="name@example.com"/>
+          <input className="input" type="email" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="name@example.com" />
         </div>
         <div>
           <label className="label">Телефон</label>
-          <input className="input" value={phone} onChange={(e)=>setPhone(e.target.value)} placeholder="+7 900 000-00-00"/>
+          <input className="input" value={phone} onChange={(e)=>setPhone(e.target.value)} placeholder="+7 900 000-00-00" />
         </div>
 
         <div className="md:col-span-2">
           <label className="label">Препараты и дозы (если даёте сейчас)</label>
-          <textarea className="textarea h-24" value={meds} onChange={(e)=>setMeds(e.target.value)} placeholder="Название — доза — кратность — когда давали последний раз"/>
+          <textarea className="textarea h-24" value={meds} onChange={(e)=>setMeds(e.target.value)} placeholder="Название — доза — кратность — когда давали последний раз" />
         </div>
 
         <div className="md:col-span-2">
           <label className="label">Фото/видео/документы (до 10 файлов)</label>
           <div
-            onDrop={onDrop}
+            onDrop={(e)=>{e.preventDefault(); const picked = Array.from(e.dataTransfer.files).slice(0, 10); setFiles(prev => [...prev, ...picked].slice(0, 10));}}
             onDragOver={(e)=>e.preventDefault()}
             className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:bg-cloud cursor-pointer"
             onClick={()=>document.getElementById('filepick')?.click()}
           >
             Перетащите файлы сюда или нажмите, чтобы выбрать
-            <input id="filepick" type="file" multiple onChange={onPick} className="hidden"/>
-            {files.length>0 && (
-              <ul className="mt-3 text-xs opacity-80 text-left">
-                {files.map((f,i)=>(<li key={i}>• {f.name} ({Math.round(f.size/1024)} КБ)</li>))}
-              </ul>
-            )}
+            <input id="filepick" type="file" multiple onChange={(e)=>{const picked = e.target.files ? Array.from(e.target.files).slice(0, 10) : []; setFiles(prev => [...prev, ...picked].slice(0, 10));}} className="hidden" />
           </div>
-          <p className="text-xs opacity-60 mt-2">Пока мы сохраняем только список файлов как метаданные. Загрузку в облако подключим позже.</p>
         </div>
 
         <div className="md:col-span-2">
           <label className="label">Кратко опишите запрос</label>
-          <textarea className="textarea h-24" value={notes} onChange={(e)=>setNotes(e.target.value)} placeholder="Симптомы, когда начались, поведение, аппетит, вода, стул…"/>
+          <textarea className="textarea h-24" value={notes} onChange={(e)=>setNotes(e.target.value)} placeholder="Симптомы, когда начались, поведение, аппетит, вода, стул…" />
         </div>
 
         {error && <div className="md:col-span-2 text-red-600 text-sm">{error}</div>}
