@@ -1,13 +1,14 @@
 'use client';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useState } from 'react';
 import { doctors } from '@/lib/data';
-import DoctorModal from '@/components/DoctorModal';
+import DoctorDetailsModal from '@/components/DoctorDetailsModal';
+import ScheduleModal from '@/components/ScheduleModal';
 
 export default function Doctors() {
-  const [openId, setOpenId] = useState<string | null>(null);
-  const doc = doctors.find(d => d.id === openId);
+  const [detailsId, setDetailsId] = useState<string | null>(null);
+  const [scheduleFor, setScheduleFor] = useState<string | null>(null);
+  const doc = doctors.find(d => d.id === detailsId);
 
   return (
     <section id="doctors" className="container py-16">
@@ -25,14 +26,14 @@ export default function Doctors() {
             </div>
             <p className="text-sm opacity-80 mt-4">{d.bio}</p>
             <div className="mt-4 flex gap-3">
-              <button className="btn btn-secondary flex-1" onClick={()=>setOpenId(d.id)}>Подробнее</button>
-              <Link href={`/booking?doctorId=${d.id}`} className="btn btn-primary">Записаться</Link>
+              <button className="btn btn-secondary flex-1" onClick={()=>setDetailsId(d.id)}>Подробнее</button>
+              <button className="btn btn-primary" onClick={()=>setScheduleFor(d.id)}>Записаться</button>
             </div>
           </div>
         ))}
       </div>
-
-      {doc && <DoctorModal doctor={doc as any} onClose={()=>setOpenId(null)} />}
+      {doc && <DoctorDetailsModal doctor={doc as any} onClose={()=>setDetailsId(null)} onBook={(id)=>{ setDetailsId(null); setScheduleFor(id); }}/>}      
+      {scheduleFor && <ScheduleModal doctorId={scheduleFor} onClose={()=>setScheduleFor(null)} />}
     </section>
   );
 }
