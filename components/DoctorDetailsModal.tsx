@@ -45,27 +45,53 @@ export default function DoctorDetailsModal({
             <div className="text-2xl font-bold" style={{fontFamily:'var(--font-montserrat)'}}>{doctor.name}</div>
             <div className="opacity-80 mt-1">{doctor.specialty} · {doctor.experience} лет опыта</div>
             <p className="text-sm opacity-90 mt-3">{doctor.bio}</p>
+
+            {doctor.interests?.length ? (
+              <div className="mt-2 text-sm"><span className="font-semibold">Интересы:</span> {doctor.interests.join(', ')}</div>
+            ) : null}
+            {doctor.languages?.length ? (
+              <div className="text-sm"><span className="font-semibold">Языки:</span> {doctor.languages.join(', ')}</div>
+            ) : null}
+            {doctor.education?.length ? (
+              <div className="mt-3">
+                <div className="font-semibold text-sm">Образование и сертификаты</div>
+                <ul className="list-disc ml-5 text-sm opacity-90">
+                  {doctor.education.map((e,i)=>(<li key={i}>{e}</li>))}
+                </ul>
+              </div>
+            ) : null}
+            {doctor.achievements?.length ? (
+              <div className="mt-3">
+                <div className="font-semibold text-sm">Достижения</div>
+                <ul className="list-disc ml-5 text-sm opacity-90">
+                  {doctor.achievements.map((e,i)=>(<li key={i}>{e}</li>))}
+                </ul>
+              </div>
+            ) : null}
           </div>
         </div>
 
-        {/* NEW: услуги врача списком */}
         {doctorServices.length>0 && (
           <div className="mt-6">
             <div className="text-lg font-semibold mb-2">Услуги врача</div>
-            <div className="grid md:grid-cols-2 gap-3">
+            <ul className="divide-y divide-gray-200 rounded-xl border border-gray-200 bg-white">
               {doctorServices.map(s => (
-                <div key={s.slug} className="border rounded-xl p-3 bg-white">
-                  <div className="font-semibold">{s.name}</div>
-                  <div className="text-sm opacity-80">{s.price}{s.duration ? ` · ${s.duration}` : ''}</div>
-                  <div className="mt-2 flex gap-2">
-                    <a className="btn btn-secondary"
-                       href={`/booking?doctorId=${doctor.id}&service=${s.slug}`}>
-                      Записаться на услугу
-                    </a>
+                <li key={s.slug} className="flex items-center justify-between gap-3 p-3">
+                  <div className="min-w-0">
+                    <div className="font-medium truncate">{s.name}</div>
+                    <div className="text-xs opacity-70">
+                      {(s.price ?? '').trim()}{s.duration ? ` · ${s.duration}` : ''}
+                    </div>
                   </div>
-                </div>
+                  <a
+                    className="text-teal text-sm whitespace-nowrap hover:underline"
+                    href={`/booking?doctorId=${doctor.id}&service=${s.slug}`}
+                  >
+                    Записаться
+                  </a>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         )}
 
