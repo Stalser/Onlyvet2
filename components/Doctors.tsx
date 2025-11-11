@@ -1,14 +1,21 @@
+// components/Doctors.tsx
 'use client';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { doctors } from '@/lib/data';
 import DoctorDetailsModal from '@/components/DoctorDetailsModal';
 import ScheduleModal from '@/components/ScheduleModal';
+import { services } from '@/components/servicesData';
 
 export default function Doctors() {
   const [detailsId, setDetailsId] = useState<string | null>(null);
   const [scheduleFor, setScheduleFor] = useState<string | null>(null);
-  const doc = doctors.find(d => d.id === detailsId);
+  const doc = useMemo(()=> doctors.find(d => d.id === detailsId), [detailsId]);
+
+  function getServiceNames(slugs?: string[]) {
+    if (!slugs || !slugs.length) return [];
+    return slugs.map(s => services.find(x => x.slug === s)?.name || s).filter(Boolean).slice(0, 3);
+  }
 
   return (
     <section id="doctors" className="container py-16">
@@ -24,6 +31,16 @@ export default function Doctors() {
                 <div className="text-xs opacity-60">Стаж: {d.experience} лет</div>
               </div>
             </div>
+
+            {/* NEW: услуги врача (до 3 штук) */}
+            {d.allowedServices && d.allowedServices.length>0 && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {getServiceNames(d.allowedServices).map(name => (
+                  <span key={name} className="px-2 py-1 rounded-lg border bg-white text-xs">{name}</span>
+                ))}
+              </div>
+            )}
+
             <p className="text-sm opacity-80 mt-4">{d.bio}</p>
             <div className="mt-4 flex gap-3">
               <button className="btn btn-secondary flex-1" onClick={()=>setDetailsId(d.id)}>Подробнее</button>
@@ -32,7 +49,8 @@ export default function Doctors() {
           </div>
         ))}
       </div>
-      {doc && <DoctorDetailsModal doctor={doc as any} onClose={()=>setDetailsId(null)} onBook={(id)=>{ setDetailsId(null); setScheduleFor(id); }}/>}      
+
+      {doc && <DoctorDetailsModal doctor={doc as any} onClose={()=>setDetailsId(null)} onBook={(id)=>{ setDetailsId(null); setScheduleFor(id); }} />}
       {scheduleFor && <ScheduleModal doctorId={scheduleFor} onClose={()=>setScheduleFor(null)} />}
     </section>
   );
