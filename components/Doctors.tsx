@@ -1,3 +1,4 @@
+
 // components/Doctors.tsx
 'use client';
 import Image from 'next/image';
@@ -12,9 +13,12 @@ export default function Doctors() {
   const [scheduleFor, setScheduleFor] = useState<string | null>(null);
   const doc = useMemo(()=> doctors.find(d => d.id === detailsId), [detailsId]);
 
-  function getServiceNames(slugs?: string[]) {
+  function getServiceChips(slugs?: string[]) {
     if (!slugs || !slugs.length) return [];
-    return slugs.map(s => services.find(x => x.slug === s)?.name || s).filter(Boolean).slice(0, 3);
+    return slugs
+      .map(s => services.find(x => x.slug === s))
+      .filter(Boolean)
+      .slice(0, 3) as {slug:string, name:string, icon?:string}[];
   }
 
   return (
@@ -32,11 +36,13 @@ export default function Doctors() {
               </div>
             </div>
 
-            {/* NEW: услуги врача (до 3 штук) */}
             {d.allowedServices && d.allowedServices.length>0 && (
               <div className="mt-3 flex flex-wrap gap-2">
-                {getServiceNames(d.allowedServices).map(name => (
-                  <span key={name} className="px-2 py-1 rounded-lg border bg-white text-xs">{name}</span>
+                {getServiceChips(d.allowedServices).map(s => (
+                  <span key={s.slug} className="px-2 py-1 rounded-lg border bg-[var(--cloud)] text-xs inline-flex items-center gap-1">
+                    <span>{s.icon ?? '🐾'}</span>
+                    <span className="truncate max-w-[10rem]">{s.name}</span>
+                  </span>
                 ))}
               </div>
             )}
