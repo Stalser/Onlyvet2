@@ -2,10 +2,8 @@
 import { useEffect, useState } from 'react';
 import Stars from '@/components/Stars';
 import ReviewModal from '@/components/ReviewModal';
-import ReviewFullModal from '@/components/ReviewFullModal';
+import ReviewFullModal, { Review } from '@/components/ReviewFullModal';
 import AllReviewsModal from '@/components/AllReviewsModal';
-
-type Review = { id?: string; name: string; pet?: string; rating: number; text: string; photo?: string; photos?: string[]; createdAt?: string };
 
 const SEED: Review[] = [
   { name:'Екатерина и кот Мурзик', pet:'Мурзик', rating:5, text:'У кота началась рвота... объяснили, когда ехать в клинику, а когда наблюдать дома — это успокоило и сэкономило время.' },
@@ -73,20 +71,9 @@ export default function Reviews() {
         })}
       </div>
 
-      {showAll && (
-        <AllReviewsModal
-          items={all}
-          onClose={()=>setShowAll(false)}
-          onOpenFull={(r)=>{ setFull(r); }}
-        />
-      )}
+      {showAll && <AllReviewsModal items={all} onClose={()=>setShowAll(false)} onOpenFull={(r)=>{ setFull(r); }} />}
 
-      {full && (
-        <ReviewFullModal
-          review={full}
-          onClose={()=>setFull(null)}
-        />
-      )}
+      {full && <ReviewFullModal review={full} onClose={()=>setFull(null)} />}
 
       {showAll ? null : (showForm && <ReviewModal onClose={()=>setShowForm(false)} />)}
     </section>
