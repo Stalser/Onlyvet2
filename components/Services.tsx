@@ -1,15 +1,15 @@
 // components/Services.tsx
 'use client';
 
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { services } from '@/components/servicesData';
-
-const LIMIT = 6;
+import { services, groups } from '@/components/servicesData';
 
 export default function Services() {
-  const list = services.slice(0, LIMIT);
-  const count = services.length;
-  const countLabel = count > 99 ? '99+' : String(count);
+  const [tab, setTab] = useState<'popular'|'specialty'|'package'>('popular');
+  const filtered = useMemo(() => services.filter(s => s.category === tab), [tab]);
+  const total = services.length;
+  const countLabel = total > 99 ? '99+' : String(total);
 
   return (
     <section className="container py-16">
@@ -22,8 +22,23 @@ export default function Services() {
         </Link>
       </div>
 
+      {/* Tabs */}
+      <div className="flex flex-wrap gap-2 mb-6">
+        {groups.map(g => (
+          <button
+            key={g.key}
+            className={`px-4 py-2 rounded-xl border text-sm ${tab===g.key ? 'bg-[var(--teal)] text-white border-[var(--teal)]' : 'bg-white border-gray-200 hover:bg-[var(--cloud)]'}`}
+            onClick={() => setTab(g.key)}
+            type="button"
+          >
+            {g.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Grid */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {list.map(s => (
+        {filtered.map(s => (
           <article key={s.slug} className="card flex flex-col">
             <div className="flex items-center gap-3 mb-2">
               <div className="w-10 h-10 rounded-full bg-[var(--cloud)] flex items-center justify-center text-lg">
@@ -35,6 +50,9 @@ export default function Services() {
             <div className="mt-3 flex items-center justify-between">
               <div className="text-sm font-semibold">{s.price}</div>
               {s.duration ? <div className="text-xs opacity-70">{s.duration}</div> : <span />}
+            </div>
+            <div className="mt-4">
+              <Link href={`/booking?service=${s.slug}`} className="btn btn-secondary">Записаться</Link>
             </div>
           </article>
         ))}
