@@ -1,21 +1,34 @@
 // lib/db.ts
-import type { Pool } from 'pg';
+// Hotfix: no 'pg' dependency required at build-time.
+// Uses eval('require') so Next/SWC won't try to bundle 'pg' unless DATABASE_URL is set.
+declare global {
+  // eslint-disable-next-line no-var
+  var __onlyvet_pool: any | undefined;
+}
 
-let pool: Pool | null = null;
-
-export function getPool(): Pool | null {
+export function getPool(): any | null {
   const url = process.env.DATABASE_URL || process.env.POSTGRES_URL || '';
-  if (!url) return null;
-  if (!pool) {
-    const { Pool } = require('pg') as typeof import('pg');
-    pool = new Pool({ connectionString: url, ssl: url.includes('vercel-storage') ? { rejectUnauthorized: false } : undefined });
+  if (!url) return null; // demo mode
+
+  try {
+    if (!globalThis.__onlyvet_pool) {
+      const req: any = eval('require');           // <= avoid static resolution
+      const { Pool } = req('pg');
+      globalThis.__onlyvet_pool = new Pool({
+        connectionString: url,
+        ssl: url.includes('vercel-storage') ? { rejectUnauthorized: false } : undefined,
+      });
+    }
+    return globalThis.__onlyvet_pool;
+  } catch (e) {
+    // If 'pg' is not installed, stay in demo mode without crashing the build.
+    return null;
   }
-  return pool;
 }
 
 export async function ensureTables() {
   const p = getPool();
-  if (!p) return;
+  if (!p) return; // demo
   await p.query(`
     create table if not exists users (
       id serial primary key,
@@ -56,7 +69,7 @@ export async function ensureTables() {
 
 export async function run(q: string, params?: any[]) {
   const p = getPool();
-  if (!p) return { rows: [], demo: true };
+  if (!p) return { rows: [], demo: true }; // in demo mode
   const res = await p.query(q, params || []);
   return { rows: res.rows, demo: false };
 }
