@@ -8,18 +8,25 @@ export default function ReviewModal({ onClose }:{ onClose: ()=>void }) {
   const [rating, setRating] = useState(5);
   const [text, setText] = useState('');
   const [consent, setConsent] = useState(false);
+  const [photo, setPhoto] = useState<string>('');
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setPhoto(String(reader.result || ''));
+    reader.readAsDataURL(file);
+  }
 
   async function submit() {
     if (!name || !text || !consent) return alert('Заполните имя, отзыв и дайте согласие.');
     setLoading(true);
     try {
-      const payload = { name, pet, rating, text, createdAt: new Date().toISOString() };
-      // Save locally for instant UX
+      const payload = { name, pet, rating, text, photo, createdAt: new Date().toISOString() };
       const local = JSON.parse(localStorage.getItem('onlyvet:reviews') || '[]');
       localStorage.setItem('onlyvet:reviews', JSON.stringify([payload, ...local].slice(0, 50)));
-      // Send to API (stub for moderation)
       await fetch('/api/reviews', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       setSent(true);
     } finally {
@@ -47,8 +54,7 @@ export default function ReviewModal({ onClose }:{ onClose: ()=>void }) {
         <button className="absolute top-3 right-3 p-2" onClick={onClose} aria-label="Закрыть">
           <svg width="22" height="22" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2"/></svg>
         </button>
-        <div className="text-xl font-semibold mb-4" style={{fontFamily:'var(--font-montserrat)'}}>Оставить отзыв</div>
-
+        <div className="text-xl font-semibold mb-4" style={{fontFamily:'var(--font-mонтserrat)'}}>Оставить отзыв</div>
         <div className="grid gap-4">
           <div>
             <label className="label">Ваше имя</label>
@@ -69,7 +75,12 @@ export default function ReviewModal({ onClose }:{ onClose: ()=>void }) {
           </div>
           <div>
             <label className="label">Отзыв</label>
-            <textarea className="textarea h-32" value={text} onChange={e=>setText(e.target.value)} placeholder="Как прошла консультация, что было полезно, что улучшить?" />
+            <textarea className="textarea h-32" value={text} onChange={e=>setText(e.target.value)} placeholder="Как прошла консультация? Что было полезно? Что улучшить?" />
+          </div>
+          <div>
+            <label className="label">Фото питомца (необязательно)</label>
+            <input type="file" accept="image/*" onChange={onPick} />
+            {photo && <img src={photo} alt="Фото питомца" className="rounded-xl mt-2 max-h-40 object-contain" />}
           </div>
           <label className="inline-flex items-center gap-2 text-xs opacity-80">
             <input type="checkbox" checked={consent} onChange={e=>setConsent(e.target.checked)} />
