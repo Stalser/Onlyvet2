@@ -16,8 +16,6 @@ export async function POST(req: NextRequest) {
   const expires = new Date(Date.now() + 10*60*1000).toISOString();
   await run('insert into auth_codes(email, code, expires_at) values ($1,$2,$3)', [email, code, expires]);
 
-  // In real life, send via email provider. For now, return in response (dev) and log.
-  console.log('LOGIN CODE for', email, code);
-
-  return new Response(JSON.stringify({ ok:true, code, hint:'In production, send this code via email.' }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  // DEV ONLY: return code in response (for production integrate email provider)
+  return new Response(JSON.stringify({ ok:true, code }), { status: 200, headers: { 'Content-Type': 'application/json' } });
 }

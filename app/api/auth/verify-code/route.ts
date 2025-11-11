@@ -14,7 +14,6 @@ export async function POST(req: NextRequest) {
   const exp = new Date(rows[0].expires_at).getTime();
   if (Date.now() > exp) return new Response(JSON.stringify({ ok:false, error:'Code expired' }), { status: 400 });
 
-  // set cookie-session
   setSession(email);
   return new Response(JSON.stringify({ ok:true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
 }
