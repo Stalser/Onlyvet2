@@ -54,7 +54,7 @@ export default function ReviewsPage() {
           <article key={r.id ?? r.name} className="bg-white rounded-2xl shadow-soft p-6 flex flex-col">
             <div className="flex items-center justify-between mb-2">
               <div className="font-semibold">{r.name}</div>
-              <Stars rating={r.rating} />
+              <Stars value={r.rating} />
             </div>
             {r.photo && (
               <img
