@@ -1,11 +1,10 @@
 
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
-import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import Stars from '@/components/Stars';
-import ReviewModal from '@/components/ReviewModal';
 import ReviewFullModal from '@/components/ReviewFullModal';
+import ReviewModal from '@/components/ReviewModal';
 
 type Review = {
   id?: string;
@@ -13,79 +12,58 @@ type Review = {
   pet?: string;
   rating: number;
   text: string;
-  photo?: string;
+  photo?: string;   // optional URL or data URI
   createdAt?: string;
 };
 
-const FALLBACK_IMG =
-  'data:image/svg+xml;utf8,' +
-  encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600">
-      <rect width="100%" height="100%" fill="#eef2f7"/>
-      <text x="50%" y="52%" text-anchor="middle" font-family="Arial" font-size="18" fill="#9aa7b0">Фото</text>
-    </svg>`
-  );
+// inline neutral placeholder to avoid broken image icons if no photo provided
+const PLACEHOLDER = 'data:image/svg+xml;utf8,' + encodeURIComponent(`
+  <svg xmlns="http://www.w3.org/2000/svg" width="800" height="500">
+    <defs><style>.t{fill:#0e1620;opacity:.3;font-family:Arial,sans-serif;font-size:18px}</style></defs>
+    <rect width="100%" height="100%" fill="#eef2f7"/>
+    <rect x="24" y="24" width="752" height="452" rx="16" ry="16" fill="#e6edf5"/>
+    <text x="50%" y="52%" text-anchor="middle" class="t">Фото владельца</text>
+  </svg>
+`);
 
+// Seed — чтобы секция всегда была наполненной, даже без API
 const SEED: Review[] = [
   {
     name: 'Екатерина и кот Мурзик',
     pet: 'Мурзик',
     rating: 5,
-    photo: '/reviews/murzik.jpg',
-    text:
-      'У кота началась рвота, переживали. Врач попросил описать симптомы и прислать фото лотка, за 15 минут разобрались, что критичного нет. Объяснили, когда ехать в клинику, а когда достаточно наблюдать. Это сильно успокоило и сэкономило время.'
+    text: 'У кота началась рвота, мы волновались. Врач попросил описать симптомы и прислать фото лотка — за 15 минут стало понятно, что экстренности нет. Объяснили, когда ехать в клинику, а когда можно наблюдать дома. Очень успокоило.',
   },
   {
     name: 'Антон и пёс Рич',
     pet: 'Рич',
     rating: 5,
-    photo: '/reviews/rich.jpg',
-    text:
-      'Понравилось, что сначала поддержали, потом дали структуру и конкретные шаги (3S). Через двое суток уточнили самочувствие и скорректировали дозу — стало заметно лучше.'
+    text: 'Сначала поддержали, потом дали чёткий план из трёх шагов. Через двое суток спросили про самочувствие и чуть скорректировали дозу — стало заметно лучше.',
   },
   {
     name: 'Марина и Луна',
     pet: 'Луна',
     rating: 4,
-    photo: '/reviews/luna.jpg',
-    text:
-      'Длинный отзыв: у собаки хронические проблемы с кожей, долго не удавалось попасть к дерматологу очно. Решили попробовать онлайн — заранее собрали фото, список препаратов и результаты анализов за полгода. Врач подробно разобрал каждую схему, объяснил, почему часть терапии могла не сработать, и что действительно нужно сдавать, а что можно отложить. Получили понятный пошаговый план ухода, инструкции по контролю, список “красных флагов” и критерии, при которых надо немедленно ехать в клинику. Через неделю стало заметно лучше, продолжаем наблюдение и коррекцию.'
+    text: 'Длинный отзыв: у собаки хронические проблемы с кожей, попасть к дерматологу офлайн не получалось. Попробовали онлайн — заранее собрали фото, список препаратов и результаты анализов за полгода. Врач подробно разобрал каждую схему, объяснил, что действительно важно, а что можно отложить. Получили понятный план ухода, список «красных флагов» и когда точно ехать в клинику. Через пару недель состояние заметно улучшилось.',
   },
   {
     name: 'Сергей и Грета',
     pet: 'Грета',
     rating: 5,
-    photo: '/reviews/dog1.jpg',
-    text: 'Оперативно подсказали дозу обезболивающего и когда нужен рентген. Спасибо!'
+    text: 'Подсказали, как обезболить собаку на выходных и когда нужен рентген. Спасибо!',
   },
   {
     name: 'Ирина и Миша',
     pet: 'Миша',
     rating: 5,
-    photo: '/reviews/cat1.jpg',
-    text: 'Ночью поднялась температура. Помогли стабилизировать состояние и правильно доехать до клиники утром.'
-  },
-  {
-    name: 'Алексей и Бонни',
-    pet: 'Бонни',
-    rating: 5,
-    photo: '/reviews/dog2.jpg',
-    text: 'Подсказали, как обработать ухо и чем заменить капли до осмотра. Всё спокойно и по делу.'
+    text: 'Ночью поднялась температура. Помогли оценить состояние и правильно доехать в клинику утром.',
   },
   {
     name: 'Ольга и Мышь',
     pet: 'джунгарик',
     rating: 4,
-    photo: '/reviews/hamster.jpg',
-    text: 'Даже с хомячком помогли: что смотреть, чем помочь, когда срочно к врачу.'
+    text: 'Даже с хомячком всё объяснили: что смотреть, чем помочь, когда срочно к врачу.',
   },
-  {
-    name: 'Денис и Клёпа',
-    pet: 'волнистик',
-    rating: 5,
-    photo: '/reviews/budgie.jpg',
-    text: 'Птица вялая, перестала есть. Подсказали обогрев, регидратацию и стартовую терапию до осмотра — помогло.'
-  }
 ];
 
 export default function Reviews() {
@@ -93,10 +71,7 @@ export default function Reviews() {
   const [full, setFull] = useState<Review | null>(null);
   const [showForm, setShowForm] = useState(false);
 
-  const trackRef = useRef<HTMLDivElement | null>(null);
-  const [canPrev, setCanPrev] = useState(false);
-  const [canNext, setCanNext] = useState(true);
-
+  // Подмешиваем локальные отзывы и из API
   useEffect(() => {
     (async () => {
       try {
@@ -109,131 +84,61 @@ export default function Reviews() {
           rating: r.rating,
           text: r.text,
           photo: r.photo,
-          createdAt: r.created_at
+          createdAt: r.created_at,
         }));
         const local: Review[] = JSON.parse(localStorage.getItem('onlyvet:reviews') || '[]');
-        const merged = [...local, ...fromApi, ...SEED];
-        setItems(merged);
+        setItems([ ...local, ...fromApi, ...SEED ]);
       } catch {
         setItems(SEED);
       }
-      requestAnimationFrame(() => {
-        if (trackRef.current) {
-          const el = trackRef.current;
-          setCanPrev(el.scrollLeft > 8);
-          setCanNext(el.scrollWidth - el.clientWidth > 8);
-        }
-      });
     })();
   }, []);
 
-  const avg = useMemo(() => {
-    if (!items.length) return 5;
-    const sum = items.reduce((acc, r) => acc + (r.rating || 5), 0);
-    return Math.round((sum / items.length) * 10) / 10;
-  }, [items]);
-
-  const onScroll = () => {
-    if (!trackRef.current) return;
-    const el = trackRef.current;
-    setCanPrev(el.scrollLeft > 8);
-    setCanNext(el.scrollLeft + el.clientWidth < el.scrollWidth - 8);
-  };
-
-  const scroll = (dir: 'left' | 'right') => {
-    if (!trackRef.current) return;
-    const step = 360;
-    trackRef.current.scrollBy({ left: dir === 'left' ? -step : step, behavior: 'smooth' });
-  };
-
-  const onImgError = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    (e.currentTarget as HTMLImageElement).src = FALLBACK_IMG;
-  };
-
   return (
     <section className="container py-16">
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <h2 className="text-3xl font-bold" style={{ color: 'var(--navy)', fontFamily: 'var(--font-montserrat)' }}>
-            Отзывы
-          </h2>
-          <div className="text-sm text-gray-500 flex items-center gap-1">
-            <span className="font-semibold" style={{ color: 'var(--navy)' }}>{avg}</span>
-            <span className="text-xs">/ 5</span>
-            <span className="ml-2"><Stars rating={avg as unknown as number} /></span>
-            <span className="ml-2 opacity-80">· {items.length}</span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-8">
-          <div className="flex items-center gap-8">
-            <button
-              className={`btn ${canPrev ? 'bg-white border border-gray-300' : 'opacity-40 cursor-not-allowed'} rounded-xl px-4`}
-              onClick={() => canPrev && scroll('left')}
-              aria-label="Предыдущие"
-            >
-              ‹
-            </button>
-            <button
-              className={` btn btn-secondary ${!canNext ? 'opacity-40 cursor-not-allowed' : ''}`}
-              onClick={() => canNext && scroll('right')}
-              aria-label="Следующие"
-            >
-              ›
-            </button>
-          </div>
-          <Link href="/reviews" className="btn bg-white border border-gray-300 rounded-xl px-4">Смотреть все</Link>
-          <button className="btn btn-primary" onClick={() => setShowForm(true)}>Написать отзыв</button>
-        </div>
+      <div className="flex items-center justify-between mb-8">
+        <h2 className="text-3xl font-bold" style={{ color: 'var(--navy)', fontFamily: 'var(--font-montserrat)' }}>
+          Отзывы
+        </h2>
+        <button className="btn btn-primary" onClick={() => setShowForm(true)}>Написать отзыв</button>
       </div>
 
-      <div
-        ref={trackRef}
-        onScroll={onScroll}
-        className="no-scrollbar flex gap-6 overflow-x-auto snap-x snap-mandatory"
-        style={{ scrollSnapType: 'x mandatory', scrollbarWidth: 'none' }}
-      >
-        {items.map((r, i) => {
-          const text = r.text || '';
-          const long = text.length > 220;
-          const preview = long ? text.slice(0, 200) + '…' : text;
-
-        return (
-            <article
-              key={r.id ?? `seed-${i}`}
-              className="snap-start min-w-[320px] max-w-[320px] bg-white rounded-2xl shadow-soft p-5 flex flex-col h-[440px]"
-            >
-              <div className="flex items-center justify-between">
-                <div className="font-semibold text-[15px]" style={{ color: 'var(--navy)' }}>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {items.map((r, idx) => {
+          const long = r.text.length > 220;
+          const preview = long ? r.text.slice(0, 200) + '…' : r.text;
+          return (
+            <article key={r.id ?? `seed-${idx}`} className="bg-white rounded-2xl shadow-soft p-6 flex flex-col">
+              <div className="flex items-center justify-between mb-3">
+                <div className="font-semibold" style={{ color: 'var(--navy)' }}>
                   {r.name}
                 </div>
-                <div className="ml-2"><Stars rating={r.rating} /></div>
+                <Stars value={r.rating} />
               </div>
 
-              <div className="mt-3 w-full h-36 rounded-xl overflow-hidden" style={{ background: 'var(--cloud)' }}>
+              <div className="w-full h-40 rounded-xl overflow-hidden mb-3" style={{ background: 'var(--cloud)' }}>
                 <img
-                  src={r.photo || FALLBACK_IMG}
-                  onError={onImgError}
-                  alt={r.pet ? `Фото ${r.pet}` : 'Фото питомца'}
+                  src={r.photo || PLACEHOLDER}
+                  alt={r.pet || 'Фото владельца'}
                   className="w-full h-full object-cover"
                 />
               </div>
 
-              <div className="mt-3 text-sm text-gray-800 flex-1 overflow-hidden">
-                <p className="leading-6">{preview}</p>
-              </div>
+              <p className="text-sm text-gray-800 leading-6">{preview}</p>
 
-              <div className="pt-2">
-                {long && (
+              {long && (
+                <div className="pt-3">
                   <button className="text-teal text-sm" onClick={() => setFull(r)}>
                     Читать полностью
                   </button>
-                )}
-              </div>
+                </div>
+              )}
             </article>
           );
         })}
       </div>
+
+      {showForm && <ReviewModal onClose={() => setShowForm(false)} />}
 
       {full && (
         <ReviewFullModal
@@ -241,12 +146,10 @@ export default function Reviews() {
           pet={full.pet}
           rating={full.rating}
           text={full.text}
-          photo={full.photo}
+          photo={full.photo || PLACEHOLDER}
           onClose={() => setFull(null)}
         />
       )}
-
-      {showForm && <ReviewModal onClose={() => setShowForm(false)} />}
     </section>
   );
 }
