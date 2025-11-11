@@ -11,42 +11,80 @@ export type Review = {
   photos?: string[];
 };
 
-export default function ReviewFullModal({ review, onClose }:{ review: Review; onClose: ()=>void }) {
-  const gallery: string[] = (review.photos && review.photos.length ? review.photos : (review.photo ? [review.photo] : []));
+type Props = { review: Review; onClose: () => void };
+
+export default function ReviewFullModal({ review, onClose }: Props) {
+  const gallery: string[] = Array.isArray(review.photos) && review.photos.length
+    ? review.photos
+    : (review.photo ? [review.photo] : []);
+
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onclose();
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
       if (e.key === 'ArrowRight' && index < (gallery.length - 1)) setIndex(i => i + 1);
       if (e.key === 'ArrowLeft' && index > 0) setIndex(i => i - 1);
     };
-    window.addEventListener('keydown', onKey);
+    window.addEventListener('keydown', handleKey);
     return () => {
       document.body.style.overflow = prev;
-      window.removeEventListener('keydown', onKey);
+      window.removeEventListener('keydown', handleKey);
     };
-  }, [index, gallery.length, onClose]);
+  }, [onClose, index, gallery.length]);
 
   const stop = (e: React.MouseEvent) => e.stopPropagation();
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Полный текст отзыва" onClick={onClose}>
-      <div onClick={stop} className="relative bg white rounded-2xl shadow-2xl w-[92%] max-w-3xl mx-4 p-6">
-        <button className="absolute top-3 right-3 p-2 rounded-full hover:bg-gray-100 focus:outline-none focus:ring" onClick={onClose} aria-label="Закрыть" type="button">
-          <svg width="22" height="22" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2"/></svg>
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Полный текст отзыва"
+      onClick={onClose}
+    >
+      <div
+        onClick={stop}
+        className="relative bg-white rounded-2xl shadow-2xl w-[96%] max-w-3xl mx-4 p-6"
+      >
+        <button
+          className="absolute top-3 right-3 p-shown p-2 rounded-full hover:bg-gray-100 focus:outline-none focus:ring"
+          onClick={onClose}
+          aria-label="Закрыть"
+          type="button"
+        >
+          <svg width="22" height="22" viewBox="0 0 24 24">
+            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2"/>
+          </svg>
         </button>
+
         <div className="flex flex-col md:flex-row gap-4 mb-4">
-          {gallery.length>0 && (
+          {gallery.length > 0 && (
             <div className="w-full md:w-1/3">
               <div className="relative w-full h-48 md:h-64 bg-[var(--cloud)] rounded-lg overflow-hidden">
-                <img src={gallery[index]} alt={review.pet || 'Фото отзыва'} className="w-full h-48 md:h-full object-cover rounded-lg" />
-                {gallery.length>1 && (
+                <img
+                  src={gallery[index]}
+                  alt={review.pet || 'Фото отзыва'}
+                  className="w-full h-48 md:h-full object-cover rounded-lg"
+                />
+                {gallery.length > 1 && (
                   <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between px-2">
-                    <button disabled={index===0} className={`p-2 rounded-full bg-white/80 ${index===0?'opacity-40':'hover:bg-white'}`} onClick={()=>setIndex(i=>Math.max(0,i-1))} aria-label="Назад" type="button">‹</button>
-                    <button disabled={index===gallery.length-1} className={`p-2 rounded-full bg-white/80 ${index===gallery.length-1?'opacity-40':'hover:bg-white'}`} onClick={()=>setIndex(i=>Math.min(i+1,gallery.length-1))} aria-label="Вперёд" type="button">›</button>
+                    <button
+                      disabled={index===0}
+                      className={`p-2 rounded-full bg-white/80 ${index===0 ? 'opacity-40' : 'hover:bg-white'}`}
+                      onClick={() => setIndex(i => Math.max(0, i - 1))}
+                      aria-label="Назад"
+                      type="button"
+                    >‹</button>
+                    <button
+                      disabled={index===(gallery.length-1)}
+                      className={`p-2 rounded-full bg-white/80 ${index===(gallery.length-1) ? 'opacity-40' : 'hover:bg-white'}`}
+                      onClick={() => setIndex(i => Math.min(i + 1, gallery.length - 1))}
+                      aria-label="Вперёд"
+                      type="button"
+                    >›</button>
                   </div>
                 )}
               </div>
@@ -58,7 +96,9 @@ export default function ReviewFullModal({ review, onClose }:{ review: Review; on
             <div className="mt-2 text-sm text-gray-700">Оценка: {review.rating} / 5</div>
           </div>
         </div>
+
         <div className="text-gray-900 leading-7 whitespace-pre-wrap">{review.text}</div>
+
         <div className="mt-6 flex justify-end">
           <button className="btn btn-secondary" onClick={onClose} type="button">Закрыть</button>
         </div>

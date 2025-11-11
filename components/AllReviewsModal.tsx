@@ -14,10 +14,14 @@ export default function AllReviewsModal({
 }) {
   useEffect(() => {
     const prev = document.body.style.overflow;
+    document.body.scrollTop = 0;
     document.body.style.overflow = 'hidden';
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', onKey);
-    return () => { document.body.style.overflow = prev; window.removeEventListener('keydown', onKey); };
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener('keydown', onKey);
+    };
   }, [onClose]);
 
   return (
@@ -36,7 +40,9 @@ export default function AllReviewsModal({
                 <div className="font-semibold text-[var(--navy)]">{r.name}</div>
                 <Stars value={r.rating} />
               </div>
-              {r.photo && <img src={r.photo} alt={r.pet || ''} className="w-full h-40 object-cover rounded-xl mb-3" />}
+              { (r.photos && r.photos[0]) || r.photo ? (
+                <img src={(r.photos && r.photos[0]) || (r.photo as string)} alt={r.pet || ''} className="w-full h-40 object-cover rounded-xl mb-3" />
+              ) : null}
               <p className="text-sm text-gray-800 whitespace-pre-wrap leading-6">{r.text}</p>
               <div className="mt-2">
                 <button className="text-teal text-sm" onClick={()=>onOpenFull(r)} type="button">Читать полностью</button>

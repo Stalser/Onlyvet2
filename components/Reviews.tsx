@@ -27,7 +27,7 @@ export default function Reviews() {
       try {
         const res = await fetch('/api/reviews');
         const payload = res.ok ? await res.json() : { items: [] };
-        const fromApi: Review[] = (payload.items || []).map((r:any)=>({ id:r.id, name:r.name, pet:r.pet, rating:r.rating, text:r.text, photo:r.photo, photos:r.photos, createdAt:r.created_at }));
+        const fromApi: Review[] = (payload.items || []).map((r:any)=> ({ id:r.id, name:r.name, pet:r.pet, rating:r.rating, text:r.text, photo:r.photo, photos:r.photos, createdAt:r.created_at }));
         const local: Review[] = JSON.parse(localStorage.getItem('onlyvet:reviews') || '[]');
         setAll([ ...fromApi, ...local, ...SEED ]);
       } catch {
