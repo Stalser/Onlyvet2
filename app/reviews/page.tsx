@@ -1,13 +1,18 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
 import Stars from '@/components/Stars';
 import ReviewFullModal from '@/components/ReviewFullModal';
 
-type Review = { id?: string; name: string; pet?: string; rating: number; text: string; photo?: string; createdAt?: string };
-
-export const metadata = { title: 'Отзывы — OnlyVet' };
+type Review = {
+  id?: string;
+  name: string;
+  pet?: string;
+  rating: number;
+  text: string;
+  photo?: string;
+  createdAt?: string;
+};
 
 export default function ReviewsPage() {
   const [items, setItems] = useState<Review[]>([]);
@@ -17,9 +22,15 @@ export default function ReviewsPage() {
     (async () => {
       try {
         const res = await fetch('/api/reviews');
-        const payload = res.ok ? payload : { items: [] };
+        const payload = res.ok ? await res.json() : { items: [] };
         const fromApi: Review[] = (payload.items || []).map((r: any) => ({
-          id: r.id, name: r.name, pet: full?.pet, rating: r.rating, text: r.text, photo: r.photo, createdAt: r.created_at
+          id: r.id,
+          name: r.name,
+          pet: r.pet,
+          rating: r.rating,
+          text: r.text,
+          photo: r.photo,
+          createdAt: r.created_at,
         }));
         const local: Review[] = JSON.parse(localStorage.getItem('onlyvet:reviews') || '[]');
         setItems([...local, ...fromApi]);
@@ -31,7 +42,10 @@ export default function ReviewsPage() {
 
   return (
     <section className="container py-16">
-      <h1 className="text-3xl mt-2 mb-6 font-bold" style={{ color: 'var(--navy)', fontFamily: 'var(--font-montserrat)' }}>
+      <h1
+        className="text-3xl mt-2 mb-6 font-bold"
+        style={{ color: 'var(--navy)', fontFamily: 'var(--font-montserrat)' }}
+      >
         Все отзывы
       </h1>
 
@@ -40,10 +54,21 @@ export default function ReviewsPage() {
           <article key={r.id ?? r.name} className="bg-white rounded-2xl shadow-soft p-6 flex flex-col">
             <div className="flex items-center justify-between mb-2">
               <div className="font-semibold">{r.name}</div>
-              <div><Stars rating={r.rating} /></div>
+              <Stars rating={r.rating} />
             </div>
-            {r.photo ? <img src={r.photo} alt={full?.pet || ''} className="w-full h-44 object-cover rounded-xl mb-3" /> : null}
+            {r.photo && (
+              <img
+                src={r.photo}
+                alt={r.pet || ''}
+                className="w-full h-44 object-cover rounded-xl mb-3"
+              />
+            )}
             <p className="text-gray-800 leading-7 whitespace-pre-wrap">{r.text}</p>
+            <div className="mt-2">
+              <button className="text-teal text-sm" onClick={() => setFull(r)}>
+                Читать полностью
+              </button>
+            </div>
           </article>
         ))}
       </div>
@@ -51,7 +76,7 @@ export default function ReviewsPage() {
       {full && (
         <ReviewFullModal
           name={full.name}
-          pet={full?.pet}
+          pet={full.pet}
           rating={full.rating}
           text={full.text}
           photo={full.photo}
