@@ -1,129 +1,252 @@
 
 'use client';
+
 import { useEffect, useMemo, useRef, useState } from 'react';
+import Link from 'next/link';
 import Stars from '@/components/Stars';
 import ReviewModal from '@/components/ReviewModal';
 import ReviewFullModal from '@/components/ReviewFullModal';
 
-type Review = { id?: string; name: string; text: string; pet?: string; rating: number; createdAt?: string; photo?: string };
+type Review = {
+  id?: string;
+  name: string;
+  pet?: string;
+  rating: number;
+  text: string;
+  photo?: string;
+  createdAt?: string;
+};
 
-// SEED: базовые отзывы (с фотографиями), один из них длинный
-const seed: Review[] = [
+const FALLBACK_IMG =
+  'data:image/svg+xml;utf8,' +
+  encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600">
+      <rect width="100%" height="100%" fill="#eef2f7"/>
+      <text x="50%" y="52%" text-anchor="middle" font-family="Arial" font-size="18" fill="#9aa7b0">Фото</text>
+    </svg>`
+  );
+
+const SEED: Review[] = [
   {
     name: 'Екатерина и кот Мурзик',
     pet: 'Мурзик',
     rating: 5,
     photo: '/reviews/murzik.jpg',
-    text: 'У кота началась рвота, переживали. Врач попросил описать симптомы и прислать фото лотка, за 15 минут разобрались, что критичного нет. Объяснили, когда ехать в клинику, а когда достаточно наблюдать. Это сэкономило нервы и время.'
+    text:
+      'У кота началась рвота, переживали. Врач попросил описать симптомы и прислать фото лотка, за 15 минут разобрались, что критичного нет. Объяснили, когда ехать в клинику, а когда достаточно наблюдать. Это сильно успокоило и сэкономило время.'
   },
   {
     name: 'Антон и пёс Рич',
     pet: 'Рич',
     rating: 5,
     photo: '/reviews/rich.jpg',
-    text: 'Понравилось, что сначала поддержали, затем дали структуру и конкретные шаги (3S). Через двое суток уточнили, как самочувствие, скорректировали дозу. Очень аккуратно и по делу.'
+    text:
+      'Понравилось, что сначала поддержали, потом дали структуру и конкретные шаги (3S). Через двое суток уточнили самочувствие и скорректировали дозу — стало заметно лучше.'
   },
   {
     name: 'Марина и Луна',
     pet: 'Луна',
     rating: 4,
     photo: '/reviews/luna.jpg',
-    text: `Длинный отзыв: У собаки хронические проблемы с кожей, долго не могли попасть к дерматологу очно. Решили попробовать онлайн — заранее собрали фото, список препаратов и анализы за последние 6 месяцев. Врач в чате очень подробно разобрал, какие схемы уже были и почему могли не сработать, объяснил, какие “красные флаги” отслеживать, когда потребуется очный приём и какие анализы действительно нужны (а какие можно не сдавать прямо сейчас). После консультации прислали письменную выписку, расписали, какие шаги сделать в ближайшие 72 часа: чем обрабатывать кожу, как корректировать корм, как давать лекарства, на что смотреть в динамике. Через два дня врач сам напомнил и уточнил, как дела, дозу скорректировали с учётом веса. Это очень бережно и профессионально.`
+    text:
+      'Длинный отзыв: у собаки хронические проблемы с кожей, долго не удавалось попасть к дерматологу очно. Решили попробовать онлайн — заранее собрали фото, список препаратов и результаты анализов за полгода. Врач подробно разобрал каждую схему, объяснил, почему часть терапии могла не сработать, и что действительно нужно сдавать, а что можно отложить. Получили понятный пошаговый план ухода, инструкции по контролю, список “красных флагов” и критерии, при которых надо немедленно ехать в клинику. Через неделю стало заметно лучше, продолжаем наблюдение и коррекцию.'
+  },
+  {
+    name: 'Сергей и Грета',
+    pet: 'Грета',
+    rating: 5,
+    photo: '/reviews/dog1.jpg',
+    text: 'Оперативно подсказали дозу обезболивающего и когда нужен рентген. Спасибо!'
+  },
+  {
+    name: 'Ирина и Миша',
+    pet: 'Миша',
+    rating: 5,
+    photo: '/reviews/cat1.jpg',
+    text: 'Ночью поднялась температура. Помогли стабилизировать состояние и правильно доехать до клиники утром.'
+  },
+  {
+    name: 'Алексей и Бонни',
+    pet: 'Бонни',
+    rating: 5,
+    photo: '/reviews/dog2.jpg',
+    text: 'Подсказали, как обработать ухо и чем заменить капли до осмотра. Всё спокойно и по делу.'
+  },
+  {
+    name: 'Ольга и Мышь',
+    pet: 'джунгарик',
+    rating: 4,
+    photo: '/reviews/hamster.jpg',
+    text: 'Даже с хомячком помогли: что смотреть, чем помочь, когда срочно к врачу.'
+  },
+  {
+    name: 'Денис и Клёпа',
+    pet: 'волнистик',
+    rating: 5,
+    photo: '/reviews/budgie.jpg',
+    text: 'Птица вялая, перестала есть. Подсказали обогрев, регидратацию и стартовую терапию до осмотра — помогло.'
   }
 ];
 
 export default function Reviews() {
-  const [open, setOpen] = useState(false);
+  const [items, setItems] = useState<Review[]>(SEED);
   const [full, setFull] = useState<Review | null>(null);
-  const [items, setItems] = useState<Review[]>(seed);
-  const container = useRef<HTMLDivElement>(null);
+  const [showForm, setShowForm] = useState(false);
+
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const [canPrev, setCanPrev] = useState(false);
+  const [canNext, setCanNext] = useState(true);
 
   useEffect(() => {
-    // Подмешиваем одобренные с сервера и локальные (если есть)
-    async function load() {
+    (async () => {
       try {
         const res = await fetch('/api/reviews');
-        if (res.ok) {
-          const data = await res.json();
-          const server: Review[] = (data.items || []).map((r:any)=>({ id: r.id, name: r.name, pet: r.pet || undefined, rating: r.rating, text: r.text, createdAt: r.created_at, photo: r.photo || '' }));
-          const local = JSON.parse(localStorage.getItem('onlyvet:reviews') || '[]');
-          setItems([ ...local, ...server, ...seed ]); // seed всегда как резерв
+        const payload = res.ok ? await res.json() : { items: [] };
+        const fromApi: Review[] = (payload.items || []).map((r: any) => ({
+          id: r.id,
+          name: r.name,
+          pet: r.pet,
+          rating: r.rating,
+          text: r.text,
+          photo: r.photo,
+          createdAt: r.created_at
+        }));
+        const local: Review[] = JSON.parse(localStorage.getItem('onlyvet:reviews') || '[]');
+        const merged = [...local, ...fromApi, ...SEED];
+        setItems(merged);
+      } catch {
+        setItems(SEED);
+      }
+      requestAnimationFrame(() => {
+        if (trackRef.current) {
+          const el = trackRef.current;
+          setCanPrev(el.scrollLeft > 8);
+          setCanNext(el.scrollWidth - el.clientWidth > 8);
         }
-      } catch { /* ignore */ }
-    }
-    load();
+      });
+    })();
   }, []);
 
-  const rating = useMemo(() => {
-    if (!items.length) return { avg: 5, count: 0 };
-    const sum = items.reduce((a, r) => a + (r.rating || 5), 0);
-    const avg = Math.round((sum / items.length) * 10) / 10;
-    return { avg, count: items.length };
+  const avg = useMemo(() => {
+    if (!items.length) return 5;
+    const sum = items.reduce((acc, r) => acc + (r.rating || 5), 0);
+    return Math.round((sum / items.length) * 10) / 10;
   }, [items]);
 
-  function scrollByCards(dir: 'left'|'right') {
-    const el = container.current;
-    if (!el) return;
-    const card = el.querySelector('article') as HTMLElement | null;
-    const step = card ? card.offsetWidth + 24 : 320;
-    el.scrollBy({ left: dir === 'left' ? -step : step, behavior: 'smooth' });
-  }
+  const onScroll = () => {
+    if (!trackRef.current) return;
+    const el = trackRef.current;
+    setCanPrev(el.scrollLeft > 8);
+    setCanNext(el.scrollLeft + el.clientWidth < el.scrollWidth - 8);
+  };
 
-  const fallbackImg = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8Xw8AAp0BqXcM3JwAAAAASUVORK5CYII=';
+  const scroll = (dir: 'left' | 'right') => {
+    if (!trackRef.current) return;
+    const step = 360;
+    trackRef.current.scrollBy({ left: dir === 'left' ? -step : step, behavior: 'smooth' });
+  };
+
+  const onImgError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    (e.currentTarget as HTMLImageElement).src = FALLBACK_IMG;
+  };
 
   return (
     <section className="container py-16">
-      <div className="flex items-end justify-between mb-6">
-        <div>
-          <h2 className="text-3xl font-bold" style={{fontFamily:'var(--font-montserrat)'}}>Отзывы</h2>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <h2 className="text-3xl font-bold" style={{ color: 'var(--navy)', fontFamily: 'var(--font-montserrat)' }}>
+            Отзывы
+          </h2>
+          <div className="text-sm text-gray-500 flex items-center gap-1">
+            <span className="font-semibold" style={{ color: 'var(--navy)' }}>{avg}</span>
+            <span className="text-xs">/ 5</span>
+            <span className="ml-2"><Stars rating={avg as unknown as number} /></span>
+            <span className="ml-2 opacity-80">· {items.length}</span>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <button className="btn bg-white border border-gray-200 rounded-xl px-4 py-2 hover:bg-cloud" onClick={()=>scrollByCards('left')} aria-label="Назад">
-            <svg width="18" height="18" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" fill="none"/></svg>
-          </button>
-          <button className="btn btn-secondary" onClick={()=>scrollByCards('right')} aria-label="Вперёд">
-            <svg width="18" height="18" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke="currentColor" strokeWidth="2" fill="none"/></svg>
-          </button>
-          <button className="btn btn-primary ml-2" onClick={()=>setOpen(true)}>Написать отзыв</button>
+
+        <div className="flex items-center gap-8">
+          <div className="flex items-center gap-8">
+            <button
+              className={`btn ${canPrev ? 'bg-white border border-gray-300' : 'opacity-40 cursor-not-allowed'} rounded-xl px-4`}
+              onClick={() => canPrev && scroll('left')}
+              aria-label="Предыдущие"
+            >
+              ‹
+            </button>
+            <button
+              className={` btn btn-secondary ${!canNext ? 'opacity-40 cursor-not-allowed' : ''}`}
+              onClick={() => canNext && scroll('right')}
+              aria-label="Следующие"
+            >
+              ›
+            </button>
+          </div>
+          <Link href="/reviews" className="btn bg-white border border-gray-300 rounded-xl px-4">Смотреть все</Link>
+          <button className="btn btn-primary" onClick={() => setShowForm(true)}>Написать отзыв</button>
         </div>
       </div>
 
-      <div ref={container} className="flex gap-6 overflow-x-auto pb-2" style={{scrollbarWidth:'none'} as any}>
-        <style>{`.no-scrollbar::-webkit-scrollbar{display:none}`}</style>
+      <div
+        ref={trackRef}
+        onScroll={onScroll}
+        className="no-scrollbar flex gap-6 overflow-x-auto snap-x snap-mandatory"
+        style={{ scrollSnapType: 'x mandatory', scrollbarWidth: 'none' }}
+      >
         {items.map((r, i) => {
-          const long = (r.text || '').length > 200;
-          const short = long ? r.text.slice(0, 200) + '…' : r.text;
-          const img = r.photo || fallbackImg;
-          return (
-            <article key={i} className="card min-w-[280px] max-w-[320px]">
-              <div className="flex items-center justify-between mb-2">
-                <div className="text-coral font-semibold">{r.name}</div>
-                <Stars value={r.rating} />
+          const text = r.text || '';
+          const long = text.length > 220;
+          const preview = long ? text.slice(0, 200) + '…' : text;
+
+        return (
+            <article
+              key={r.id ?? `seed-${i}`}
+              className="snap-start min-w-[320px] max-w-[320px] bg-white rounded-2xl shadow-soft p-5 flex flex-col h-[440px]"
+            >
+              <div className="flex items-center justify-between">
+                <div className="font-semibold text-[15px]" style={{ color: 'var(--navy)' }}>
+                  {r.name}
+                </div>
+                <div className="ml-2"><Stars rating={r.rating} /></div>
               </div>
-              <img src={img} alt="" className="rounded-xl mb-2 w-full h-36 object-cover bg-cloud" />
-              <p className="opacity-90 text-sm whitespace-pre-wrap">{short}</p>
-              <div className="mt-2 flex justify-between items-center">
-                {long ? <button className="text-teal text-sm" onClick={()=>setFull(r)}>Читать полностью</button> : <span />}
+
+              <div className="mt-3 w-full h-36 rounded-xl overflow-hidden" style={{ background: 'var(--cloud)' }}>
+                <img
+                  src={r.photo || FALLBACK_IMG}
+                  onError={onImgError}
+                  alt={r.pet ? `Фото ${r.pet}` : 'Фото питомца'}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              <div className="mt-3 text-sm text-gray-800 flex-1 overflow-hidden">
+                <p className="leading-6">{preview}</p>
+              </div>
+
+              <div className="pt-2">
+                {long && (
+                  <button className="text-teal text-sm" onClick={() => setFull(r)}>
+                    Читать полностью
+                  </button>
+                )}
               </div>
             </article>
           );
         })}
       </div>
 
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "AggregateRating",
-          "itemReviewed": { "@type": "Organization", "name": "OnlyVet" },
-          "ratingValue": rating.avg || 5,
-          "bestRating": 5,
-          "ratingCount": rating.count || 0
-        }) }}
-      />
+      {full && (
+        <ReviewFullModal
+          name={full.name}
+          pet={full.pet}
+          rating={full.rating}
+          text={full.text}
+          photo={full.photo}
+          onClose={() => setFull(null)}
+        />
+      )}
 
-      {open && <ReviewModal onClose={()=>setOpen(false)} />}
-      {full && <ReviewFullModal name={full.name} text={full.text} rating={full.rating} pet={full.pet} photo={full.photo} onClose={()=>setFull(null)} />}
+      {showForm && <ReviewModal onClose={() => setShowForm(false)} />}
     </section>
   );
 }
