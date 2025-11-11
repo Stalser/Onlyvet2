@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-// Предотвращаем попытку пререндеринга и CSR‑bailout ошибки
 export const dynamic = 'force-dynamic';
 
 export default function LoginPage() {
@@ -13,7 +12,6 @@ export default function LoginPage() {
   const [msg, setMsg] = useState('');
   const router = useRouter();
 
-  // Вместо useSearchParams() — читаем query через window.location (без Suspense)
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const qs = new URLSearchParams(window.location.search);
@@ -32,7 +30,7 @@ export default function LoginPage() {
     const data = await res.json();
     if (res.ok) {
       setSent(true);
-      setMsg(\`Код отправлен на \${email}\${data.code ? \` (dev: \${data.code})\` : ''}\`);
+      setMsg(`Код отправлен на ${email}${data.code ? ` (dev: ${data.code})` : ''}`);
     } else setMsg(data?.error || 'Не удалось отправить код');
   }
 
