@@ -30,7 +30,7 @@ export default function Socials() {
       sr: 'Открыть Одноклассники',
       icon: (
         <svg viewBox="0 0 24 24" aria-hidden width="22" height="22">
-          <path fill="currentColor" d="M12 3.5a3.5 3.5 0 110 7 3.5 3.5 0 010-7zm0 9c2.1 0 4-.6 5.6-1.7.5-.3.6-.9.3-1.4s-.9-.6-1.4-.3A7.7 7.7 0 0112 10a7.7 7.7 0 01-4.5-1.9c-.5-.3-1.1-.2-1.4.3s-.2 1.1.3 1.4A9.5 9.5 0 0012 12.5zm3.3 2.1c-.4-.5-1-.5-1.5-.1-.6.5-1.4.9-1.9 1.1-.5-.2-1.3-.6-1.9-1.1-.5-.4-1.1-.4-1.5.1s-.3 1.1.2 1.5c.7.6 1.6 1 2.2 1.3-.4.4-1 .9-1.6 1.5-.5.5-.5 1.1 0 1.6.4.4 1.1.4 1.6 0 .5-.6 1.1-1.2 1.5-1.6.5.4 1 .9 1.6 1.6.5.4 1.2.4 1.6 0 .4-.5.4-1.1 0-1.6a27 27 0 01-1.6-1.5c.6-.3 1.5-.7 2.2-1.3.5-.4.6-1 .1-1.5z"/>
+          <path fill="currentColor" d="M12 3.5a3.5 3.5 0 110 7 3.5 3.5 0 010-7zm0 9c2.1 0 4-.6 5.6-1.7.5-.3.6-.9.3-1.4s-.9-.6-1.4-.3A7.7 7.7 0 0112 10a7.7 7.7 0 01-4.5-1.9c-.5-.3-1.1-.2-1.4.3s-.2 1.1.3 1.4A9.5 9.5 0 0012 12.5zm3.3 2.1c-.4-.5-1-.5-1.5-.1-.6.5-1.4.9-1.9 1.1-.5-.2-1.3-.6-1.9-1.1-.5-.4-1.1-.4-1.5.1s-.3 1.1.2 1.5c.7.6 1.6 1 2.2 1.3-.4.4-1 .9-1.6 1.5-.5.5-.5 1.1 0 1.6.4.4 1.1.4 1.6 0 .5-.6 1.1-1.2 1.5-1.6.5.4 1 .9 1.6 1.6.5.4 1.2.4 1.6 0 .4-.5.4-1.1 0-1.6a27 27 0 01-1.6-1.5c.6-.3 1.5-.7 2.2-1....
         </svg>
       ),
     },
@@ -47,8 +47,8 @@ export default function Socials() {
   ];
 
   return (
-    <section className="container py-12">
-      <h2 className="text-2xl font-bold mb-4" style={{ fontFamily: 'var(--font-montserrat)', color: 'var(--navy)' }}>
+    <section className="container py-16">
+      <h2 className="text-3xl font-bold mb-6" style={{ fontFamily: 'var(--font-montserrat)', color: 'var(--navy)' }}>
         Мы в социальных сетях
       </h2>
 
@@ -62,7 +62,7 @@ export default function Socials() {
             aria-label={l.sr}
             className="card flex items-center gap-3 hover:shadow-lg transition"
           >
-            <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[var(--cloud)] text-[var(--navy)]">
+            <span className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[var(--cloud)] text-[var(--navy)]">
               {l.icon}
             </span>
             <span className="font-semibold">{l.label}</span>
