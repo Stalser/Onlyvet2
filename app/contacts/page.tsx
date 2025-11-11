@@ -66,7 +66,7 @@ export default function ContactsPage() {
         <div className="card">
           <div className="text-lg font-semibold mb-3">Мы онлайн</div>
           <div className="rounded-xl bg-[var(--cloud)] h-64 flex items-center justify-center text-sm opacity-70">
-            Мы работаем удалённо по всей стране
+            Работаем удалённо по всей стране
           </div>
           <div className="text-xs opacity-70 mt-2">
             В экстренных случаях мы подскажем ближайшую офлайн-клинику-партнёра.
