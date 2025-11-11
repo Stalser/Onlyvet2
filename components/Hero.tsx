@@ -2,6 +2,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 export default function Hero() {
+  const stats = [
+    { t: 'Ответ врача', v: '10–15 мин' },
+    { t: 'Формат', v: 'Чат / Видео' },
+    { t: 'Интеграция', v: 'Vetmanager' },
+  ];
   return (
     <section className="bg-white">
       <div className="container grid md:grid-cols-2 gap-10 items-center py-16">
@@ -17,11 +22,14 @@ export default function Hero() {
             <a href="#advantages" className="btn btn-secondary">Как это работает</a>
             <Link href="/red-flags" className="btn bg-white border border-gray-200 rounded-xl px-5 py-3 hover:bg-cloud">Красные флаги</Link>
           </div>
-          <ul className="mt-6 text-sm space-y-1 opacity-80">
-            <li>• Без стресса для питомца и дороги</li>
-            <li>• Подсказываем, когда нужен офлайн‑осмотр</li>
-            <li>• Выписка и план контроля после консультации</li>
-          </ul>
+          <div className="grid grid-cols-3 gap-3 mt-8">
+            {stats.map((s) => (
+              <div key={s.t} className="rounded-2xl border border-gray-200 p-4">
+                <div className="text-xs opacity-70">{s.t}</div>
+                <div className="text-sm font-semibold mt-1">{s.v}</div>
+              </div>
+            ))}
+          </div>
         </div>
         <div className="relative">
           <div className="absolute -inset-6 bg-teal/10 rounded-2xl -rotate-1" aria-hidden="true"></div>

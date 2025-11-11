@@ -1,9 +1,13 @@
 export const metadata = { title: 'Цены — OnlyVet' };
+
 const items = [
-  { name: 'Чат-консультация (до 30 мин)', price: '900 ₽', desc: 'Первая помощь, маршрутизация, проверка анализов.' },
-  { name: 'Видео-консультация (30 мин)', price: '1 500 ₽', desc: 'Разбор сложных случаев, план действий.' },
+  { name: 'Чат‑консультация (до 30 мин)', price: '900 ₽', desc: 'Первая помощь, маршрутизация, проверка анализов.' },
+  { name: 'Видео‑консультация (30 мин)', price: '1 500 ₽', desc: 'Разбор сложных случаев, план действий.' },
   { name: 'Повторный контроль', price: '700 ₽', desc: 'Краткая коррекция терапии, ответы на вопросы.' },
+  { name: 'Срочный триаж', price: '1 200 ₽', desc: 'Быстрая оценка симптомов и красных флагов, план ближайших часов.' },
+  { name: 'Второе мнение', price: '1 900 ₽', desc: 'Независимая оценка плана/анализов, рекомендации.' },
 ];
+
 export default function PricingPage() {
   return (
     <section className="container py-16">
@@ -14,6 +18,7 @@ export default function PricingPage() {
             <div className="font-semibold">{i.name}</div>
             <div className="text-2xl font-bold mt-2">{i.price}</div>
             <div className="opacity-80 text-sm mt-2">{i.desc}</div>
+            <a href="/booking" className="btn btn-primary mt-4 inline-flex">Записаться</a>
           </div>
         ))}
       </div>
