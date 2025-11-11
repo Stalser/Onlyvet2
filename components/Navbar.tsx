@@ -12,7 +12,7 @@ export default function Navbar() {
       <Link href="/knowledge">База знаний</Link>
       <Link href="/red-flags">Красные флаги</Link>
       <Link href="#faq">FAQ</Link>
-      <Link href="#feedback">Контакты</Link>
+      <Link href="/contacts">Контакты</Link>
       <Link href="/account">Личный кабинет</Link>
       <Link href="/booking" className="btn btn-primary">Записаться</Link>
     </>
