@@ -29,9 +29,7 @@ export default function Reviews() {
       try {
         const res = await fetch('/api/reviews');
         const payload = res.ok ? await res.json() : { items: [] };
-        const fromApi: Review[] = (payload.items || []).map((r:any)=>({
-          id:r.id, name:r.name, pet:r.pet, rating:r.rating, text:r.text, photo:r.photo, photos:r.photos, createdAt:r.created_at
-        }));
+        const fromApi: Review[] = (payload.items || []).map((r:any)=>({ id:r.id, name:r.name, pet:r.pet, rating:r.rating, text:r.text, photo:r.photo, photos:r.photos, createdAt:r.created_at }));
         const local: Review[] = JSON.parse(localStorage.getItem('onlyvet:reviews') || '[]');
         setAll([ ...fromApi, ...local, ...SEED ]);
       } catch {
@@ -41,7 +39,7 @@ export default function Reviews() {
   }, []);
 
   const total = all.length;
-  const displayCount = total > 99 ? '99+' : String(total);
+  const countLabel = total > 99 ? '99+' : String(total);
   const list = all.slice(0, LIMIT);
 
   return (
@@ -52,7 +50,7 @@ export default function Reviews() {
         </h2>
         <div className="flex items-center gap-3">
           <button className="btn bg-white border border-gray-300 rounded-xl px-4" onClick={()=>setShowAll(true)}>
-            Все отзывы ({displayCount})
+            Все отзывы ({countLabel})
           </button>
           <button className="btn btn-primary" onClick={()=>setShowForm(true)}>Написать отзыв</button>
         </div>
@@ -75,24 +73,22 @@ export default function Reviews() {
         })}
       </div>
 
-      {showForm && <ReviewModal onClose={()=>setShowForm(false)} />}
-
-      {/* full modal on top, All modal stays open behind if active */}
       {showAll && (
         <AllReviewsModal
           items={all}
           onClose={()=>setShowAll(false)}
-          onOpenFull={(r)=>{ setFull(r); /* НЕ закрываем showAll */ }}
+          onOpenFull={(r)=>{ setFull(r); }}
         />
       )}
 
       {full && (
         <ReviewFullModal
-          name={full.name} pet={full.pet} rating={full.rating}
-          text={full.text} photo={full.photo} photos={full.photos}
-          onClose={()=>setFull(null)}  // ← закрываем ТОЛЬКО фулл, окно всех отзывов остаётся
+          review={full}
+          onClose={()=>setFull(null)}
         />
       )}
+
+      {showAll ? null : (showForm && <ReviewModal onClose={()=>setShowForm(false)} />)}
     </section>
   );
 }
