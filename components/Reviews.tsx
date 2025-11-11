@@ -1,11 +1,11 @@
 'use client';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Stars from '@/components/Stars';
 import ReviewModal from '@/components/ReviewModal';
 import ReviewFullModal from '@/components/ReviewFullModal';
 import AllReviewsModal from '@/components/AllReviewsModal';
 
-type Review = { id?: string; name: string; pet?: string; rating: number; text: string; photo?: string; createdAt?: string };
+type Review = { id?: string; name: string; pet?: string; rating: number; text: string; photo?: string; photos?: string[]; createdAt?: string };
 
 const SEED: Review[] = [
   { name:'Екатерина и кот Мурзик', pet:'Мурзик', rating:5, text:'У кота началась рвота... объяснили, когда ехать в клинику, а когда наблюдать дома — это успокоило и сэкономило время.' },
@@ -13,8 +13,7 @@ const SEED: Review[] = [
   { name:'Марина и Луна', pet:'Луна', rating:4, text:'Длинный отзыв: хроническая дерматология... подробный план ухода, критерии «красных флагов», стало лучше через пару недель.' },
   { name:'Сергей и Грета', pet:'Грета', rating:5, text:'Подсказали дозу обезболивающего и когда нужен рентген. Спасибо!' },
   { name:'Ирина и Миша', pet:'Миша', rating:5, text:'Ночью поднялась температура, помогли стабилизировать состояние до визита утром.' },
-  { name:'Ольга и Мышь', pet:'джунгарик', rating:4, text:'Даже с хомячком: что смотреть, чем помочь, когда срочно к врачу.' },
-  { name:'Денис и Клёпа', pet:'волнистик', rating:5, text:'Птица вялая, подсказали обогрев/регидратацию, составили план — помогло.' }
+  { name:'Ольга и Мышь', pet:'джунгарик', rating:4, text:'Даже с хомячком: что смотреть, чем помочь, когда срочно к врачу.' }
 ];
 
 const LIMIT = 6;
@@ -30,7 +29,9 @@ export default function Reviews() {
       try {
         const res = await fetch('/api/reviews');
         const payload = res.ok ? await res.json() : { items: [] };
-        const fromApi: Review[] = (payload.items || []).map((r:any)=>({ id:r.id, name:r.name, pet:r.pet, rating:r.rating, text:r.text, photo:r.photo, createdAt:r.created_at }));
+        const fromApi: Review[] = (payload.items || []).map((r:any)=>({
+          id:r.id, name:r.name, pet:r.pet, rating:r.rating, text:r.text, photo:r.photo, photos:r.photos, createdAt:r.created_at
+        }));
         const local: Review[] = JSON.parse(localStorage.getItem('onlyvet:reviews') || '[]');
         setAll([ ...fromApi, ...local, ...SEED ]);
       } catch {
@@ -76,9 +77,22 @@ export default function Reviews() {
 
       {showForm && <ReviewModal onClose={()=>setShowForm(false)} />}
 
-      {full && <ReviewFullModal name={full.name} pet={full.pet} rating={full.rating} text={full.text} photo={full.photo} onClose={()=>setFull(null)} />}
+      {/* full modal on top, All modal stays open behind if active */}
+      {showAll && (
+        <AllReviewsModal
+          items={all}
+          onClose={()=>setShowAll(false)}
+          onOpenFull={(r)=>{ setFull(r); /* НЕ закрываем showAll */ }}
+        />
+      )}
 
-      {showAll && <AllReviewsModal items={all} onClose={()=>setShowAll(false)} onOpenFull={(r)=>{ setShowAll(false); setFull(r); }} />}
+      {full && (
+        <ReviewFullModal
+          name={full.name} pet={full.pet} rating={full.rating}
+          text={full.text} photo={full.photo} photos={full.photos}
+          onClose={()=>setFull(null)}  // ← закрываем ТОЛЬКО фулл, окно всех отзывов остаётся
+        />
+      )}
     </section>
   );
 }
