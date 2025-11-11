@@ -1,28 +1,25 @@
+// app/reviews/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
 import Stars from '@/components/Stars';
-import ReviewFullModal from '@/components/ReviewFullModal';
-
-type Review = {
-  id?: string;
-  name: string;
-  pet?: string;
-  rating: number;
-  text: string;
-  photo?: string;
-  createdAt?: string;
-};
+import ReviewFullModal, { Review } from '@/components/ReviewFullModal';
 
 export default function ReviewsPage() {
   const [items, setItems] = useState<Review[]>([]);
   const [full, setFull] = useState<Review | null>(null);
 
+  const SEED: Review[] = [
+    { name:'Екатерина и кот Мурзик', pet:'Мурзик', rating:5, text:'У кота началась рвота... объяснили, когда ехать в клинику, а когда наблюдать дома — это успокоило и сэкономило время.' },
+    { name:'Антон и пёс Рич', pet:'Рич', rating:5, text:'Поддержка → структура → план. Через двое суток уточнили самочувствие и скорректировали дозу — стало лучше.' },
+    { name:'Марина и Луна', pet:'Луна', rating:4, text:'Длинный отзыв: хроническая дерматология... подробный план ухода, критерии «красных флагов», стало лучше через пару недель.' }
+  ];
+
   useEffect(() => {
     (async () => {
       try {
         const res = await fetch('/api/reviews');
-        const payload = res.ok ? await res.json() : { items: [] };
+        const payload = res.ok ? await res.json() : { items: [] as any[] };
         const fromApi: Review[] = (payload.items || []).map((r: any) => ({
           id: r.id,
           name: r.name,
@@ -30,42 +27,39 @@ export default function ReviewsPage() {
           rating: r.rating,
           text: r.text,
           photo: r.photo,
-          createdAt: r.created_at,
+          photos: r.photos,
+          createdAt: r.created_at
         }));
-        const local: Review[] = JSON.parse(localStorage.getItem('onlyvet:reviews') || '[]');
-        setItems([...local, ...fromApi]);
+        setItems(fromApi.length ? fromApi : SEED);
       } catch {
-        setItems([]);
+        setItems(SEED);
       }
     })();
   }, []);
 
+  const cover = (r: Review) => (r.photos && r.photos.length ? r.photos[0] : (r.photo || ''));
+
   return (
     <section className="container py-16">
-      <h1
-        className="text-3xl mt-2 mb-6 font-bold"
-        style={{ color: 'var(--navy)', fontFamily: 'var(--font-montserrat)' }}
-      >
-        Все отзывы
-      </h1>
+      <h1 className="text-3xl font-bold mb-6" style={{ color:'var(--navy)' }}>Все отзывы</h1>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {items.map((r) => (
-          <article key={r.id ?? r.name} className="bg-white rounded-2xl shadow-soft p-6 flex flex-col">
+        {items.map((r, i) => (
+          <article key={r.id ?? `rev-${i}`} className="bg-white rounded-2xl shadow-soft p-5 flex flex-col">
             <div className="flex items-center justify-between mb-2">
-              <div className="font-semibold">{r.name}</div>
+              <div className="font-semibold text-[var(--navy)]">{r.name}</div>
               <Stars value={r.rating} />
             </div>
-            {r.photo && (
+            {cover(r) && (
               <img
-                src={r.photo}
+                src={cover(r)}
                 alt={r.pet || ''}
-                className="w-full h-44 object-cover rounded-xl mb-3"
+                className="w-full h-40 object-cover rounded-xl mb-3"
               />
             )}
-            <p className="text-gray-800 leading-7 whitespace-pre-wrap">{r.text}</p>
+            <p className="text-sm text-gray-800 whitespace-pre-wrap leading-6">{r.text}</p>
             <div className="mt-2">
-              <button className="text-teal text-sm" onClick={() => setFull(r)}>
+              <button className="text-teal text-sm" type="button" onClick={() => setFull(r)}>
                 Читать полностью
               </button>
             </div>
@@ -75,11 +69,7 @@ export default function ReviewsPage() {
 
       {full && (
         <ReviewFullModal
-          name={full.name}
-          pet={full.pet}
-          rating={full.rating}
-          text={full.text}
-          photo={full.photo}
+          review={full}
           onClose={() => setFull(null)}
         />
       )}
