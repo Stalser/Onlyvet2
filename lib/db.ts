@@ -1,10 +1,10 @@
 // lib/db.ts
-// Lazy 'pg' import: works without pg at build-time. If DATABASE_URL is set and 'pg' installed, uses Postgres.
+// Lazy 'pg' import. Works even without 'pg' at build-time.
 declare global { var __onlyvet_pool: any | undefined; }
 
 export function getPool(): any | null {
   const url = process.env.DATABASE_URL || process.env.POSTGRES_URL || '';
-  if (!url) return null; // demo mode
+  if (!url) return null;
   try {
     if (!globalThis.__onlyvet_pool) {
       const req: any = eval('require');
@@ -16,7 +16,7 @@ export function getPool(): any | null {
     }
     return globalThis.__onlyvet_pool;
   } catch {
-    return null; // demo mode if pg not available
+    return null;
   }
 }
 
@@ -27,7 +27,8 @@ export async function ensureTables() {
     create table if not exists users (
       id serial primary key,
       email text unique not null,
-      name text,
+      full_name text,
+      phone text,
       created_at timestamptz default now()
     );
     create table if not exists auth_codes (
