@@ -1,66 +1,79 @@
+// app/account/page.tsx
 'use client';
 import { useEffect, useState } from 'react';
+import AccountNav from '@/components/AccountNav';
+import PetForm from '@/components/PetForm';
+import { loadAccount, saveAccount, newId, User, Pet, Consultation } from '@/lib/account';
 
-type Booking = {
-  ownerName: string; email: string; phone: string;
-  petName: string; petType: string;
-  specialty: string; doctorId: string; date: string; time: string; notes?: string;
-};
+export default function AccountPage(){
+  const [user,setUser]=useState<User|undefined>();
+  const [pets,setPets]=useState<Pet[]>([]);
+  const [consultations,setConsultations]=useState<Consultation[]>([]);
 
-export default function AccountPage() {
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  useEffect(() => {
-    const raw = localStorage.getItem('onlyvet:lastBooking');
-    const arr = raw ? [JSON.parse(raw)] : [];
-    setBookings(arr);
-  }, []);
+  useEffect(()=>{
+    const acc = loadAccount();
+    setUser(acc.user); setPets(acc.pets); setConsultations(acc.consultations);
+  },[]);
 
-  function printSummary(b: Booking) {
-    const w = window.open('', '_blank');
-    if (!w) return;
-    w.document.write(`
-      <html><head><title>Выписка OnlyVet</title>
-      <style>
-        body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif;padding:40px;color:#1E2B3C}
-        h1{font-size:22px;margin:0 0 10px}
-        .box{border:1px solid #e5e7eb;border-radius:16px;padding:16px;margin:12px 0;background:#fff}
-        small{color:#6b7280}
-      </style></head><body>
-      <h1>Выписка консультации</h1>
-      <div class="box">
-        <div><b>Питомец:</b> ${b.petName} (${b.petType})</div>
-        <div><b>Специальность:</b> ${b.specialty}</div>
-        <div><b>Дата и время:</b> ${b.date} ${b.time}</div>
-        <div><b>Владелец:</b> ${b.ownerName} — ${b.phone} — ${b.email}</div>
-        ${b.notes ? `<div><b>Заметки:</b> ${b.notes}</div>` : ''}
-      </div>
-      <p><small>OnlyVet — мы рядом, даже когда врач далеко.</small></p>
-      </body></html>
-    `);
-    w.document.close(); w.focus(); w.print();
+  function addPet(p:Pet){
+    const next = { user, pets:[...pets, p], consultations };
+    saveAccount(next); setPets(next.pets);
   }
 
   return (
     <section className="container py-16">
-      <h1 className="text-3xl font-bold mb-6" style={{fontFamily:'var(--font-montserrat)'}}>Личный кабинет</h1>
-      {bookings.length === 0 ? (
-        <div className="card">У вас пока нет записей.</div>
-      ) : (
-        <div className="grid gap-4">
-          {bookings.map((b, i) => (
-            <div key={i} className="card flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div className="text-sm opacity-90">
-                <div><b>{b.petName}</b> — {b.specialty}</div>
-                <div>{b.date} {b.time}</div>
-              </div>
-              <div className="flex gap-3">
-                <button className="btn btn-secondary" onClick={() => printSummary(b)}>Печать/PDF</button>
-                <a className="btn btn-primary" href="/booking">Повторить запись</a>
-              </div>
+      <AccountNav current="/account"/>
+      <div className="grid lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 card">
+          <h2 className="text-xl font-semibold mb-4">Профиль</h2>
+          {user ? (
+            <div className="text-sm opacity-90">
+              <div><b>Имя:</b> {user.name}</div>
+              <div><b>Email:</b> {user.email}</div>
+              <p className="text-xs opacity-70 mt-2">Демо-режим: данные хранятся локально в вашем браузере.</p>
             </div>
-          ))}
+          ) : (
+            <p className="text-sm opacity-80">Вы не авторизованы. Перейдите на /auth/register или /auth/login.</p>
+          )}
         </div>
-      )}
+
+        <div className="card">
+          <h2 className="text-xl font-semibold mb-4" id="pets">Добавить питомца</h2>
+          <PetForm onSave={addPet}/>
+        </div>
+      </div>
+
+      <div className="grid lg:grid-cols-2 gap-6 mt-6">
+        <div className="card">
+          <h3 className="text-lg font-semibold mb-3">Мои питомцы</h3>
+          {pets.length===0 ? <p className="text-sm opacity-80">Пока нет питомцев.</p> :
+            <ul className="grid gap-3">
+              {pets.map(p=> (
+                <li key={p.id} className="rounded-xl border p-3">
+                  <div className="font-medium">{p.name} — {p.species}</div>
+                  <div className="text-xs opacity-70">{p.sex || 'пол не указан'}{p.birth ? ` · рожд. ${p.birth}` : ''}</div>
+                  {p.notes && <div className="text-sm opacity-80 mt-1">{p.notes}</div>}
+                </li>
+              ))}
+            </ul>
+          }
+        </div>
+
+        <div className="card">
+          <h3 className="text-lg font-semibold mb-3" id="consultations">История консультаций</h3>
+          {consultations.length===0 ? <p className="text-sm opacity-80">История пока пустая.</p> :
+            <ul className="grid gap-3">
+              {consultations.map(c=> (
+                <li key={c.id} className="rounded-xl border p-3">
+                  <div className="font-medium">{c.date} — {c.service || 'консультация'} {c.doctorName ? `· ${c.doctorName}` : ''}</div>
+                  {c.summary && <div className="text-sm mt-1">{c.summary}</div>}
+                  {c.recommendations && <div className="text-xs opacity-70 mt-1">Рекомендации: {c.recommendations}</div>}
+                </li>
+              ))}
+            </ul>
+          }
+        </div>
+      </div>
     </section>
   );
 }
