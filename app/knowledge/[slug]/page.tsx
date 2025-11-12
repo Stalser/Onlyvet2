@@ -76,15 +76,14 @@ export default function ArticlePage({ params }:{ params:{slug:string} }){
 
         <h1 className="kb-title">{art.title}</h1>
 
+        {/* теги (без правого верхнего CTA) */}
         <div className="kb-meta">
           <div className="kb-tags">
             {art.tags?.map(t => <span key={t} className="kb-tag">#{t}</span>)}
           </div>
-          <div className="grow" />
-          <Link href="/booking" className="kb-cta">Записаться на консультацию</Link>
         </div>
 
-        {/* HERO: image left, sticky/collapsible TOC right */}
+        {/* HERO: фото слева, оглавление справа, оглавление скроллится если нужно */}
         <div className="kb-hero">
           <figure className="kb-hero-figure">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -92,7 +91,6 @@ export default function ArticlePage({ params }:{ params:{slug:string} }){
             {art.images?.[0]?.caption && <figcaption className="kb-hero-caption">{art.images?.[0]?.caption}</figcaption>}
           </figure>
 
-          {/* Desktop sticky panel */}
           <nav className="kb-toc-panel">
             <div className="kb-toc-title">Содержание</div>
             <ul>
@@ -105,7 +103,7 @@ export default function ArticlePage({ params }:{ params:{slug:string} }){
           </nav>
         </div>
 
-        {/* Mobile collapsible TOC */}
+        {/* collapsible TOC for mobile */}
         <details className="kb-toc-collapsible">
           <summary>Содержание</summary>
           <div className="toc-body">
@@ -119,16 +117,18 @@ export default function ArticlePage({ params }:{ params:{slug:string} }){
           </div>
         </details>
 
-        {/* main body below hero */}
+        {/* Контент статьи ниже */}
         <ArticleBody parts={htmlParts} images={art.images || []} />
 
         <ShareBar title={art.title} />
 
-        <div className="kb-bottom" style={{marginTop:'12px'}}>
+        {/* CTA только внизу */}
+        <div className="kb-bottom">
           <Link href="/booking" className="kb-cta">Записаться на консультацию</Link>
           <Link href="/knowledge" className="kb-back">К списку статей</Link>
         </div>
 
+        {/* Похожие статьи */}
         <div className="kb-related">
           <div className="kb-related-title">Похожие статьи</div>
           <div className="kb-related-grid">
