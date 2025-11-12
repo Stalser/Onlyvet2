@@ -1,3 +1,4 @@
+// app/knowledge/[slug]/page.tsx
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { articles } from '@/lib/articles';
@@ -60,20 +61,16 @@ export default function ArticlePage({ params }:{ params:{ slug:string } }){
           {art.tags?.map(t => <span key={t} className={s.tag}>#{t}</span>)}
         </div>
 
-        {/* Фото слева (узкое) */}
-        <div className={s.hero}>
+        {/* Фото слева + TOC справа */}
+        <div className={s.heroRow}>
           <figure className={s.figure}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={cover} alt={art.title} className={s.img} />
           </figure>
-        </div>
-
-        {/* Оглавление на всю ширину под фото, со скроллом внутри */}
-        <div className={s.tocFull}>
-          <div className={s.tocTitle}>Содержание</div>
-          <div className={s.tocBody}>
+          <nav className={s.tocSide}>
+            <div className={s.tocTitle}>Содержание</div>
             <TOC items={items} className={s.tocList} />
-          </div>
+          </nav>
         </div>
 
         {/* Текст — белая карточка */}
