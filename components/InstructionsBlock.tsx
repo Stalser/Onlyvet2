@@ -5,71 +5,33 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 const items = [
-  {
-    id: 'contact',
-    title: 'Как с нами связаться',
-    img: '/instructions/contact.svg',
-    bullets: [
-      'Нажмите «Записаться» — укажите контакт и кратко опишите ситуацию.',
-      'Или напишите нам в Telegram/VK (кнопки в шапке).',
-      'Экстренно? При угрозе жизни — сразу в клинику.'
-    ],
-    cta: { label: 'Связаться', href: '/booking' }
-  },
-  {
-    id: 'register',
-    title: 'Регистрация/вход',
-    img: '/instructions/register.svg',
-    bullets: [
-      'Откройте «Войти», введите e‑mail и код из письма.',
-      'В кабинете добавьте питомца: порода, вес, возраст.'
-    ],
-    cta: { label: 'Войти', href: '/auth/login' }
-  },
-  {
-    id: 'payment',
-    title: 'Оплата',
-    img: '/instructions/payment.svg',
-    bullets: [
-      'Стоимость видна при выборе услуги и врача.',
-      'Оплата картой/СБП, чек — на e‑mail.',
-      'Переносы/возвраты — по правилам клиники.'
-    ],
-    cta: { label: 'Оплатить при записи', href: '/booking' }
-  },
-  {
-    id: 'booking',
-    title: 'Запись на консультацию',
-    img: '/instructions/booking.svg',
-    bullets: [
-      'Выберите формат: чат или видео.',
-      'Загрузите фото/анализы — так быстрее и точнее.',
-      'За 5–10 минут до старта придёт напоминание.'
-    ],
-    cta: { label: 'Записаться', href: '/booking' }
-  },
-  {
-    id: 'prepare',
-    title: 'Подготовка к онлайн‑приёму',
-    img: '/instructions/prepare.svg',
-    bullets: [
-      'Фото области проблемы + общего вида при свете.',
-      'Замерьте температуру, вес, ЧДД (если можно).',
-      'Подготовьте список лекарств/доз.'
-    ],
-    cta: { label: 'Чек‑лист', href: '/instructions#prepare' }
-  },
-  {
-    id: 'after',
-    title: 'После консультации',
-    img: '/instructions/after.svg',
-    bullets: [
-      'Вы получите план в PDF и в кабинете.',
-      'Чат открыт 24–48 часов для уточнений.',
-      'При ухудшении — действуйте по «красным флагам».'
-    ],
-    cta: { label: 'Личный кабинет', href: '/account' }
-  }
+  { id: 'contact', title: 'Как с нами связаться', img: '/instructions/contact.svg',
+    bullets: ['Нажмите «Записаться» — укажите контакт и кратко опишите ситуацию.',
+              'Или напишите нам в Telegram/VK (кнопки в шапке).',
+              'Экстренно? При угрозе жизни — сразу в клинику.'],
+    cta: { label: 'Связаться', href: '/booking' } },
+  { id: 'register', title: 'Регистрация/вход', img: '/instructions/register.svg',
+    bullets: ['Откройте «Войти», введите e‑mail и код из письма.',
+              'В кабинете добавьте питомца: порода, вес, возраст.'],
+    cta: { label: 'Войти', href: '/auth/login' } },
+  { id: 'payment', title: 'Оплата', img: '/instructions/payment.svg',
+    bullets: ['Стоимость видна при выборе услуги и врача.',
+              'Оплата картой/СБП, чек — на e‑mail.',
+              'Переносы/возвраты — по правилам клиники.'],
+    cta: { label: 'Оплатить при записи', href: '/booking' } },
+  { id: 'booking', title: 'Запись на консультацию', img: '/instructions/booking.svg',
+    bullets: ['Выберите формат: чат или видео.',
+              'Загрузите фото/анализы — так быстрее и точнее.',
+              'За 5–10 минут до старта придёт напоминание.'],
+    cta: { label: 'Записаться', href: '/booking' } },
+  { id: 'video', title: 'FAQ по видеосвязи', img: '/instructions/video.svg',
+    bullets: ['Переход по ссылке из кабинета — 1 клик.',
+              'Работают Chrome/Safari/Edge, обновите их до последней версии.',
+              'Разрешите доступ к камере и микрофону.'],
+    cta: { label: 'Открыть FAQ', href: '/instructions#video' } },
+  { id: 'flags', title: 'Красные флаги', img: '/instructions/flags.svg',
+    bullets: ['Состояния, когда онлайн недостаточно.', 'Если есть флаг — сразу в клинику.'],
+    cta: { label: 'Смотреть', href: '/instructions#flags' } },
 ];
 
 export default function InstructionsBlock(){
@@ -79,7 +41,6 @@ export default function InstructionsBlock(){
         <h2 className="text-3xl font-bold" style={{color:'var(--navy)'}}>Инструкции</h2>
         <Link href="/instructions" className="btn bg-white border border-gray-300 rounded-xl px-4">Все инструкции</Link>
       </div>
-
       <div className="grid md:grid-cols-2 gap-4">
         {items.map(it => (
           <article key={it.id} className="rounded-2xl border border-gray-200 bg-white p-4">
