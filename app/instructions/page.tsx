@@ -1,7 +1,9 @@
+// app/instructions/page.tsx
 'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 
 type Section = { id: string; title: string; icon: string; body: (JSX.Element|string)[] };
 
@@ -20,7 +22,7 @@ const sections: Section[] = [
   ]},
   { id:'payment', title:'Оплата и возврат', icon:'/instructions/payment.svg', body:[
     <p key="p1">Стоимость видно при выборе услуги и врача. Оплата картой/СБП, чек приходит на e‑mail.</p>,
-    <p key="p2">Перенос/возврат: за 24 часа — без комиссии; позднее — по правилам клиники (см. договор оферты).</p>
+    <p key="p2">Перенос/возврат: за 24 часа — без комиссии; позднее — по правилам клиники (см. оферту).</p>
   ]},
   { id:'booking', title:'Как записаться', icon:'/instructions/booking.svg', body:[
     <ol key="olb" className="list-decimal pl-5 space-y-1">
@@ -60,32 +62,33 @@ const sections: Section[] = [
     <p key="pa1">Вы получите план лечения в PDF и в «Личном кабинете». Чат открыт 24–48 часов для уточнений.</p>,
     <p key="pa2">Если состояние ухудшается — следуйте «красным флагам» и обращайтесь очно.</p>
   ]},
+  { id:'hours', title:'Ночью и в выходные', icon:'/instructions/night.svg', body:[
+    <p key="nh1">Онлайн‑ответы могут занимать больше времени. Если ситуация срочная — ищите ближайшую круглосуточную клинику.</p>,
+    <p key="nh2">При записи на ближайшее время укажите в комментариях «срочно» — мы приоритезируем.</p>
+  ]},
+  { id:'chatlen', title:'Как долго работает чат‑сопровождение', icon:'/instructions/chat.svg', body:[
+    <p key="ch1">Чат открыт на 24–48 часов после консультации — для уточнений по назначению.</p>,
+    <p key="ch2">Новые симптомы — это новый случай. Пожалуйста, оформляйте повторную консультацию.</p>
+  ]},
+  { id:'upload', title:'Как загрузить файлы к записи', icon:'/instructions/upload.svg', body:[
+    <ul key="ulup" className="list-disc pl-5 space-y-1">
+      <li>В форме записи есть раздел «Файлы» — добавьте JPG/PNG/PDF/MP4.</li>
+      <li>Фото — при хорошем свете, документы — читаемые.</li>
+      <li>Если файл не прикрепляется — сожмите и попробуйте снова или отправьте через чат.</li>
+    </ul>
+  ]},
   { id:'payfail', title:'Проблемы с оплатой', icon:'/instructions/payfail.svg', body:[
     <ul key="ulp2" className="list-disc pl-5 space-y-1">
-      <li>Проверьте 3‑D Secure/SMS‑подтверждение, баланс карты.</li>
+      <li>Проверьте 3‑D Secure/SMS‑подтверждение и баланс карты.</li>
       <li>Попробуйте другой браузер (Chrome/Safari) или СБП.</li>
-      <li>При тайм‑ауте — попробуйте ещё раз через 2–3 минуты.</li>
+      <li>При тайм‑ауте — повторите платёж через 2–3 минуты.</li>
     </ul>
   ]},
   { id:'videofail', title:'Проблемы с видеосвязью', icon:'/instructions/videofail.svg', body:[
     <ul key="ulv2" className="list-disc pl-5 space-y-1">
-      <li>Разрешите доступ к камере/микрофону в настройках браузера/системы.</li>
-      <li>Закройте все приложения, которые могут занимать камеру.</li>
+      <li>Разрешите доступ к камере/микрофону в браузере и в системе.</li>
+      <li>Закройте приложения, которые могут занимать камеру/микрофон.</li>
       <li>Перезайдите по ссылке, перезагрузите страницу, проверьте интернет.</li>
-    </ul>
-  ]},
-  { id:'upload', title:'Как загрузить фото/видео/анализы', icon:'/instructions/upload.svg', body:[
-    <ul key="ulup" className="list-disc pl-5 space-y-1">
-      <li>При записи есть блок «Файлы» — добавьте JPG/PNG/PDF/MP4.</li>
-      <li>Фото — при свете, без фильтров; документы — читаемые.</li>
-      <li>Если файл не прикрепляется — сожмите или отправьте через чат поддержки.</li>
-    </ul>
-  ]},
-  { id:'refund', title:'Правила переноса/возврата', icon:'/instructions/refund.svg', body:[
-    <ul key="ulr" className="list-disc pl-5 space-y-1">
-      <li>Перенос более чем за 24 часа — бесплатно.</li>
-      <li>Позже 24 часов — по правилам клиники (смотри оферту).</li>
-      <li>Возврат — на тот же источник платежа в течение 1–7 дней.</li>
     </ul>
   ]},
 ];
@@ -111,6 +114,28 @@ function Item({ s, open, onToggle }:{ s:Section; open:boolean; onToggle:()=>void
 
 export default function InstructionsPage(){
   const [openId, setOpenId] = useState<string>('contact');
+  const [q, setQ] = useState('');
+
+  // поиск по заголовкам и текстам
+  const list = useMemo(()=>{
+    if(!q.trim()) return sections;
+    const s = q.trim().toLowerCase();
+    return sections.filter(sec=>
+      sec.title.toLowerCase().includes(s) ||
+      sec.body.some(b => (typeof b==='string' ? b : (b as any).props?.children)?.toString().toLowerCase().includes(s))
+    );
+  }, [q]);
+
+  // якорная панель сверху (быстрые ссылки)
+  useEffect(()=>{
+    if(typeof window==='undefined') return;
+    const hash = window.location.hash.replace('#','');
+    if(hash){
+      const el = document.getElementById(hash);
+      if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+      setOpenId(hash);
+    }
+  },[]);
 
   return (
     <section className="container py-12 sm:py-16">
@@ -122,10 +147,30 @@ export default function InstructionsPage(){
         </div>
       </div>
 
+      {/* Поиск + быстрые ссылки */}
+      <div className="rounded-2xl border border-gray-200 bg-white p-4 mb-4">
+        <div className="flex flex-col md:flex-row gap-3 items-start md:items-center">
+          <input
+            className="input w-full md:max-w-sm"
+            placeholder="Поиск по инструкциям…"
+            value={q}
+            onChange={e=>setQ(e.target.value)}
+          />
+          <div className="flex gap-2 flex-wrap">
+            {sections.map(s =>
+              <a key={s.id} href={`#${s.id}`} className="px-3 py-1 rounded-xl border bg-[var(--cloud)] text-sm">
+                {s.title}
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+
       <div className="grid md:grid-cols-2 gap-4">
-        {sections.map(sec=>(
-          <Item key={sec.id} s={sec} open={openId===sec.id} onToggle={()=>setOpenId(p=>p===sec.id? '' : sec.id)}/>
+        {list.map(sec => (
+          <Item key={sec.id} s={sec} open={openId===sec.id} onToggle={()=>setOpenId(p=>p===sec.id? '' : sec.id)} />
         ))}
+        {list.length===0 && <div className="opacity-70">Ничего не найдено по запросу «{q}».</div>}
       </div>
 
       <div className="mt-6 text-sm opacity-70">
