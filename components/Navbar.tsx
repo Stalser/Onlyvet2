@@ -1,4 +1,4 @@
-// components/Navbar.tsx
+
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -17,8 +17,11 @@ export default function Navbar() {
 
   useEffect(() => {
     const read = () => {
-      try { const raw = localStorage.getItem(STORAGE_KEY); const acc: Acc | null = raw ? JSON.parse(raw) : null; setAuth(!!acc?.user); }
-      catch { setAuth(false); }
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        const acc: Acc | null = raw ? JSON.parse(raw) : null;
+        setAuth(!!acc?.user);
+      } catch { setAuth(false); }
     };
     read(); setMounted(true);
     const onStorage = (e: StorageEvent) => { if (e.key === STORAGE_KEY) read(); };
@@ -33,7 +36,6 @@ export default function Navbar() {
     setPortalEl(el);
   }, [mounted]);
 
-  // strict lock + restore scroll
   useEffect(() => {
     if (!mounted) return;
     const html = document.documentElement;
@@ -62,14 +64,12 @@ export default function Navbar() {
     };
   }, [menu, mounted]);
 
-  // Esc to close
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape' && menu) setMenu(false); };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [menu]);
 
-  // swipe to close
   const startY = useRef<number | null>(null);
   const [pull, setPull] = useState(0);
   const THRESH = 80;
@@ -103,20 +103,18 @@ export default function Navbar() {
             <Image src="/logo-icon.svg" alt="OnlyVet" width={40} height={40} priority />
             <span className="font-semibold" style={{ fontSize: 20 }}>OnlyVet</span>
           </Link>
-          <nav className="hidden md:block">
-            <Links />
-          </nav>
-          <button className="md:hidden p-3 rounded-xl" onClick={() => setMenu(true)} aria-label="Меню">
-            <svg width="26" height="26" fill="none" stroke="currentColor"><path d="M3 6h20M3 13h20M3 20h20" /></svg>
+          <nav className="hidden md:block"><Links /></nav>
+          <button className="md:hidden p-3 rounded-xl" onClick={() => setMenu(true)} aria-label="Открыть меню">
+            <svg width="26" height="26" fill="none" stroke="currentColor"><path d="M3 6h20M3 13h20M3 20h20"/></svg>
           </button>
         </div>
       </header>
 
       {menu && portalEl && createPortal(
         <>
-          <div className="fixed inset-0 z-[9998] bg-white" onClick={() => setMenu(false)} />
+          <div className="fixed inset-0 z-[9998] bg-black/40" onClick={() => setMenu(false)} aria-hidden="true"/>
           <div
-            className="fixed inset-0 z-[9999] overflow-y-auto"
+            className="fixed inset-0 z-[9999] overflow-y-auto bg-white"
             style={{
               height: '100dvh',
               WebkitOverflowScrolling: 'auto',
@@ -127,16 +125,24 @@ export default function Navbar() {
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
+            role="dialog"
+            aria-modal="true"
           >
-            <div style={{ width: 44, height: 5, borderRadius: 999, background: 'rgba(0,0,0,.18)', margin: '10px auto' }} />
+            <div style={{ width: 44, height: 5, borderRadius: 999, background: 'rgba(0,0,0,.25)', margin: '10px auto' }} />
             <div className="container pt-[max(6px,env(safe-area-inset-top))] pb-[max(20px,env(safe-area-inset-bottom))] flex flex-col min-h-[100dvh]">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <Image src="/logo-icon.svg" alt="OnlyVet" width={28} height={28} />
                   <span className="font-semibold" style={{ fontSize: 18 }}>OnlyVet</span>
                 </div>
-                <button className="p-3 rounded-xl" onClick={() => setMenu(false)} aria-label="Закрыть">
-                  <svg width="22" height="22" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" /></svg>
+                <button
+                  className="p-3 rounded-xl hover:bg-[var(--cloud)] active:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--teal)]"
+                  onClick={() => setMenu(false)}
+                  aria-label="Закрыть меню"
+                >
+                  <svg width="24" height="24" viewBox="0 0 24 24">
+                    <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  </svg>
                 </button>
               </div>
               <Links vertical />
