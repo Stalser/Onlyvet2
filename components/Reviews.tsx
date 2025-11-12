@@ -107,7 +107,7 @@ export default function Reviews() {
           <div className="text-sm text-gray-500 flex items-center gap-1">
             <span className="font-semibold" style={{ color: 'var(--navy)' }}>{avg}</span>
             <span className="text-xs">/ 5</span>
-            <span className="ml-2"><Stars rating={avg as unknown as number} /></span>
+            <span className="ml-2"><Stars value={avg} /></span>
             <span className="ml-2 opacity-80">· {items.length}</span>
           </div>
         </div>
@@ -131,7 +131,7 @@ export default function Reviews() {
       <div
         ref={trackRef}
         onScroll={onScroll}
-        className="no-scrollbar flex gap-3 sm:gap-6 overflow-x-auto snap-x snap-mandatory -mx-2 px-2 sm:mx-0 sm:px-0"
+        className="no-scrollbar flex gap-3 sm:gap-6 overflow-x-auto snap-x snap-mандatory -mx-2 px-2 sm:mx-0 sm:px-0"
         style={{ scrollSnapType: 'x mandatory', scrollbarWidth: 'none' }}
       >
         {items.map((r, i) => {
@@ -148,7 +148,7 @@ export default function Reviews() {
                 <div className="font-semibold text-[14px] sm:text-[15px]" style={{ color: 'var(--navy)' }}>
                   {r.name}
                 </div>
-                <div className="ml-2"><Stars rating={r.rating} /></div>
+                <div className="ml-2"><Stars value={r.rating} /></div>
               </div>
 
               <div className="mt-3 w-full h-32 sm:h-36 rounded-xl overflow-hidden" style={{ background: 'var(--cloud)' }}>
