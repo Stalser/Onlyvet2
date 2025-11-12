@@ -28,6 +28,28 @@ export default function DoctorsPage(){
     });
   }, [q, spec, service]);
 
+  function chips(slugs?: string[]) {
+    if (!slugs?.length) return null;
+    const list = slugs
+      .map(slug => services.find(x => x.slug === slug))
+      .filter(Boolean)
+      .slice(0, 3) as { slug: string; name: string; icon?: string }[];
+
+    return (
+      <div className="mt-3 flex flex-wrap gap-2">
+        {list.map(s => (
+          <span
+            key={s.slug}
+            className="px-2 py-1 rounded-lg border bg-[var(--cloud)] text-xs inline-flex items-center gap-1"
+          >
+            <span>{s.icon ?? '🐾'}</span>
+            <span className="truncate max-w-[10rem]">{s.name}</span>
+          </span>
+        ))}
+      </div>
+    );
+  }
+
   const selDoc = detailsId ? doctors.find(d => d.id === detailsId) : null;
 
   return (
@@ -61,7 +83,7 @@ export default function DoctorsPage(){
         </div>
       </div>
 
-      {/* Сетка врачей */}
+      {/* Сетка врачей с услугами (чипы как на главной) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {list.map(d => (
           <div key={d.id} className="card">
@@ -74,10 +96,11 @@ export default function DoctorsPage(){
               </div>
             </div>
 
+            {chips(d.allowedServices)}
+
             <p className="text-sm opacity-80 mt-3">{d.bio}</p>
 
             <div className="mt-4 grid grid-cols-2 gap-2">
-              {/* Кнопка открывает модалку, НЕ уводит на главную */}
               <button className="btn btn-secondary" onClick={()=>setDetailsId(d.id)}>Подробнее</button>
               <button className="btn btn-primary" onClick={()=>setScheduleFor(d.id)}>Записаться</button>
             </div>
@@ -85,7 +108,7 @@ export default function DoctorsPage(){
         ))}
       </div>
 
-      {/* Модалка врача и запись прямо на этой странице */}
+      {/* Модалки на этой же странице */}
       {selDoc && (
         <DoctorDetailsModal
           doctor={selDoc as any}
