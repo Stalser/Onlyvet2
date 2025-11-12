@@ -1,3 +1,2 @@
-/* Strict lock for iOS/Safari (add to globals.css once) */
-html.modal-open, body.modal-open { overflow: hidden !important; position: fixed !important; width: 100% !important; touch-action: none !important; overscroll-behavior: none !important; }
-.prose p { margin: 0 0 1em 0; line-height: 1.6; }
+/* Доп. оформление статьи */
+.prose img { border-radius: 12px; }
