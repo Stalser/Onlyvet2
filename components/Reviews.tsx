@@ -1,15 +1,24 @@
 // components/Reviews.tsx
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import Stars from '@/components/Stars';
 import ReviewModal from '@/components/ReviewModal';
 import ReviewFullModal from '@/components/ReviewFullModal';
 
-type Review = { id?: string; name: string; pet?: string; rating: number; text: string; photo?: string; photos?: string[]; createdAt?: string };
+type Review = {
+  id?: string;
+  name: string;
+  pet?: string;
+  rating: number;
+  text: string;
+  photo?: string;
+  photos?: string[];
+  createdAt?: string;
+};
 
-const FALLBACK_IMG = 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><rect width="100%" height="100%" fill="#eef2f7"/><text x="50%" y="52%" text-anchor="middle" font-family="Arial" font-size="18" fill="#9aa7b0">Фото</text></svg>`);
+const FALLBACK_IMG = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><rect width="100%" height="100%" fill="#eef2f7"/><text x="50%" y="52%" text-anchor="middle" font-family="Arial" font-size="18" fill="#9aa7b0">Фото</text></svg>');
 
 const SEED: Review[] = [
   { name: 'Екатерина и кот Мурзик', pet: 'Мурзик', rating: 5, photo: '/reviews/murzik.jpg', text: 'У кота началась рвота, переживали. Врач попросил описать симптомы и прислать фото лотка, за 15 минут разобрались, что критичного нет. Объяснили, когда ехать в клинику, а когда достаточно наблюдать.' },
@@ -26,7 +35,7 @@ export default function Reviews() {
   useEffect(() => {
     const check = () => setIsDesktop(typeof window !== 'undefined' && window.innerWidth >= 1024);
     check();
-    window.addEventListener('resize', check, { passive: true } as any);
+    window.addEventListener('resize', check as any, { passive: true } as any);
     return () => window.removeEventListener('resize', check as any);
   }, []);
 
@@ -50,7 +59,6 @@ export default function Reviews() {
     return Math.round((sum / items.length) * 10) / 10;
   }, [items]);
 
-  // mobile arrows
   const trackRef = useRef<HTMLDivElement | null>(null);
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(true);
@@ -66,38 +74,22 @@ export default function Reviews() {
     trackRef.current.scrollBy({ left: dir === 'left' ? -step : step, behavior: 'smooth' });
   };
 
-  const Card = ({ r }: { r: Review }) => {
-    // меньше фото + больше текста
+  const Card: React.FC<{ r: Review }> = ({ r }) => {
     const max = isDesktop ? 420 : 220;
     const long = (r.text || '').length > max;
     const preview = long ? (r.text || '').slice(0, max) + '…' : (r.text || '');
-
     return (
       <article className="bg-white rounded-2xl shadow-soft p-5 flex flex-col h-full">
         <div className="flex items-center justify-between">
           <div className="font-semibold" style={{ color: 'var(--navy)' }}>{r.name}</div>
           <div className="ml-2"><Stars value={r.rating} /></div>
         </div>
-
-        {/* smaller photo */}
         <div className={`mt-3 w-full ${isDesktop ? 'h-24' : 'h-28'} rounded-xl overflow-hidden ring-1 ring-black/5 shadow-sm`} style={{ background: 'var(--cloud)' }}>
-          <img
-            src={r.photo || FALLBACK_IMG}
-            onError={(e)=>((e.currentTarget as HTMLImageElement).src=FALLBACK_IMG)}
-            alt={r.pet ? \`Фото \${r.pet}\` : 'Фото питомца'}
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
+          <img src={r.photo || FALLBACK_IMG} onError={(e)=>((e.currentTarget as HTMLImageElement).src=FALLBACK_IMG)} alt={r.pet ? \`Фото \${r.pet}\` : 'Фото питомца'} className="w-full h-full object-cover" loading="lazy" />
         </div>
-
-        {/* more text */}
         <p className="mt-3 text-sm text-gray-800 leading-6">{preview}</p>
-
-        {/* clear CTA under each card */}
         <div className="pt-2">
-          <button className="text-teal text-sm hover:underline" onClick={() => setFull(r)}>
-            Читать далее
-          </button>
+          <button className="text-teal text-sm hover:underline" onClick={() => setFull(r)}>Читать далее</button>
         </div>
       </article>
     );
