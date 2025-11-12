@@ -1,2 +1,22 @@
-/* Доп. оформление статьи */
-.prose img { border-radius: 12px; }
+/* ---- KB (VK-like) styles ---- */
+.kb-wrap{background:#f7f9fb}
+.kb-container{max-width:860px;margin:0 auto;padding:24px 16px 56px}
+.kb-breadcrumbs{display:flex;gap:8px;align-items:center;font-size:13px;margin-bottom:8px;color:#5b6b7f}
+.kb-breadcrumbs a{color:#334155;text-decoration:none}
+.kb-breadcrumbs .muted{opacity:.8}
+.kb-title{font-size:36px;line-height:1.15;margin:8px 0 16px 0;color:#0f172a;font-family:var(--font-montserrat, ui-sans-serif)}
+.kb-meta{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.kb-tags{display:flex;gap:6px;flex-wrap:wrap}
+.kb-tag{background:#eef2f7;border-radius:999px;padding:4px 10px;font-size:12px;color:#334155;border:1px solid #e5e7eb}
+.kb-cta{display:inline-flex;align-items:center;justify-content:center;background:var(--coral,#e8664f);color:#fff;border-radius:12px;padding:10px 16px;font-weight:600;text-decoration:none;white-space:nowrap}
+.kb-back{display:inline-flex;align-items:center;justify-content:center;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px 16px;font-weight:600;text-decoration:none;color:#0f172a;margin-left:8px}
+.kb-cover{margin:12px 0 18px 0;border-radius:16px;overflow:hidden;background:#fff;border:1px solid #e5e7eb}
+.kb-cover-img{display:block;width:100%;height:auto;object-fit:cover;max-height:480px}
+.kb-caption{font-size:12px;color:#5b6b7f;padding:8px 12px;background:#fff;border-top:1px solid #e5e7eb}
+.kb-body{font-size:18px;line-height:1.7;color:#0f172a;background:#fff;padding:16px 18px;border-radius:16px;border:1px solid #e5e7eb}
+.kb-body p{margin:0 0 14px 0}
+.kb-bottom{display:flex;gap:10px;margin-top:20px}
+@media (max-width: 640px){
+  .kb-title{font-size:28px}
+  .kb-body{font-size:16px}
+}
