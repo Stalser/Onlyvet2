@@ -1,4 +1,4 @@
-// lib/vetmanager.ts — совместимая версия с vmRequest и pushToVetmanager
+// lib/vetmanager.ts — совместимая версия с vmRequest(path, body, method) и pushToVetmanager
 const BASE = process.env.VETMANAGER_BASE_URL || '';
 const TOKEN = process.env.VETMANAGER_TOKEN || '';
 
@@ -28,19 +28,26 @@ export async function vmPing() {
   return { ok: !!BASE && !!TOKEN, base: !!BASE, token: !!TOKEN };
 }
 
-// Совместимость со старыми API-роутами: vmRequest
-export async function vmRequest(path: string, options?: { method?: string; body?: any }) {
-  const init: RequestInit = {
-    method: options?.method || 'GET',
-  };
-  if (options?.body !== undefined) {
-    init.body = typeof options.body === 'string' ? options.body : JSON.stringify(options.body);
+// --- vmRequest: 1) vmRequest(path, {method, body})  2) vmRequest(path, body, method) ---
+export async function vmRequest(path: string, bodyOrOptions?: any, method?: string) {
+  let init: RequestInit = {};
+  if (typeof bodyOrOptions === 'object' && (bodyOrOptions?.method || bodyOrOptions?.body)) {
+    // стиль vmRequest('/path', { method, body })
+    init.method = bodyOrOptions.method || 'GET';
+    if (bodyOrOptions.body !== undefined) {
+      init.body = typeof bodyOrOptions.body === 'string' ? bodyOrOptions.body : JSON.stringify(bodyOrOptions.body);
+    }
+  } else {
+    // стиль vmRequest('/path', body, 'POST')
+    init.method = method || 'GET';
+    if (bodyOrOptions !== undefined) {
+      init.body = typeof bodyOrOptions === 'string' ? bodyOrOptions : JSON.stringify(bodyOrOptions);
+    }
   }
   return vmFetch(path, init);
 }
 
-// Совместимость со старым бронированием: pushToVetmanager
-// TODO: заменить '/booking' и payload на реальный эндпоинт Vetmanager
+// --- pushToVetmanager: заглушка бронирования (адаптируем под реальный эндпоинт) ---
 export async function pushToVetmanager(payload: any) {
   try {
     await vmFetch('/booking', {
@@ -48,7 +55,7 @@ export async function pushToVetmanager(payload: any) {
       body: JSON.stringify(payload),
     });
     return { ok: true };
-  } catch (e:any) {
+  } catch (e: any) {
     console.error('pushToVetmanager error', e);
     return { ok: false, error: e.message || 'vm error' };
   }
