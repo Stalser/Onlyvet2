@@ -5,7 +5,6 @@ import { notFound } from 'next/navigation';
 import { articles } from '@/lib/articles';
 import ArticleBody from '@/components/ArticleBody';
 import ShareBar from '@/components/ShareBar';
-import BackToTop from '@/components/BackToTop';
 
 export const dynamic = 'force-dynamic';
 
@@ -85,52 +84,51 @@ export default function ArticlePage({ params }:{ params:{slug:string} }){
           <Link href="/booking" className="kb-cta">Записаться на консультацию</Link>
         </div>
 
-        {cover && (
-          <figure className="kb-cover">
+        {/* HERO SPLIT: image left, scrollable TOC right */}
+        <div className="kb-hero">
+          <figure className="kb-hero-figure">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={cover} alt={art.images?.[0]?.alt || 'cover'} className="kb-cover-img" />
-            {art.images?.[0]?.caption && <figcaption className="kb-caption">{art.images?.[0]?.caption}</figcaption>}
+            <img src={cover} alt={art.images?.[0]?.alt || 'cover'} className="kb-hero-img" />
+            {art.images?.[0]?.caption && <figcaption className="kb-hero-caption">{art.images?.[0]?.caption}</figcaption>}
           </figure>
-        )}
 
-        <div className="kb-grid">
-          <div>
-            <ArticleBody parts={htmlParts} images={art.images || []} />
-            <ShareBar title={art.title} />
-            <div className="kb-bottom">
-              <Link href="/booking" className="kb-cta">Записаться на консультацию</Link>
-              <Link href="/knowledge" className="kb-back">К списку статей</Link>
-            </div>
-            <div className="kb-related">
-              <div className="kb-related-title">Похожие статьи</div>
-              <div className="kb-related-grid">
-                {articles
-                  .filter(a => a.slug!==art.slug && (a.category===art.category || a.tags.some(t=>art.tags.includes(t))))
-                  .slice(0,4)
-                  .map(a => (
-                    <article key={a.slug} className="kb-related-card">
-                      <Link href={`/knowledge/${a.slug}`} className="kb-related-link">{a.title}</Link>
-                      <div className="kb-related-meta">{a.category}</div>
-                    </article>
-                  ))}
-              </div>
-            </div>
+          <nav className="kb-toc-panel">
+            <div className="kb-toc-title">Содержание</div>
+            <ul>
+              {toc.length ? toc.map(i => (
+                <li key={i.id} className={i.level===3?'lvl3':'lvl2'}>
+                  <a href={`#${i.id}`}>{i.text}</a>
+                </li>
+              )) : <li className="lvl2"><span className="opacity-60">Нет оглавления</span></li>}
+            </ul>
+          </nav>
+        </div>
+
+        {/* main body below hero */}
+        <ArticleBody parts={htmlParts} images={art.images || []} />
+
+        <ShareBar title={art.title} />
+
+        <div className="kb-bottom" style={{marginTop:'12px'}}>
+          <Link href="/booking" className="kb-cta">Записаться на консультацию</Link>
+          <Link href="/knowledge" className="kb-back">К списку статей</Link>
+        </div>
+
+        <div className="kb-related">
+          <div className="kb-related-title">Похожие статьи</div>
+          <div className="kb-related-grid">
+            {articles
+              .filter(a => a.slug!==art.slug && (a.category===art.category || a.tags.some(t=>art.tags.includes(t))))
+              .slice(0,4)
+              .map(a => (
+                <article key={a.slug} className="kb-related-card">
+                  <Link href={`/knowledge/${a.slug}`} className="kb-related-link">{a.title}</Link>
+                  <div className="kb-related-meta">{a.category}</div>
+                </article>
+              ))}
           </div>
-          {toc.length>0 && (
-            <nav className="kb-toc">
-              <div className="kb-toc-title">Содержание</div>
-              <ul>
-                {toc.map(i => (
-                  <li key={i.id} className={i.level===3?'lvl3':'lvl2'}>
-                    <a href={`#${i.id}`}>{i.text}</a>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          )}
         </div>
       </div>
-      <BackToTop />
     </section>
   );
 }
