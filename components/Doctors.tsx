@@ -25,7 +25,8 @@ export default function Doctors() {
             <span className="truncate max-w-[10rem]">{s.name}</span>
           </span>
         ))}
-      </div>
+  <Link href="/docs" onClick={()=>setMenu && setMenu(false)}>Документы</Link>
+</div>
     );
   }
 

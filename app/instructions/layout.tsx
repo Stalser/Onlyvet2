@@ -1,4 +1,3 @@
-// app/instructions/layout.tsx
 import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';

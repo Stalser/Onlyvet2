@@ -1,109 +1,15 @@
-// app/instructions/page.tsx
 'use client';
-
 import Link from 'next/link';
-import Image from 'next/image';
-import { useState, useMemo, useEffect } from 'react';
-
-type Section = { id: string; title: string; icon: string; body: (JSX.Element|string)[] };
-
-const sections: Section[] = [
-  { id:'contact', title:'Как с нами связаться', icon:'/instructions/contact.svg', body:[
-    <p key="1">Самый быстрый путь — нажать <Link href="/booking" className="text-[var(--teal)] underline">«Записаться»</Link> и указать контакт.</p>,
-    <p key="2">Также доступны Telegram/VK из шапки сайта. Мы отвечаем оперативно в рабочее время.</p>,
-  ]},
-  { id:'register', title:'Регистрация и вход', icon:'/instructions/register.svg', body:[
-    <ol key="olr" className="list-decimal pl-5 space-y-1">
-      <li>Откройте <Link href="/auth/login" className="text-[var(--teal)] underline">«Войти»</Link>.</li>
-      <li>Введите e‑mail → подтвердите кодом из письма (пароль не нужен).</li>
-      <li>В «Личном кабинете» добавьте питомца: порода, вес, возраст.</li>
-    </ol>
-  ]},
-  { id:'payment', title:'Оплата и возврат', icon:'/instructions/payment.svg', body:[
-    <p key="p1">Стоимость видно при выборе услуги и врача. Оплата картой/СБП, чек приходит на e‑mail.</p>,
-    <p key="p2">Перенос/возврат: за 24 часа — без комиссии; позднее — по правилам клиники (см. оферту).</p>
-  ]},
-  { id:'booking', title:'Как записаться', icon:'/instructions/booking.svg', body:[
-    <ol key="olb" className="list-decimal pl-5 space-y-1">
-      <li>Нажмите <Link href="/booking" className="text-[var(--teal)] underline">«Записаться»</Link>.</li>
-      <li>Выберите формат: чат или видео.</li>
-      <li>Загрузите фото/видео/анализы — так консультация пройдёт быстрее.</li>
-    </ol>
-  ]},
-  { id:'prepare', title:'Подготовка к онлайн‑приёму', icon:'/instructions/prepare.svg', body:[
-    <ul key="ulp" className="list-disc pl-5 space-y-1">
-      <li>Фото проблемы и общий вид при свете.</li>
-      <li>Температура, вес, ЧДД (если возможно).</li>
-      <li>Список лекарств/доз, если что‑то уже принимали.</li>
-    </ul>
-  ]},
-];
-
-function Item({ s, open, onToggle }:{ s:Section; open:boolean; onToggle:()=>void }){
-  return (
-    <div id={s.id} className="rounded-2xl border border-gray-200 bg-white overflow-hidden">
-      <button onClick={onToggle} className="w-full text-left px-4 py-3 flex items-center justify-between gap-3">
-        <span className="flex items-center gap-3">
-          <Image src={s.icon} alt="" width={40} height={26} />
-          <span className="font-semibold" style={{color:'var(--navy)'}}>{s.title}</span>
-        </span>
-        <span className="opacity-60">{open ? '▾' : '▸'}</span>
-      </button>
-      {open && (
-        <div className="px-4 pb-4">
-          {s.body.map((b,i)=>(<div key={i} className="mb-2">{b}</div>))}
-        </div>
-      )}
-    </div>
-  );
-}
 
 export default function InstructionsPage(){
-  const [openId, setOpenId] = useState<string>('contact');
-  const [q, setQ] = useState('');
-
-  const list = useMemo(()=>{
-    if(!q.trim()) return sections;
-    const s = q.trim().toLowerCase();
-    return sections.filter(sec=>
-      sec.title.toLowerCase().includes(s) ||
-      sec.body.some(b => (typeof b==='string' ? b : (b as any).props?.children)?.toString().toLowerCase().includes(s))
-    );
-  }, [q]);
-
-  useEffect(()=>{
-    if(typeof window==='undefined') return;
-    const hash = window.location.hash.replace('#','');
-    if(hash){
-      const el = document.getElementById(hash);
-      if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
-      setOpenId(hash);
-    }
-  },[]);
-
   return (
     <section className="container py-12 sm:py-16">
-      <div className="mb-6 flex items-end justify-between gap-3 flex-wrap">
-        <h1 className="text-3xl font-bold" style={{color:'var(--navy)'}}>Инструкции и ответы</h1>
-        <div className="flex gap-2">
-          <Link href="/booking" className="btn btn-primary rounded-xl px-4">Записаться</Link>
-          <Link href="/auth/login" className="btn bg-white border border-gray-300 rounded-xl px-4">Войти</Link>
-        </div>
-      </div>
-
-      <div className="rounded-2xl border border-gray-200 bg-white p-4 mb-4">
-        <div className="flex flex-col md:flex-row gap-3 items-start md:items-center">
-          <input className="input w-full md:max-w-sm" placeholder="Поиск по инструкциям…" value={q} onChange={e=>setQ(e.target.value)} />
-          <div className="flex gap-2 flex-wrap">
-            {sections.map(s => <a key={s.id} href={`#${s.id}`} className="px-3 py-1 rounded-xl border bg-[var(--cloud)] text-sm">{s.title}</a>)}
-          </div>
-        </div>
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-4">
-        {list.map(sec => (
-          <Item key={sec.id} s={sec} open={openId===sec.id} onToggle={()=>setOpenId(p=>p===sec.id? '' : sec.id)} />
-        ))}
+      <h1 className="text-3xl font-bold mb-4" style={{color:'var(--navy)'}}>Инструкции и ответы</h1>
+      <div className="rounded-2xl border border-gray-200 bg-white p-4">
+        <p className="opacity-90">Как связаться: <Link href="/booking" className="text-[var(--teal)] underline">Записаться</Link> или через кнопки в шапке (Telegram/VK).</p>
+        <p className="opacity-90 mt-2">Регистрация/вход: <Link href="/auth/login" className="text-[var(--teal)] underline">«Войти»</Link> → e‑mail → код из письма.</p>
+        <p className="opacity-90 mt-2">Оплата: картой/СБП при записи, чек на e‑mail.</p>
+        <p className="opacity-90 mt-2">Подготовка к онлайн‑приёму: фото проблемы, параметры (t°, вес, ЧДД) и список лекарств.</p>
       </div>
     </section>
   );

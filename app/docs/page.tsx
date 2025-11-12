@@ -1,4 +1,3 @@
-// app/docs/page.tsx
 import Link from 'next/link';
 
 type Doc = { title: string; href: string; note?: string; available?: boolean };
