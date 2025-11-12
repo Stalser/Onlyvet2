@@ -3,12 +3,12 @@
   "short_name": "OnlyVet",
   "icons": [
     {
-      "src": "/icon-192x192.png?v=4",
+      "src": "/icon-192x192-v5.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/icon-512x512.png?v=4",
+      "src": "/icon-512x512-v5.png",
       "sizes": "512x512",
       "type": "image/png"
     }
