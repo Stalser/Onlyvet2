@@ -1,0 +1,3 @@
+# Navbar patch (заменить пункт меню)
+# Было: <Link href="/knowledge">База знаний</Link>
+# Стало: <Link href="/instructions">Инструкции</Link>
