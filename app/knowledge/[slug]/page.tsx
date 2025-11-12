@@ -84,7 +84,7 @@ export default function ArticlePage({ params }:{ params:{slug:string} }){
           <Link href="/booking" className="kb-cta">Записаться на консультацию</Link>
         </div>
 
-        {/* HERO SPLIT: image left, scrollable TOC right */}
+        {/* HERO: image left, sticky/collapsible TOC right */}
         <div className="kb-hero">
           <figure className="kb-hero-figure">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -92,6 +92,7 @@ export default function ArticlePage({ params }:{ params:{slug:string} }){
             {art.images?.[0]?.caption && <figcaption className="kb-hero-caption">{art.images?.[0]?.caption}</figcaption>}
           </figure>
 
+          {/* Desktop sticky panel */}
           <nav className="kb-toc-panel">
             <div className="kb-toc-title">Содержание</div>
             <ul>
@@ -103,6 +104,20 @@ export default function ArticlePage({ params }:{ params:{slug:string} }){
             </ul>
           </nav>
         </div>
+
+        {/* Mobile collapsible TOC */}
+        <details className="kb-toc-collapsible">
+          <summary>Содержание</summary>
+          <div className="toc-body">
+            <ul>
+              {toc.length ? toc.map(i => (
+                <li key={i.id} className={i.level===3?'lvl3':'lvl2'}>
+                  <a href={`#${i.id}`}>{i.text}</a>
+                </li>
+              )) : <li className="lvl2"><span className="opacity-60">Нет оглавления</span></li>}
+            </ul>
+          </div>
+        </details>
 
         {/* main body below hero */}
         <ArticleBody parts={htmlParts} images={art.images || []} />

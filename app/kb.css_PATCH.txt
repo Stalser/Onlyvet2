@@ -1,20 +1,17 @@
-/* === KB hero split (image left, TOC right) v9 === */
-.kb-hero{display:grid;grid-template-columns:1fr;gap:12px;margin:8px 0 14px}
+/* === KB hero split sticky (v10) === */
+/* Desktop sticky TOC */
 @media(min-width: 900px){
-  .kb-hero{grid-template-columns:minmax(0,1fr) 320px;align-items:start}
+  .kb-toc-panel{position:sticky; top:96px;}
 }
-.kb-hero-figure{border:1px solid #e5e7eb;border-radius:16px;overflow:hidden;background:#fff}
-.kb-hero-figure .kb-hero-img{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;max-height:340px}
-.kb-hero-caption{font-size:12px;color:#5b6b7f;padding:8px 12px;background:#fff;border-top:1px solid #e5e7eb}
-
-.kb-toc-panel{border:1px solid #e5e7eb;background:#fff;border-radius:16px;padding:12px 14px}
-/* высота панели ~высота фото, если контента больше — прокрутка */
-@media(min-width: 900px){
-  .kb-toc-panel{max-height:360px;overflow:auto}
-}
-.kb-toc-panel .kb-toc-title{font-weight:700;margin-bottom:6px;color:#0f172a}
-.kb-toc-panel ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px}
-.kb-toc-panel li.lvl3{padding-left:12px}
-.kb-toc-panel a{color:#334155;text-decoration:none}
-.kb-toc-panel a:hover{text-decoration:underline}
-.kb-toc-panel a.active{color:#0f172a;font-weight:700}
+/* Mobile collapsible TOC */
+.kb-toc-collapsible{border:1px solid #e5e7eb;background:#fff;border-radius:16px;overflow:hidden}
+.kb-toc-collapsible summary{cursor:pointer; list-style:none; padding:12px 14px; font-weight:700; color:#0f172a}
+.kb-toc-collapsible summary::-webkit-details-marker{display:none}
+.kb-toc-collapsible .toc-body{padding:0 14px 12px}
+.kb-toc-collapsible ul{list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:6px}
+.kb-toc-collapsible li.lvl3{padding-left:12px}
+.kb-toc-collapsible a{color:#334155; text-decoration:none}
+.kb-toc-collapsible a:hover{text-decoration:underline}
+/* Hide collapsible on desktop (we show panel), show on mobile */
+@media(min-width: 900px){ .kb-toc-collapsible{ display:none; } }
+@media(max-width: 899px){ .kb-toc-panel{ display:none; } }
