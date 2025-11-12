@@ -23,7 +23,6 @@ export default function Reviews() {
   const [showForm, setShowForm] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
 
-  // определить брейкпоинт на клиенте, чтобы менять высоту фото и длину превью
   useEffect(() => {
     const check = () => setIsDesktop(typeof window !== 'undefined' && window.innerWidth >= 1024);
     check();
@@ -51,7 +50,7 @@ export default function Reviews() {
     return Math.round((sum / items.length) * 10) / 10;
   }, [items]);
 
-  // --- мобильная лента (стрелки + скролл) ---
+  // mobile arrows
   const trackRef = useRef<HTMLDivElement | null>(null);
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(true);
@@ -68,8 +67,8 @@ export default function Reviews() {
   };
 
   const Card = ({ r }: { r: Review }) => {
-    // меньше фото (h-28 на desktop), больше текста
-    const max = isDesktop ? 360 : 200; // длина превью
+    // меньше фото + больше текста
+    const max = isDesktop ? 420 : 220;
     const long = (r.text || '').length > max;
     const preview = long ? (r.text || '').slice(0, max) + '…' : (r.text || '');
 
@@ -79,11 +78,22 @@ export default function Reviews() {
           <div className="font-semibold" style={{ color: 'var(--navy)' }}>{r.name}</div>
           <div className="ml-2"><Stars value={r.rating} /></div>
         </div>
-        <div className={`mt-3 w-full ${isDesktop ? 'h-28' : 'h-32'} rounded-xl overflow-hidden`} style={{ background: 'var(--cloud)' }}>
-          <img src={r.photo || FALLBACK_IMG} onError={(e)=>((e.currentTarget as HTMLImageElement).src=FALLBACK_IMG)} alt={r.pet ? `Фото ${r.pet}` : 'Фото питомца'} className="w-full h-full object-cover" />
+
+        {/* smaller photo */}
+        <div className={`mt-3 w-full ${isDesktop ? 'h-24' : 'h-28'} rounded-xl overflow-hidden ring-1 ring-black/5 shadow-sm`} style={{ background: 'var(--cloud)' }}>
+          <img
+            src={r.photo || FALLBACK_IMG}
+            onError={(e)=>((e.currentTarget as HTMLImageElement).src=FALLBACK_IMG)}
+            alt={r.pet ? \`Фото \${r.pet}\` : 'Фото питомца'}
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
         </div>
+
+        {/* more text */}
         <p className="mt-3 text-sm text-gray-800 leading-6">{preview}</p>
-        {/* Кнопка «Читать далее» под каждой карточкой — всегда видна, открывает модалку */}
+
+        {/* clear CTA under each card */}
         <div className="pt-2">
           <button className="text-teal text-sm hover:underline" onClick={() => setFull(r)}>
             Читать далее
@@ -106,27 +116,25 @@ export default function Reviews() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <Link href="/reviews" className="btn bg-white border border-gray-300 rounded-xl px-3 sm:px-4">
-            Смотреть все ({items.length})
-          </Link>
+          <Link href="/reviews" className="btn bg-white border border-gray-300 rounded-xl px-3 sm:px-4">Смотреть все ({items.length})</Link>
           <button className="btn btn-primary" onClick={() => setShowForm(true)}>Написать отзыв</button>
         </div>
       </div>
 
-      {/* Десктоп: сетка 3×N  */}
+      {/* Desktop grid */}
       <div className="hidden lg:grid grid-cols-3 gap-6">
-        {items.slice(0, 12).map((r, i) => <Card key={r.id ?? `desk-${i}`} r={r} />)}
+        {items.slice(0, 12).map((r, i) => <Card key={r.id ?? \`desk-\${i}\`} r={r} />)}
       </div>
 
-      {/* Мобайл: горизонтальная лента */}
+      {/* Mobile carousel */}
       <div className="block lg:hidden">
         <div className="mb-3 flex items-center gap-2">
-          <button className={`btn ${canPrev ? 'bg-white border border-gray-300' : 'opacity-40 cursor-not-allowed'} rounded-xl px-3 sm:px-4`} onClick={() => canPrev && scroll('left')} aria-label="Назад">‹</button>
-          <button className={`btn btn-secondary ${!canNext ? 'opacity-40 cursor-not-allowed' : ''}`} onClick={() => canNext && scroll('right')} aria-label="Вперёд">›</button>
+          <button className={\`btn \${canPrev ? 'bg-white border border-gray-300' : 'opacity-40 cursor-not-allowed'} rounded-xl px-3 sm:px-4\`} onClick={() => canPrev && scroll('left')} aria-label="Назад">‹</button>
+          <button className={\`btn btn-secondary \${!canNext ? 'opacity-40 cursor-not-allowed' : ''}\`} onClick={() => canNext && scroll('right')} aria-label="Вперёд">›</button>
         </div>
         <div ref={trackRef} onScroll={onScroll} className="no-scrollbar flex gap-3 sm:gap-6 overflow-x-auto snap-x snap-mandatory -mx-2 px-2 sm:mx-0 sm:px-0" style={{ scrollSnapType:'x mandatory', scrollbarWidth:'none' }}>
           {items.map((r, i) => (
-            <div key={r.id ?? `mob-${i}`} className="snap-start min-w-[320px] max-w-[320px]">
+            <div key={r.id ?? \`mob-\${i}\`} className="snap-start min-w-[320px] max-w-[320px]">
               <Card r={r} />
             </div>
           ))}
