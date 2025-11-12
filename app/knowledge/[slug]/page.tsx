@@ -1,8 +1,10 @@
 // app/knowledge/[slug]/page.tsx
-import '@/app/kb.css'; // <-- гарантируем подключение стилей
+import '@/app/kb.css';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { articles } from '@/lib/articles';
+import ArticleBody from '@/components/ArticleBody';
+import ShareBar from '@/components/ShareBar';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,6 +12,7 @@ export async function generateStaticParams() {
   return articles.map(a => ({ slug: a.slug }));
 }
 
+/** helpers */
 function autoExcerpt(content: string, limit = 160) {
   const clean = content.replace(/\s+/g, ' ').trim();
   return clean.slice(0, limit) + (clean.length > limit ? '…' : '');
@@ -94,22 +97,21 @@ export default function ArticlePage({ params }:{ params:{slug:string} }){
           <nav className="kb-toc">
             <div className="kb-toc-title">Содержание</div>
             <ul>
-              {toc.map(i => (
-                <li key={i.id} className={i.level===3?'lvl3':'lvl2'}>
-                  <a href={`#${i.id}`}>{i.text}</a>
-                </li>
-              ))}
+              {toc.map(i => {
+                const active = (typeof document !== 'undefined' ? document.body.dataset.kbActive : '') === i.id;
+                return (
+                  <li key={i.id} className={i.level===3?'lvl3':'lvl2'}>
+                    <a className={active?'active':''} href={`#${i.id}`}>{i.text}</a>
+                  </li>
+                );
+              })}
             </ul>
           </nav>
         )}
 
-        <article className="kb-body">
-          {htmlParts.map((el, i) => {
-            if(el.type==='h2') return <h2 key={i} id={el.id} className="kb-h2">{el.text}</h2>;
-            if(el.type==='h3') return <h3 key={i} id={el.id} className="kb-h3">{el.text}</h3>;
-            return <p key={i}>{el.text}</p>;
-          })}
-        </article>
+        <ArticleBody parts={htmlParts} images={art.images || []} />
+
+        <ShareBar title={art.title} />
 
         <div className="kb-bottom">
           <Link href="/booking" className="kb-cta">Записаться на консультацию</Link>
