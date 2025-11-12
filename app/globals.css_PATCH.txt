@@ -1,4 +1,3 @@
-/* Strict lock for iOS/Safari */
 html.modal-open, body.modal-open {
   overflow: hidden !important;
   position: fixed !important;

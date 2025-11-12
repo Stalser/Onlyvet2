@@ -1,4 +1,4 @@
-
+// components/Navbar.tsx
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -15,13 +15,13 @@ export default function Navbar() {
   const [mounted, setMounted] = useState(false);
   const [portalEl, setPortalEl] = useState<HTMLElement | null>(null);
 
+  // DIAGNOSTIC MARK
+  const VERSION = 'v15';
+
   useEffect(() => {
     const read = () => {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        const acc: Acc | null = raw ? JSON.parse(raw) : null;
-        setAuth(!!acc?.user);
-      } catch { setAuth(false); }
+      try { const raw = localStorage.getItem(STORAGE_KEY); const acc: Acc | null = raw ? JSON.parse(raw) : null; setAuth(!!acc?.user); }
+      catch { setAuth(false); }
     };
     read(); setMounted(true);
     const onStorage = (e: StorageEvent) => { if (e.key === STORAGE_KEY) read(); };
@@ -41,6 +41,7 @@ export default function Navbar() {
     const html = document.documentElement;
     const body = document.body;
     if (menu) {
+      console.log('[OnlyVet Navbar %s] open menu', VERSION);
       const y = window.scrollY || 0;
       body.dataset.scrollY = String(y);
       html.classList.add('modal-open');
@@ -49,9 +50,9 @@ export default function Navbar() {
       body.style.position = 'fixed';
       body.style.width = '100%';
     } else {
+      const y = parseInt(body.dataset.scrollY || '0', 10) || 0;
       html.classList.remove('modal-open');
       body.classList.remove('modal-open');
-      const y = parseInt(body.dataset.scrollY || '0', 10) || 0;
       body.style.position = ''; body.style.top = ''; body.style.width = '';
       delete body.dataset.scrollY;
       window.scrollTo(0, y);
@@ -97,11 +98,11 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-white shadow-soft">
+      <header className="sticky top-0 z-50 bg-white shadow-soft" data-navbar-version={VERSION}>
         <div className="container flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2">
             <Image src="/logo-icon.svg" alt="OnlyVet" width={40} height={40} priority />
-            <span className="font-semibold" style={{ fontSize: 20 }}>OnlyVet</span>
+            <span className="font-semibold" style={{ fontSize: 20 }}>OnlyVet • {VERSION}</span>
           </Link>
           <nav className="hidden md:block"><Links /></nav>
           <button className="md:hidden p-3 rounded-xl" onClick={() => setMenu(true)} aria-label="Открыть меню">
@@ -115,12 +116,7 @@ export default function Navbar() {
           <div className="fixed inset-0 z-[9998] bg-black/40" onClick={() => setMenu(false)} aria-hidden="true"/>
           <div
             className="fixed inset-0 z-[9999] overflow-y-auto bg-white"
-            style={{
-              height: '100dvh',
-              WebkitOverflowScrolling: 'auto',
-              transform: pull ? `translateY(${pull}px)` : 'translateY(0)',
-              transition: pull ? 'none' : 'transform .15s ease-out'
-            }}
+            style={{ height: '100dvh', WebkitOverflowScrolling: 'auto', transform: pull ? `translateY(${pull}px)` : 'translateY(0)', transition: pull ? 'none' : 'transform .15s ease-out' }}
             onClick={(e) => e.stopPropagation()}
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
@@ -135,11 +131,7 @@ export default function Navbar() {
                   <Image src="/logo-icon.svg" alt="OnlyVet" width={28} height={28} />
                   <span className="font-semibold" style={{ fontSize: 18 }}>OnlyVet</span>
                 </div>
-                <button
-                  className="p-3 rounded-xl hover:bg-[var(--cloud)] active:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--teal)]"
-                  onClick={() => setMenu(false)}
-                  aria-label="Закрыть меню"
-                >
+                <button className="p-3 rounded-xl hover:bg-[var(--cloud)] active:opacity-80" onClick={() => setMenu(false)} aria-label="Закрыть меню">
                   <svg width="24" height="24" viewBox="0 0 24 24">
                     <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                   </svg>
