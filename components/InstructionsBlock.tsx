@@ -21,7 +21,11 @@ const items = [
   { id: 'video', title: 'FAQ по видеосвязи', img: '/instructions/video.svg',
     bullets: ['Ссылка — в «Личном кабинете».','Chrome/Safari/Edge, доступ к камере/микро.','Наушники — лучше звук.'],
     cta: { label: 'Открыть FAQ', href: '/instructions#video' } },
+  { id: 'flags', title: 'Красные флаги', img: '/instructions/flags.svg',
+    bullets: ['Состояния, когда онлайн недостаточно.','Если есть флаг — сразу в клинику.'],
+    cta: { label: 'Смотреть', href: '/instructions#flags' } },
 ];
+
 export default function InstructionsBlock(){
   return (
     <section className="container py-12 sm:py-16">

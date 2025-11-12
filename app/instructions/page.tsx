@@ -1,9 +1,11 @@
 // app/instructions/page.tsx
 'use client';
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useMemo, useState, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 
 type Section = { id: string; title: string; icon: string; body: (JSX.Element|string)[] };
 
@@ -42,10 +44,10 @@ const sections: Section[] = [
   ]},
   { id:'video', title:'FAQ по видеосвязи', icon:'/instructions/video.svg', body:[
     <ul key="ulv" className="list-disc pl-5 space-y-1">
-      <li>Ссылка на звонок — в «Личном кабинете» в карточке записи.</li>
-      <li>Поддерживаем Chrome / Safari / Edge последних версий.</li>
+      <li>Ссылка на звонок — в «Личном кабинете».</li>
+      <li>Chrome / Safari / Edge последней версии.</li>
       <li>Разрешите доступ к камере/микрофону; наушники — лучше звук.</li>
-      <li>Если нет видео/звука — перезайдите, закройте приложения, которые заняли камеру/микрофон.</li>
+      <li>Если нет видео/звука — перезайдите; закройте приложения, занявшие камеру/микрофон; проверьте интернет.</li>
     </ul>
   ]},
   { id:'flags', title:'Красные флаги (когда онлайн недостаточно)', icon:'/instructions/flags.svg', body:[
@@ -63,32 +65,18 @@ const sections: Section[] = [
     <p key="pa2">Если состояние ухудшается — следуйте «красным флагам» и обращайтесь очно.</p>
   ]},
   { id:'hours', title:'Ночью и в выходные', icon:'/instructions/night.svg', body:[
-    <p key="nh1">Онлайн‑ответы могут занимать больше времени. Если ситуация срочная — ищите ближайшую круглосуточную клинику.</p>,
+    <p key="nh1">Онлайн‑ответы ночью/в выходные могут дольше. Срочно? Ищите круглосуточную клинику.</p>,
     <p key="nh2">При записи на ближайшее время укажите в комментариях «срочно» — мы приоритезируем.</p>
   ]},
-  { id:'chatlen', title:'Как долго работает чат‑сопровождение', icon:'/instructions/chat.svg', body:[
-    <p key="ch1">Чат открыт на 24–48 часов после консультации — для уточнений по назначению.</p>,
-    <p key="ch2">Новые симптомы — это новый случай. Пожалуйста, оформляйте повторную консультацию.</p>
+  { id:'chatlen', title:'Сколько длится чат‑сопровождение', icon:'/instructions/chat.svg', body:[
+    <p key="ch1">Чат открыт 24–48 часов после консультации — для уточнений по назначению.</p>,
+    <p key="ch2">Новые симптомы — это новый случай, оформите повторную консультацию.</p>
   ]},
   { id:'upload', title:'Как загрузить файлы к записи', icon:'/instructions/upload.svg', body:[
     <ul key="ulup" className="list-disc pl-5 space-y-1">
-      <li>В форме записи есть раздел «Файлы» — добавьте JPG/PNG/PDF/MP4.</li>
+      <li>В форме записи есть раздел «Файлы»: JPG/PNG/PDF/MP4.</li>
       <li>Фото — при хорошем свете, документы — читаемые.</li>
-      <li>Если файл не прикрепляется — сожмите и попробуйте снова или отправьте через чат.</li>
-    </ul>
-  ]},
-  { id:'payfail', title:'Проблемы с оплатой', icon:'/instructions/payfail.svg', body:[
-    <ul key="ulp2" className="list-disc pl-5 space-y-1">
-      <li>Проверьте 3‑D Secure/SMS‑подтверждение и баланс карты.</li>
-      <li>Попробуйте другой браузер (Chrome/Safari) или СБП.</li>
-      <li>При тайм‑ауте — повторите платёж через 2–3 минуты.</li>
-    </ul>
-  ]},
-  { id:'videofail', title:'Проблемы с видеосвязью', icon:'/instructions/videofail.svg', body:[
-    <ul key="ulv2" className="list-disc pl-5 space-y-1">
-      <li>Разрешите доступ к камере/микрофону в браузере и в системе.</li>
-      <li>Закройте приложения, которые могут занимать камеру/микрофон.</li>
-      <li>Перезайдите по ссылке, перезагрузите страницу, проверьте интернет.</li>
+      <li>Если файл не прикрепляется — сожмите и попробуйте снова либо отправьте через чат.</li>
     </ul>
   ]},
 ];
@@ -116,7 +104,6 @@ export default function InstructionsPage(){
   const [openId, setOpenId] = useState<string>('contact');
   const [q, setQ] = useState('');
 
-  // поиск по заголовкам и текстам
   const list = useMemo(()=>{
     if(!q.trim()) return sections;
     const s = q.trim().toLowerCase();
@@ -126,7 +113,6 @@ export default function InstructionsPage(){
     );
   }, [q]);
 
-  // якорная панель сверху (быстрые ссылки)
   useEffect(()=>{
     if(typeof window==='undefined') return;
     const hash = window.location.hash.replace('#','');
@@ -147,21 +133,11 @@ export default function InstructionsPage(){
         </div>
       </div>
 
-      {/* Поиск + быстрые ссылки */}
       <div className="rounded-2xl border border-gray-200 bg-white p-4 mb-4">
         <div className="flex flex-col md:flex-row gap-3 items-start md:items-center">
-          <input
-            className="input w-full md:max-w-sm"
-            placeholder="Поиск по инструкциям…"
-            value={q}
-            onChange={e=>setQ(e.target.value)}
-          />
+          <input className="input w-full md:max-w-sm" placeholder="Поиск по инструкциям…" value={q} onChange={e=>setQ(e.target.value)} />
           <div className="flex gap-2 flex-wrap">
-            {sections.map(s =>
-              <a key={s.id} href={`#${s.id}`} className="px-3 py-1 rounded-xl border bg-[var(--cloud)] text-sm">
-                {s.title}
-              </a>
-            )}
+            {sections.map(s => <a key={s.id} href={`#${s.id}`} className="px-3 py-1 rounded-xl border bg-[var(--cloud)] text-sm">{s.title}</a>)}
           </div>
         </div>
       </div>
