@@ -1,4 +1,4 @@
-// lib/vetmanager.ts (schedule integration patch)
+// lib/vetmanager.ts — совместимая версия с vmRequest и pushToVetmanager
 const BASE = process.env.VETMANAGER_BASE_URL || '';
 const TOKEN = process.env.VETMANAGER_TOKEN || '';
 
@@ -28,11 +28,37 @@ export async function vmPing() {
   return { ok: !!BASE && !!TOKEN, base: !!BASE, token: !!TOKEN };
 }
 
-// --- Врачи (см. предыдущий патч) ---
+// Совместимость со старыми API-роутами: vmRequest
+export async function vmRequest(path: string, options?: { method?: string; body?: any }) {
+  const init: RequestInit = {
+    method: options?.method || 'GET',
+  };
+  if (options?.body !== undefined) {
+    init.body = typeof options.body === 'string' ? options.body : JSON.stringify(options.body);
+  }
+  return vmFetch(path, init);
+}
+
+// Совместимость со старым бронированием: pushToVetmanager
+// TODO: заменить '/booking' и payload на реальный эндпоинт Vetmanager
+export async function pushToVetmanager(payload: any) {
+  try {
+    await vmFetch('/booking', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    return { ok: true };
+  } catch (e:any) {
+    console.error('pushToVetmanager error', e);
+    return { ok: false, error: e.message || 'vm error' };
+  }
+}
+
+// --- Врачи (пример) ---
 export type VmDoctor = { id: string; name: string; email?: string; specialty?: string };
 
 export async function vmListDoctors(): Promise<VmDoctor[]> {
-  const data = await vmFetch('/staff'); // TODO: поменять на реальный путь Vetmanager
+  const data = await vmFetch('/staff'); // TODO: реальный путь Vetmanager
   const raw = (data.items || data.staff || []) as any[];
   return raw.map((d) => ({
     id: String(d.id),
@@ -42,7 +68,7 @@ export async function vmListDoctors(): Promise<VmDoctor[]> {
   }));
 }
 
-// --- Расписание врача ---
+// --- Расписание врача (пример) ---
 export type VmAppointment = {
   id: string;
   doctorId: string;
@@ -52,7 +78,6 @@ export type VmAppointment = {
 };
 
 export async function vmListSchedule(doctorId: string): Promise<VmAppointment[]> {
-  // TODO: заменить '/appointments' и параметры на фактический API Vetmanager
   const data = await vmFetch(`/appointments?doctorId=${encodeURIComponent(doctorId)}`);
   const raw = (data.items || data.appointments || []) as any[];
   return raw.map((a) => ({
