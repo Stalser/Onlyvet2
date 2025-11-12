@@ -2,23 +2,21 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { doctors } from '@/lib/data';
 import { services } from '@/components/servicesData';
+import DoctorDetailsModal from '@/components/DoctorDetailsModal';
+import ScheduleModal from '@/components/ScheduleModal';
 
 export default function DoctorsPage(){
   const [q, setQ] = useState('');
   const [spec, setSpec] = useState('');
   const [service, setService] = useState('');
+  const [detailsId, setDetailsId] = useState<string | null>(null);
+  const [scheduleFor, setScheduleFor] = useState<string | null>(null);
 
-  const specialties = useMemo(() => {
-    return Array.from(new Set(doctors.map(d => d.specialty))).sort();
-  }, []);
-
-  const serviceOptions = useMemo(() => {
-    return services.map(s => ({ slug: s.slug, name: s.name }));
-  }, []);
+  const specialties = useMemo(() => Array.from(new Set(doctors.map(d => d.specialty))).sort(), []);
+  const serviceOptions = useMemo(() => services.map(s => ({ slug: s.slug, name: s.name })), []);
 
   const list = useMemo(() => {
     const s = q.trim().toLowerCase();
@@ -30,6 +28,8 @@ export default function DoctorsPage(){
     });
   }, [q, spec, service]);
 
+  const selDoc = detailsId ? doctors.find(d => d.id === detailsId) : null;
+
   return (
     <section className="container py-12 sm:py-16">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
@@ -37,7 +37,7 @@ export default function DoctorsPage(){
         <div className="text-sm opacity-70">Найдено: {list.length}</div>
       </div>
 
-      {/* Filters */}
+      {/* Фильтры */}
       <div className="card mb-6">
         <div className="grid md:grid-cols-4 gap-3">
           <div className="md:col-span-2">
@@ -61,7 +61,7 @@ export default function DoctorsPage(){
         </div>
       </div>
 
-      {/* Grid */}
+      {/* Сетка врачей */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {list.map(d => (
           <div key={d.id} className="card">
@@ -77,12 +77,23 @@ export default function DoctorsPage(){
             <p className="text-sm opacity-80 mt-3">{d.bio}</p>
 
             <div className="mt-4 grid grid-cols-2 gap-2">
-              <Link href={`/#doctors`} className="btn btn-secondary">Подробнее</Link>
-              <Link href={`/booking?doctorId=${d.id}`} className="btn btn-primary">Записаться</Link>
+              {/* Кнопка открывает модалку, НЕ уводит на главную */}
+              <button className="btn btn-secondary" onClick={()=>setDetailsId(d.id)}>Подробнее</button>
+              <button className="btn btn-primary" onClick={()=>setScheduleFor(d.id)}>Записаться</button>
             </div>
           </div>
         ))}
       </div>
+
+      {/* Модалка врача и запись прямо на этой странице */}
+      {selDoc && (
+        <DoctorDetailsModal
+          doctor={selDoc as any}
+          onClose={()=>setDetailsId(null)}
+          onBook={(id)=>{ setDetailsId(null); setScheduleFor(id); }}
+        />
+      )}
+      {scheduleFor && <ScheduleModal doctorId={scheduleFor} onClose={()=>setScheduleFor(null)} />}
     </section>
   );
 }
