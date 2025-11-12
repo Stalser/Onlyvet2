@@ -103,7 +103,7 @@ export default function ArticlePage({ params }:{ params:{slug:string} }){
         {/* Mobile collapsible TOC */}
         <details className={s.tocCollapsible}>
           <summary>Содержание</summary>
-          <div className="toc-body">
+          <div className={s.tocBody}>
             <ul className={s.tocList}>
               {toc.length ? toc.map(i => (
                 <li key={i.id} className={i.level===3?s.lvl3:undefined}>
