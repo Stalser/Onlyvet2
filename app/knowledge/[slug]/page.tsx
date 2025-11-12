@@ -12,7 +12,6 @@ export async function generateStaticParams() {
   return articles.map(a => ({ slug: a.slug }));
 }
 
-/** helpers */
 function autoExcerpt(content: string, limit = 160) {
   const clean = content.replace(/\s+/g, ' ').trim();
   return clean.slice(0, limit) + (clean.length > limit ? '…' : '');
@@ -93,44 +92,41 @@ export default function ArticlePage({ params }:{ params:{slug:string} }){
           </figure>
         )}
 
-        {toc.length>0 && (
-          <nav className="kb-toc">
-            <div className="kb-toc-title">Содержание</div>
-            <ul>
-              {toc.map(i => {
-                const active = (typeof document !== 'undefined' ? document.body.dataset.kbActive : '') === i.id;
-                return (
-                  <li key={i.id} className={i.level===3?'lvl3':'lvl2'}>
-                    <a className={active?'active':''} href={`#${i.id}`}>{i.text}</a>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
-        )}
-
-        <ArticleBody parts={htmlParts} images={art.images || []} />
-
-        <ShareBar title={art.title} />
-
-        <div className="kb-bottom">
-          <Link href="/booking" className="kb-cta">Записаться на консультацию</Link>
-          <Link href="/knowledge" className="kb-back">К списку статей</Link>
-        </div>
-
-        <div className="kb-related">
-          <div className="kb-related-title">Похожие статьи</div>
-          <div className="kb-related-grid">
-            {articles
-              .filter(a => a.slug!==art.slug && (a.category===art.category || a.tags.some(t=>art.tags.includes(t))))
-              .slice(0,4)
-              .map(a => (
-                <article key={a.slug} className="kb-related-card">
-                  <Link href={`/knowledge/${a.slug}`} className="kb-related-link">{a.title}</Link>
-                  <div className="kb-related-meta">{a.category}</div>
-                </article>
-              ))}
+        <div className="kb-grid">
+          <div>
+            <ArticleBody parts={htmlParts} images={art.images || []} />
+            <ShareBar title={art.title} />
+            <div className="kb-bottom">
+              <Link href="/booking" className="kb-cta">Записаться на консультацию</Link>
+              <Link href="/knowledge" className="kb-back">К списку статей</Link>
+            </div>
+            <div className="kb-related">
+              <div className="kb-related-title">Похожие статьи</div>
+              <div className="kb-related-grid">
+                {articles
+                  .filter(a => a.slug!==art.slug && (a.category===art.category || a.tags.some(t=>art.tags.includes(t))))
+                  .slice(0,4)
+                  .map(a => (
+                    <article key={a.slug} className="kb-related-card">
+                      <Link href={`/knowledge/${a.slug}`} className="kb-related-link">{a.title}</Link>
+                      <div className="kb-related-meta">{a.category}</div>
+                    </article>
+                  ))}
+              </div>
+            </div>
           </div>
+          {toc.length>0 && (
+            <nav className="kb-toc">
+              <div className="kb-toc-title">Содержание</div>
+              <ul>
+                {toc.map(i => (
+                  <li key={i.id} className={i.level===3?'lvl3':'lvl2'}>
+                    <a href={`#${i.id}`}>{i.text}</a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          )}
         </div>
       </div>
     </section>
