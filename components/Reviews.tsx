@@ -14,6 +14,7 @@ type Review = {
   rating: number;
   text: string;
   photo?: string;
+  photos?: string[];
   createdAt?: string;
 };
 
@@ -50,13 +51,7 @@ export default function Reviews() {
         const res = await fetch('/api/reviews');
         const payload = res.ok ? await res.json() : { items: [] };
         const fromApi: Review[] = (payload.items || []).map((r: any) => ({
-          id: r.id,
-          name: r.name,
-          pet: r.pet,
-          rating: r.rating,
-          text: r.text,
-          photo: r.photo,
-          createdAt: r.created_at
+          id: r.id, name: r.name, pet: r.pet, rating: r.rating, text: r.text, photo: r.photo, photos: r.photos, createdAt: r.created_at
         }));
         const local: Review[] = JSON.parse(localStorage.getItem('onlyvet:reviews') || '[]');
         const merged = [...local, ...fromApi, ...SEED];
@@ -101,7 +96,7 @@ export default function Reviews() {
     <section className="container py-12 sm:py-16">
       <div className="mb-4 sm:mb-6 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <h2 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--navy)', fontFamily: 'var(--font-montserrat)' }}>
+          <h2 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--navy)', fontFamily: 'var(--font-mонтserrat)' }}>
             Отзывы
           </h2>
           <div className="text-sm text-gray-500 flex items-center gap-1">
@@ -131,7 +126,7 @@ export default function Reviews() {
       <div
         ref={trackRef}
         onScroll={onScroll}
-        className="no-scrollbar flex gap-3 sm:gap-6 overflow-x-auto snap-x snap-mандatory -mx-2 px-2 sm:mx-0 sm:px-0"
+        className="no-scrollbar flex gap-3 sm:gap-6 overflow-x-auto snap-x snap-mandatory -mx-2 px-2 sm:mx-0 sm:px-0"
         style={{ scrollSnapType: 'x mandatory', scrollbarWidth: 'none' }}
       >
         {items.map((r, i) => {
@@ -178,11 +173,7 @@ export default function Reviews() {
 
       {full && (
         <ReviewFullModal
-          name={full.name}
-          pet={full.pet}
-          rating={full.rating}
-          text={full.text}
-          photo={full.photo}
+          review={full}
           onClose={() => setFull(null)}
         />
       )}
