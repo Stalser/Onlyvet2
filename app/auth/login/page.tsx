@@ -22,17 +22,21 @@ export default function LoginPage() {
   async function sendCode(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault(); setMsg('');
     const res = await fetch('/api/auth/request-code', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }),
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
     });
     const data = await res.json();
-    if (res.ok) { setSent(true); setMsg(`Код отправлен на ${email}${data.code ? ` (dev: ${data.code})` : ''}`); }
+    if (res.ok) { setSent(true); setMsg(\`Код отправлен на \${email}\${data.code ? \` (dev: \${data.code})\` : ''}\`); }
     else setMsg(data?.error || 'Не удалось отправить код');
   }
 
   async function verify(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault(); setMsg('');
     const res = await fetch('/api/auth/verify-code', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, code }),
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, code }),
     });
     const data = await res.json();
     if (res.ok) router.push('/account'); else setMsg(data?.error || 'Код не принят');
@@ -50,6 +54,9 @@ export default function LoginPage() {
             </div>
             <button className="btn btn-primary w-full sm:w-auto">Отправить код</button>
             {msg && <p className="text-sm opacity-80">{msg}</p>}
+            <div className="text-xs sm:text-sm opacity-80 mt-2">
+              Нет аккаунта? <a href="/auth/register" className="text-teal hover:underline">Зарегистрируйтесь</a>
+            </div>
           </form>
         ) : (
           <form onSubmit={verify} className="grid gap-4">
@@ -60,6 +67,9 @@ export default function LoginPage() {
             </div>
             <button className="btn btn-primary w-full sm:w-auto">Войти</button>
             {msg && <p className="text-sm opacity-80">{msg}</p>}
+            <div className="text-xs sm:text-sm opacity-80 mt-2">
+              Нет аккаунта? <a href="/auth/register" className="text-teal hover:underline">Зарегистрируйтесь</a>
+            </div>
           </form>
         )}
       </div>

@@ -5,7 +5,6 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 
 const STORAGE_KEY = 'onlyvet:account';
-
 type AccountShape = { user?: { id: string; name: string; email: string } };
 
 export default function Navbar() {
@@ -30,10 +29,9 @@ export default function Navbar() {
     return () => window.removeEventListener('storage', onStorage);
   }, []);
 
-  // Autohide on scroll (mobile only)
   useEffect(() => {
     const onScroll = () => {
-      if (menuOpen) return; // не скрываем, когда меню открыто
+      if (menuOpen) return;
       if (window.innerWidth >= 768) return;
       const y = window.scrollY;
       const dy = y - lastY.current;
@@ -45,7 +43,6 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll);
   }, [menuOpen]);
 
-  // Блокируем прокрутку body, когда открыт drawer
   useEffect(() => {
     const prev = document.body.style.overflow;
     if (menuOpen) document.body.style.overflow = 'hidden';
@@ -71,6 +68,7 @@ export default function Navbar() {
       <Link href="/knowledge" onClick={()=>setMenuOpen(false)}>База знаний</Link>
       <Link href="/red-flags" onClick={()=>setMenuOpen(false)}>Красные флаги</Link>
       <Link href="/contacts" onClick={()=>setMenuOpen(false)}>Контакты</Link>
+
       {mounted && (
         hasUser ? (
           <div className={vertical ? 'flex flex-col gap-2' : 'flex items-center gap-2'}>
@@ -78,18 +76,19 @@ export default function Navbar() {
             <button onClick={logout} className="btn bg-white border border-gray-200 rounded-xl px-4 py-2 w-full sm:w-auto">Выйти</button>
           </div>
         ) : (
+          // Гостю показываем только «Войти», без «Регистрация»
           <div className={vertical ? 'flex flex-col gap-2' : 'flex items-center gap-2'}>
             <Link href="/auth/login" className="btn btn-primary w-full sm:w-auto" onClick={()=>setMenuOpen(false)}>Войти</Link>
-            <Link href="/auth/register" className="btn bg-white border border-gray-200 rounded-xl px-4 py-2 w-full sm:w-auto" onClick={()=>setMenuOpen(false)}>Регистрация</Link>
           </div>
         )
       )}
+
       <Link href="/booking" className="btn btn-primary w-full sm:w-auto" onClick={()=>setMenuOpen(false)}>Записаться</Link>
     </div>
   );
 
   return (
-    <header className={`bg-white sticky top-0 z-50 shadow-soft transition-transform duration-200 ${hidden ? '-translate-y-full' : 'translate-y-0'}`}>
+    <header className={\`bg-white sticky top-0 z-50 shadow-soft transition-transform duration-200 \${hidden ? '-translate-y-full' : 'translate-y-0'}\`}>
       <div className="container flex items-center justify-between h-16">
         <Link href="/" className="flex items-center gap-2">
           <Image src="/logo.svg" alt="OnlyVet" width={32} height={32} className="sm:w-9 sm:h-9" />
@@ -109,7 +108,6 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* FULL OPAQUE DRAWER */}
       {menuOpen && (
         <div className="md:hidden fixed inset-0 z-[100] bg-white">
           <div className="container pt-4 pb-[max(20px,env(safe-area-inset-bottom))] flex flex-col min-h-screen overflow-y-auto">
