@@ -24,11 +24,16 @@ export default function LoginPage() {
     const res = await fetch('/api/auth/request-code', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email })
     });
     const data = await res.json();
-    if (res.ok) { setSent(true); setMsg(\`Код отправлен на \${email}\${data.code ? \` (dev: \${data.code})\` : ''}\`); }
-    else setMsg(data?.error || 'Не удалось отправить код');
+    if (res.ok) {
+      setSent(true);
+      const suffix = data.code ? ' (dev: ' + data.code + ')' : '';
+      setMsg('Код отправлен на ' + email + suffix);
+    } else {
+      setMsg((data && data.error) ? data.error : 'Не удалось отправить код');
+    }
   }
 
   async function verify(e: React.FormEvent<HTMLFormElement>) {
@@ -36,10 +41,10 @@ export default function LoginPage() {
     const res = await fetch('/api/auth/verify-code', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, code }),
+      body: JSON.stringify({ email, code })
     });
     const data = await res.json();
-    if (res.ok) router.push('/account'); else setMsg(data?.error || 'Код не принят');
+    if (res.ok) router.push('/account'); else setMsg((data && data.error) ? data.error : 'Код не принят');
   }
 
   return (

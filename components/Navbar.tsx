@@ -1,8 +1,8 @@
 // components/Navbar.tsx
 'use client';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
 
 const STORAGE_KEY = 'onlyvet:account';
 type AccountShape = { user?: { id: string; name: string; email: string } };
@@ -54,7 +54,7 @@ export default function Navbar() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       const acc = raw ? JSON.parse(raw) : {};
-      acc.user = undefined;
+      (acc as any).user = undefined;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(acc));
     } catch {}
     window.location.href = '/';
@@ -76,7 +76,6 @@ export default function Navbar() {
             <button onClick={logout} className="btn bg-white border border-gray-200 rounded-xl px-4 py-2 w-full sm:w-auto">Выйти</button>
           </div>
         ) : (
-          // Гостю показываем только «Войти», без «Регистрация»
           <div className={vertical ? 'flex flex-col gap-2' : 'flex items-center gap-2'}>
             <Link href="/auth/login" className="btn btn-primary w-full sm:w-auto" onClick={()=>setMenuOpen(false)}>Войти</Link>
           </div>
@@ -87,8 +86,10 @@ export default function Navbar() {
     </div>
   );
 
+  const headerClass = 'bg-white sticky top-0 z-50 shadow-soft transition-transform duration-200 ' + (hidden ? '-translate-y-full' : 'translate-y-0');
+
   return (
-    <header className={\`bg-white sticky top-0 z-50 shadow-soft transition-transform duration-200 \${hidden ? '-translate-y-full' : 'translate-y-0'}\`}>
+    <header className={headerClass}>
       <div className="container flex items-center justify-between h-16">
         <Link href="/" className="flex items-center gap-2">
           <Image src="/logo.svg" alt="OnlyVet" width={32} height={32} className="sm:w-9 sm:h-9" />
