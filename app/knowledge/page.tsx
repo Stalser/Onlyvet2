@@ -1,11 +1,10 @@
 // app/knowledge/page.tsx
 'use client';
+
 import Link from 'next/link';
 import { useMemo, useState, useEffect } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { articles, categories, allTags } from '@/lib/articles';
-
-export const metadata = { title: 'База знаний — OnlyVet' };
 
 function useUrlState() {
   const router = useRouter();
@@ -35,10 +34,10 @@ function useUrlState() {
     if (urlQ !== q) setQ(urlQ);
     if (urlCat !== cat) setCat(urlCat);
     if (urlTag !== tag) setTag(urlTag);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search]);
+  }, [search]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const clear = () => { setQ(''); setCat(''); setTag(''); };
+
   return { q, setQ, cat, setCat, tag, setTag, clear };
 }
 
