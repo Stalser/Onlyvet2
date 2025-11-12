@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { articles } from '@/lib/articles';
+import Markdown from '@/components/Markdown';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,7 +10,6 @@ export async function generateStaticParams() {
   return articles.map(a => ({ slug: a.slug }));
 }
 
-/** utils */
 function autoExcerpt(content: string, limit = 160) {
   const clean = content.replace(/\s+/g, ' ').trim();
   return clean.slice(0, limit) + (clean.length > limit ? '…' : '');
@@ -18,30 +18,17 @@ function autoCover(images?: {src:string;alt?:string}[]) {
   if (images && images.length) return images[0].src;
   return '/kb/placeholder-cover.jpg';
 }
-function parseContent(content:string){
-  const lines = content.split('\n');
-  let htmlParts: {type:'p'|'h2'|'h3', text:string, id?:string}[] = [];
+
+// Extract simple TOC from markdown headings
+function parseTOC(md: string){
+  const lines = md.split(/\r?\n/);
   let toc: {id:string; text:string; level:2|3}[] = [];
   let idx = 0;
   for(const raw of lines){
-    const line = raw.trim();
-    if(line.startsWith('### ')){
-      const text = line.replace(/^###\s+/, '');
-      const id = 'h3-' + (++idx);
-      htmlParts.push({type:'h3', text, id});
-      toc.push({id, text, level:3});
-    } else if(line.startsWith('## ')){
-      const text = line.replace(/^##\s+/, '');
-      const id = 'h2-' + (++idx);
-      htmlParts.push({type:'h2', text, id});
-      toc.push({id, text, level:2});
-    } else if(line===''){
-      htmlParts.push({type:'p', text:''});
-    } else {
-      htmlParts.push({type:'p', text: line});
-    }
+    const h3 = raw.match(/^###\s+(.+)/); if(h3){ toc.push({id:'h3-'+(++idx), text:h3[1], level:3}); continue; }
+    const h2 = raw.match(/^##\s+(.+)/);  if(h2){ toc.push({id:'h2-'+(++idx), text:h2[1], level:2}); continue; }
   }
-  return { htmlParts, toc };
+  return toc;
 }
 
 export async function generateMetadata({ params }:{ params:{slug:string} }){
@@ -60,8 +47,8 @@ export async function generateMetadata({ params }:{ params:{slug:string} }){
 export default function ArticlePage({ params }:{ params:{slug:string} }){
   const art = articles.find(a => a.slug === params.slug);
   if(!art) return notFound();
-  const { htmlParts, toc } = parseContent(art.content);
   const cover = autoCover(art.images as any);
+  const toc = parseTOC(art.content);
 
   return (
     <section className="kb-wrap">
@@ -103,33 +90,12 @@ export default function ArticlePage({ params }:{ params:{slug:string} }){
           </nav>
         )}
 
-        {/* BODY in VK-like style (pure server render, no client hooks) */}
-        <article className="kb-body">
-          {htmlParts.map((el, i) => {
-            if(el.type==='h2') return <h2 key={i} id={el.id} className="kb-h2">{el.text}</h2>;
-            if(el.type==='h3') return <h3 key={i} id={el.id} className="kb-h3">{el.text}</h3>;
-            return <p key={i}>{el.text}</p>;
-          })}
-        </article>
+        {/* Body (markdown to HTML, no external deps) */}
+        <Markdown source={art.content} />
 
         <div className="kb-bottom">
           <Link href="/booking" className="kb-cta">Записаться на консультацию</Link>
           <Link href="/knowledge" className="kb-back">К списку статей</Link>
-        </div>
-
-        <div className="kb-related">
-          <div className="kb-related-title">Похожие статьи</div>
-          <div className="kb-related-grid">
-            {articles
-              .filter(a => a.slug!==art.slug && (a.category===art.category || a.tags.some(t=>art.tags.includes(t))))
-              .slice(0,4)
-              .map(a => (
-                <article key={a.slug} className="kb-related-card">
-                  <Link href={`/knowledge/${a.slug}`} className="kb-related-link">{a.title}</Link>
-                  <div className="kb-related-meta">{a.category}</div>
-                </article>
-              ))}
-          </div>
         </div>
       </div>
     </section>
