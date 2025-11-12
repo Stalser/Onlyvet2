@@ -4,7 +4,6 @@ import { notFound } from 'next/navigation';
 import { articles } from '@/lib/articles';
 import ArticleBody from '@/components/ArticleBody';
 import ShareBar from '@/components/ShareBar';
-import TOC from '@/components/TOC';
 import s from './article.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -81,7 +80,7 @@ export default function ArticlePage({ params }:{ params:{slug:string} }){
           {art.tags?.map(t => <span key={t} className={s.tag}>#{t}</span>)}
         </div>
 
-        {/* HERO: фото слева, TOC справа */}
+        {/* HERO: фото слева (узкое), TOC справа — не больше фото; если длиннее, появляется скролл */}
         <div className={s.hero}>
           <figure className={s.figure}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -91,7 +90,13 @@ export default function ArticlePage({ params }:{ params:{slug:string} }){
 
           <nav className={s.tocPanel}>
             <div className={s.tocTitle}>Содержание</div>
-            <TOC items={toc} className={s.tocList} />
+            <ul className={s.tocList}>
+              {toc.length ? toc.map(i => (
+                <li key={i.id} className={i.level===3?s.lvl3:undefined}>
+                  <a className={s.tocLink} href={`#${i.id}`}>{i.text}</a>
+                </li>
+              )) : <li><span className="opacity-60">Нет оглавления</span></li>}
+            </ul>
           </nav>
         </div>
 
@@ -99,12 +104,20 @@ export default function ArticlePage({ params }:{ params:{slug:string} }){
         <details className={s.tocCollapsible}>
           <summary>Содержание</summary>
           <div className={s.tocBody}>
-            <TOC items={toc} className={s.tocList} />
+            <ul className={s.tocList}>
+              {toc.length ? toc.map(i => (
+                <li key={i.id} className={i.level===3?s.lvl3:undefined}>
+                  <a className={s.tocLink} href={`#${i.id}`}>{i.text}</a>
+                </li>
+              )) : <li><span className="opacity-60">Нет оглавления</span></li>}
+            </ul>
           </div>
         </details>
 
-        {/* Контент */}
-        <ArticleBody parts={htmlParts} images={art.images || []} />
+        {/* Контент — белая карточка */}
+        <div className={s.body}>
+          <ArticleBody parts={htmlParts} images={art.images || []} />
+        </div>
 
         <ShareBar title={art.title} />
 
