@@ -1,26 +1,22 @@
 import './globals.css';
 import type { Metadata } from 'next';
-import { Inter, Montserrat } from 'next/font/google';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
-const inter = Inter({ subsets: ['latin','cyrillic'], variable: '--font-inter' });
-const montserrat = Montserrat({ subsets: ['latin','cyrillic'], weight: ['400','600','700'], variable: '--font-montserrat' });
-
 export const metadata: Metadata = {
   title: 'OnlyVet — Ветеринар онлайн',
-  description: 'Мы рядом, даже когда врач далеко. Онлайн‑консультации 24/7.',
+  description: 'Онлайн‑консультации 24/7',
   icons: {
-    icon: '/favicon.ico',
-    shortcut: '/favicon-32x32.png',
-    apple: '/icon-192x192.png'
+    icon: '/favicon.ico?v=4',
+    shortcut: '/favicon-32x32.png?v=4',
+    apple: '/apple-touch-icon.png?v=4'
   },
-  manifest: '/manifest.json'
+  manifest: '/manifest.json?v=4',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ru" className={`${inter.variable} ${montserrat.variable}`}>
+    <html lang="ru">
       <body className="min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-1">{children}</main>
