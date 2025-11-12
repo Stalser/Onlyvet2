@@ -1,7 +1,5 @@
 // app/instructions/page.tsx
 'use client';
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
 import Link from 'next/link';
 import Image from 'next/image';
@@ -147,10 +145,6 @@ export default function InstructionsPage(){
           <Item key={sec.id} s={sec} open={openId===sec.id} onToggle={()=>setOpenId(p=>p===sec.id? '' : sec.id)} />
         ))}
         {list.length===0 && <div className="opacity-70">Ничего не найдено по запросу «{q}».</div>}
-      </div>
-
-      <div className="mt-6 text-sm opacity-70">
-        Нужна помощь прямо сейчас? Напишите нам в Telegram/VK — кнопки в шапке сайта.
       </div>
     </section>
   );
