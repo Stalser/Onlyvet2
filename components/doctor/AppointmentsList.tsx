@@ -1,9 +1,7 @@
 // components/doctor/AppointmentsList.tsx
 'use client';
 import { appointments, patients } from '@/lib/doctor';
-
 function fmtTime(dt: string){ return new Date(dt).toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'}); }
-
 export default function AppointmentsList(){
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-4">

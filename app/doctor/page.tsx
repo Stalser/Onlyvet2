@@ -2,13 +2,7 @@
 'use client';
 import Schedule from '@/components/doctor/Schedule';
 import AppointmentsList from '@/components/doctor/AppointmentsList';
-import { getDoctorSession } from '@/lib/doctor';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-
 export default function DoctorHome(){
-  const router = useRouter();
-  useEffect(()=>{ if(!getDoctorSession()?.user) router.replace('/auth/doctor'); }, [router]);
   return (
     <div className="space-y-4">
       <Schedule />
