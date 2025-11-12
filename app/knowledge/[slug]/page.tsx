@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { articles } from '@/lib/articles';
 import ArticleBody from '@/components/ArticleBody';
 import ShareBar from '@/components/ShareBar';
+import BackToTop from '@/components/BackToTop';
 
 export const dynamic = 'force-dynamic';
 
@@ -63,7 +64,7 @@ export default function ArticlePage({ params }:{ params:{slug:string} }){
   const art = articles.find(a => a.slug === params.slug);
   if(!art) return notFound();
   const { htmlParts, toc } = parseContent(art.content);
-  const cover = autoCover(art.images as any);
+  const cover = (art.images && art.images.length>0) ? (art.images[0].src) : '/kb/placeholder-cover.jpg';
 
   return (
     <section className="kb-wrap">
@@ -129,6 +130,7 @@ export default function ArticlePage({ params }:{ params:{slug:string} }){
           )}
         </div>
       </div>
+      <BackToTop />
     </section>
   );
 }
