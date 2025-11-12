@@ -49,3 +49,30 @@ export const appointments: Appointment[] = [
   { id: 'a-1', startsAt: new Date(Date.now()+60*60*1000).toISOString(), endsAt: new Date(Date.now()+90*60*1000).toISOString(), patientId: 'p-102', service: 'Онлайн-консультация', status: 'scheduled', channel: 'video' },
   { id: 'a-2', startsAt: new Date(Date.now()+3*60*60*1000).toISOString(), endsAt: new Date(Date.now()+3.5*60*60*1000).toISOString(), patientId: 'p-101', service: 'Повторная консультация', status: 'scheduled', channel: 'chat' }
 ];
+
+// --- Simple client-side session helpers (used across pages/components) ---
+export const DOCTOR_STORAGE_KEY = 'onlyvet:doctor';
+
+export function saveDoctorSession(user: DoctorUser){
+  if (typeof window==='undefined') return;
+  try{
+    localStorage.setItem(DOCTOR_STORAGE_KEY, JSON.stringify({ user }));
+  }catch{}
+}
+
+export function getDoctorSession(): { user?: DoctorUser } | null {
+  if (typeof window==='undefined') return null;
+  try{
+    const raw = localStorage.getItem(DOCTOR_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  }catch{
+    return null;
+  }
+}
+
+export function clearDoctorSession(){
+  if (typeof window==='undefined') return;
+  try{
+    localStorage.removeItem(DOCTOR_STORAGE_KEY);
+  }catch{}
+}
