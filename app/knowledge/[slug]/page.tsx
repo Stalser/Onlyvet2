@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { articles } from '@/lib/articles';
 import ArticleBody from '@/components/ArticleBody';
 import ShareBar from '@/components/ShareBar';
+import TOC from '@/components/TOC';
 import s from './article.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -90,13 +91,7 @@ export default function ArticlePage({ params }:{ params:{slug:string} }){
 
           <nav className={s.tocPanel}>
             <div className={s.tocTitle}>Содержание</div>
-            <ul className={s.tocList}>
-              {toc.length ? toc.map(i => (
-                <li key={i.id} className={i.level===3?s.lvl3:undefined}>
-                  <a className={s.tocLink} href={`#${i.id}`}>{i.text}</a>
-                </li>
-              )) : <li><span className="opacity-60">Нет оглавления</span></li>}
-            </ul>
+            <TOC items={toc} className={s.tocList} />
           </nav>
         </div>
 
@@ -104,13 +99,7 @@ export default function ArticlePage({ params }:{ params:{slug:string} }){
         <details className={s.tocCollapsible}>
           <summary>Содержание</summary>
           <div className={s.tocBody}>
-            <ul className={s.tocList}>
-              {toc.length ? toc.map(i => (
-                <li key={i.id} className={i.level===3?s.lvl3:undefined}>
-                  <a className={s.tocLink} href={`#${i.id}`}>{i.text}</a>
-                </li>
-              )) : <li><span className="opacity-60">Нет оглавления</span></li>}
-            </ul>
+            <TOC items={toc} className={s.tocList} />
           </div>
         </details>
 
