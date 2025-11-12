@@ -11,14 +11,35 @@ export default function Navbar(){
   const [menu,setMenu]=useState(false);
   const [auth,setAuth]=useState(false);
   const [mounted,setMounted]=useState(false);
-  const lastY=useRef(0); 
+  const lastY=useRef(0);
   const [hidden,setHidden]=useState(false);
   const [scrolled,setScrolled]=useState(false);
 
-  // swipe-to-close state
-  const startY = useRef<number|null>(null);
-  const [pull, setPull] = useState(0);
-  const THRESH = 80;
+  // scroll lock helpers
+  const lockScroll = () => {
+    const y = window.scrollY || document.documentElement.scrollTop;
+    document.documentElement.style.overscrollBehavior = 'none';
+    document.body.dataset.scrollY = String(y);
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${y}px`;
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    document.body.style.width = '100%';
+    document.body.style.overflowY = 'hidden';
+  };
+  const unlockScroll = () => {
+    const yStr = document.body.dataset.scrollY || '0';
+    const y = parseInt(yStr, 10) || 0;
+    document.documentElement.style.overscrollBehavior = '';
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
+    document.body.style.width = '';
+    document.body.style.overflowY = '';
+    delete document.body.dataset.scrollY;
+    window.scrollTo(0, y);
+  };
 
   useEffect(()=>{
     const read=()=>{
@@ -30,7 +51,6 @@ export default function Navbar(){
     return ()=>window.removeEventListener('storage',onStorage);
   },[]);
 
-  // Header behavior
   useEffect(()=>{
     const onScroll=()=>{
       setScrolled(window.scrollY>4);
@@ -45,35 +65,30 @@ export default function Navbar(){
     return ()=>window.removeEventListener('scroll', onScroll as any);
   },[menu]);
 
-  // Lock scroll when menu open
+  // open/close effects
   useEffect(()=>{
-    const html = document.documentElement;
-    const body = document.body;
-    if(menu){
-      html.style.overscrollBehavior = 'none';
-      body.style.overflow = 'hidden';
-      body.style.position = 'fixed';
-      body.style.width = '100%';
-    }else{
-      html.style.overscrollBehavior = '';
-      body.style.overflow = '';
-      body.style.position = '';
-      body.style.width = '';
-    }
-    return ()=>{
-      html.style.overscrollBehavior = '';
-      body.style.overflow = '';
-      body.style.position = '';
-      body.style.width = '';
-    };
+    if(menu) lockScroll(); else unlockScroll();
+    return ()=>{ unlockScroll(); };
   },[menu]);
 
-  // Close on ESC
+  // ESC close
   useEffect(()=>{
     const onKey=(e:KeyboardEvent)=>{ if(e.key==='Escape' && menu) setMenu(false); };
     window.addEventListener('keydown', onKey);
     return ()=>window.removeEventListener('keydown', onKey);
   },[menu]);
+
+  // swipe-to-close
+  const startY = useRef<number|null>(null);
+  const [pull,setPull]=useState(0);
+  const THRESH=80;
+  const onTouchStart=(e:React.TouchEvent)=>{ startY.current=e.touches[0].clientY; setPull(0); };
+  const onTouchMove=(e:React.TouchEvent)=>{
+    if(startY.current==null) return;
+    const dy=e.touches[0].clientY-startY.current;
+    if(dy>0){ e.preventDefault(); setPull(Math.min(dy,120)); }
+  };
+  const onTouchEnd=()=>{ if(pull>=THRESH) setMenu(false); setPull(0); startY.current=null; };
 
   const baseHeader='sticky top-0 z-50 transition-transform duration-200';
   const transform=hidden?'-translate-y-full':'translate-y-0';
@@ -99,24 +114,6 @@ export default function Navbar(){
     </div>
   );
 
-  // Touch handlers for drawer
-  const onTouchStart=(e:React.TouchEvent)=>{
-    startY.current = e.touches[0].clientY;
-    setPull(0);
-  };
-  const onTouchMove=(e:React.TouchEvent)=>{
-    if(startY.current==null) return;
-    const dy = e.touches[0].clientY - startY.current;
-    if(dy>0){
-      e.preventDefault(); // avoid rubber scroll
-      setPull(Math.min(dy, 120));
-    }
-  };
-  const onTouchEnd=()=>{
-    if(pull>=THRESH) setMenu(false);
-    setPull(0); startY.current=null;
-  };
-
   return (
     <header className={baseHeader+' '+transform} style={chromeStyle}>
       <div className="container flex items-center justify-between h-16">
@@ -132,16 +129,15 @@ export default function Navbar(){
         </button>
       </div>
 
-      {/* Mobile drawer overlay — tap outside to close */}
       {menu && (
         <div
-          className="fixed inset-0 z-[9999] bg-white"
+          className="fixed inset-0 z-[9999] bg-white/98"
           role="dialog" aria-modal="true"
-          onClick={()=>setMenu(false)} // tap outside closes
+          onClick={()=>setMenu(false)}
         >
           <div
             className="container pt-[max(16px,env(safe-area-inset-top))] pb-[max(20px,env(safe-area-inset-bottom))] flex flex-col min-h-screen overflow-y-auto"
-            onClick={(e)=>e.stopPropagation()} // prevent close when tapping content
+            onClick={(e)=>e.stopPropagation()}
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
