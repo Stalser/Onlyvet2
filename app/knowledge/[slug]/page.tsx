@@ -5,46 +5,43 @@ import { articles } from '@/lib/articles';
 import ArticleBody from '@/components/ArticleBody';
 import ShareBar from '@/components/ShareBar';
 import TOC from '@/components/TOC';
-import s from './article.module.css';
+import s from './article.v20.module.css';
 
 export const dynamic = 'force-dynamic';
 
-export async function generateStaticParams() {
+export async function generateStaticParams(){
   return articles.map(a => ({ slug: a.slug }));
 }
 
-type Item = { id: string; text: string; level: 2|3 };
+type Item = { id:string; text:string; level:2|3 };
 
-function autoCover(images?: {src:string}[]) {
+function autoCover(images?: {src:string}[]){
   return images && images.length ? images[0].src : '/kb/placeholder-cover.jpg';
 }
 
-function parseContent(content: string){
-  const parts: {type:'p'|'h2'|'h3', text:string, id?:string}[] = [];
+function parseContent(content:string){
+  const parts: {type:'p'|'h2'|'h3',text:string,id?:string}[] = [];
   const items: Item[] = [];
   let idx = 0;
-  for (const raw of content.split('\n')) {
+  for(const raw of content.split('\n')){
     const line = raw.trim();
-    if (line.startsWith('### ')) {
+    if(line.startsWith('### ')){
       const text = line.replace(/^###\s+/, '');
       const id = 'h3-' + (++idx);
-      parts.push({ type:'h3', text, id });
-      items.push({ id, text, level:3 });
-    } else if (line.startsWith('## ')) {
+      parts.push({type:'h3',text,id}); items.push({id,text,level:3});
+    } else if(line.startsWith('## ')){
       const text = line.replace(/^##\s+/, '');
       const id = 'h2-' + (++idx);
-      parts.push({ type:'h2', text, id });
-      items.push({ id, text, level:2 });
-    } else if (line) {
-      parts.push({ type:'p', text: line });
-    }
+      parts.push({type:'h2',text,id}); items.push({id,text,level:2});
+    } else if(line){ parts.push({type:'p',text:line}); }
   }
   return { parts, items };
 }
 
-export default function ArticlePage({ params }:{ params:{ slug:string } }){
-  const art = articles.find(a => a.slug === params.slug);
+export default function ArticlePage({ params }:{ params:{slug:string} }){
+  const art = articles.find(a => a.slug===params.slug);
   if(!art) return notFound();
+
   const cover = autoCover(art.images as any);
   const { parts, items } = parseContent(art.content);
 
@@ -65,22 +62,20 @@ export default function ArticlePage({ params }:{ params:{ slug:string } }){
         <div className={s.heroRow}>
           <figure className={s.figure}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={cover} alt={art.title} className={s.img} />
+            <img src={cover} alt={art.title} className={s.img}/>
           </figure>
           <nav className={s.tocSide}>
             <div className={s.tocTitle}>Содержание</div>
-            <TOC items={items} className={s.tocList} />
+            <TOC items={items} className={s.tocList}/>
           </nav>
         </div>
 
-        {/* Текст — белая карточка */}
         <div className={s.body}>
-          <ArticleBody parts={parts as any} images={art.images as any} />
+          <ArticleBody parts={parts as any} images={art.images as any}/>
         </div>
 
-        <ShareBar title={art.title} />
+        <ShareBar title={art.title}/>
 
-        {/* Кнопки справа */}
         <div className={s.bottom}>
           <Link href="/booking" className={s.cta}>Записаться на консультацию</Link>
           <Link href="/knowledge" className={s.back}>К списку</Link>
