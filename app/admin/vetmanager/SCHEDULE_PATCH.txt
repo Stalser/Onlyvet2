@@ -1,0 +1,6 @@
+// PATCH: app/admin/vetmanager/page.tsx
+// Добавьте под кнопкой ping текстовый блок:
+// <div className="mt-4 text-xs opacity-70">
+//   Для загрузки расписания используйте API: GET /api/vetmanager/schedule?doctorId=&lt;ID&gt;.
+//   На фронте можно подставлять ID врача из Vetmanager и отображать приёмы в WeeklyGrid.
+// </div>

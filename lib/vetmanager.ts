@@ -1,4 +1,4 @@
-// lib/vetmanager.ts (patch)
+// lib/vetmanager.ts (schedule integration patch)
 const BASE = process.env.VETMANAGER_BASE_URL || '';
 const TOKEN = process.env.VETMANAGER_TOKEN || '';
 
@@ -28,15 +28,38 @@ export async function vmPing() {
   return { ok: !!BASE && !!TOKEN, base: !!BASE, token: !!TOKEN };
 }
 
+// --- Врачи (см. предыдущий патч) ---
 export type VmDoctor = { id: string; name: string; email?: string; specialty?: string };
 
 export async function vmListDoctors(): Promise<VmDoctor[]> {
-  const data = await vmFetch('/staff'); 
+  const data = await vmFetch('/staff'); // TODO: поменять на реальный путь Vetmanager
   const raw = (data.items || data.staff || []) as any[];
   return raw.map((d) => ({
     id: String(d.id),
     name: d.name || d.fullName || d.title || 'Врач',
     email: d.email || d.emailAddress || '',
     specialty: d.specialty || d.position || ''
+  }));
+}
+
+// --- Расписание врача ---
+export type VmAppointment = {
+  id: string;
+  doctorId: string;
+  patientName: string;
+  startsAt: string;
+  endsAt: string;
+};
+
+export async function vmListSchedule(doctorId: string): Promise<VmAppointment[]> {
+  // TODO: заменить '/appointments' и параметры на фактический API Vetmanager
+  const data = await vmFetch(`/appointments?doctorId=${encodeURIComponent(doctorId)}`);
+  const raw = (data.items || data.appointments || []) as any[];
+  return raw.map((a) => ({
+    id: String(a.id),
+    doctorId,
+    patientName: a.patientName || a.patient?.name || 'Пациент',
+    startsAt: a.startsAt || a.start_time,
+    endsAt: a.endsAt || a.end_time,
   }));
 }
