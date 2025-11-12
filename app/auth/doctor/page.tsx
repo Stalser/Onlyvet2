@@ -15,7 +15,7 @@ export default function DoctorLoginPage(){
   const send = async () => {
     try{
       const res = await fetch('/api/doctor/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email }) });
-      const data = await res.json();
+    const data = await res.json();
       if(res.ok){ setSent(true); setMsg(`Код отправлен на ${email} ${data.code ? `(dev: ${data.code})` : ''}`); }
       else setMsg(data?.error || 'Ошибка отправки');
     }catch(e){ setMsg('Сеть недоступна'); }
@@ -24,6 +24,7 @@ export default function DoctorLoginPage(){
   const verify = async () => {
     if(code.trim()!=='111111'){ setMsg('Неверный код'); return; }
     saveDoctorSession(mockDoctor);
+    await fetch('/api/doctor/session', { method:'POST' });
     router.replace('/doctor');
   };
 

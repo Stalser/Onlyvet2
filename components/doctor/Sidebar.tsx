@@ -12,7 +12,8 @@ export default function Sidebar(){
     <aside className="w-64 shrink-0">
       <div className="sticky top-20 space-y-1">
         <Item href="/doctor" label="Рабочий стол" />
-        <Item href="/doctor/schedule" label="График" />
+        <Item href="/doctor/appointments" label="Расписание (неделя)" />
+        <Item href="/doctor/schedule" label="Список ближайших" />
         <Item href="/doctor/patients" label="Пациенты" />
         <Item href="/doctor/settings" label="Настройки" />
       </div>

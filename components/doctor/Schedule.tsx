@@ -18,10 +18,10 @@ export default function Schedule(){
             <div key={a.id} className="flex items-center justify-between gap-3 border rounded-xl p-3">
               <div>
                 <div className="font-medium">{fmt(a.startsAt)} — {fmt(a.endsAt)}</div>
-                <div className="text-sm opacity-80">{p?.name} · {p?.species==='dog'?'Собака':'Кот/другое'} · {a.service} · канал: {a.channel}</div>
+                <div className="text-sm opacity-80">{p?.name} · {a.service} · канал: {a.channel}</div>
               </div>
               <div className="flex gap-2">
-                <a href={`/doctor/appointment/${a.id}`} className="btn btn-primary rounded-xl px-3">Открыть</a>
+                <a className="btn btn-primary rounded-xl px-3" href={`/doctor/appointment/${a.id}`}>Открыть</a>
               </div>
             </div>
           );

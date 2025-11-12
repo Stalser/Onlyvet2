@@ -17,7 +17,7 @@ export default function AppointmentsList(){
                 <div className="font-medium">{fmtTime(a.startsAt)}–{fmtTime(a.endsAt)} · {a.service}</div>
                 <div className="text-sm opacity-80">{p?.name} · {p?.owner?.name}</div>
               </div>
-              <a href={`/doctor/appointment/${a.id}`} className="btn bg-white border border-gray-300 rounded-xl px-3">Открыть карту</a>
+              <a className="btn bg-white border border-gray-300 rounded-xl px-3" href={`/doctor/appointment/${a.id}`}>Открыть карту</a>
             </div>
           );
         })}
