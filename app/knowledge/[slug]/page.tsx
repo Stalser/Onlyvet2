@@ -2,7 +2,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { articles } from '@/lib/articles';
-import ArticleBody from '@/components/ArticleBody';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,6 +9,7 @@ export async function generateStaticParams() {
   return articles.map(a => ({ slug: a.slug }));
 }
 
+/** utils */
 function autoExcerpt(content: string, limit = 160) {
   const clean = content.replace(/\s+/g, ' ').trim();
   return clean.slice(0, limit) + (clean.length > limit ? '…' : '');
@@ -18,7 +18,6 @@ function autoCover(images?: {src:string;alt?:string}[]) {
   if (images && images.length) return images[0].src;
   return '/kb/placeholder-cover.jpg';
 }
-
 function parseContent(content:string){
   const lines = content.split('\n');
   let htmlParts: {type:'p'|'h2'|'h3', text:string, id?:string}[] = [];
@@ -104,7 +103,14 @@ export default function ArticlePage({ params }:{ params:{slug:string} }){
           </nav>
         )}
 
-        <ArticleBody parts={htmlParts} images={art.images || []} />
+        {/* BODY in VK-like style (pure server render, no client hooks) */}
+        <article className="kb-body">
+          {htmlParts.map((el, i) => {
+            if(el.type==='h2') return <h2 key={i} id={el.id} className="kb-h2">{el.text}</h2>;
+            if(el.type==='h3') return <h3 key={i} id={el.id} className="kb-h3">{el.text}</h3>;
+            return <p key={i}>{el.text}</p>;
+          })}
+        </article>
 
         <div className="kb-bottom">
           <Link href="/booking" className="kb-cta">Записаться на консультацию</Link>

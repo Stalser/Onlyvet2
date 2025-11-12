@@ -1,4 +1,4 @@
-/* KB styles (VK-like + TOC + gallery + related) */
+/* ---- KB (VK-like) styles: restore ---- */
 .kb-wrap{background:#f7f9fb}
 .kb-container{max-width:860px;margin:0 auto;padding:24px 16px 56px}
 .kb-breadcrumbs{display:flex;gap:8px;align-items:center;font-size:13px;margin-bottom:8px;color:#5b6b7f}
@@ -23,9 +23,6 @@
 .kb-toc li.lvl2 a{color:#334155;text-decoration:none}
 .kb-toc li.lvl3{padding-left:12px}
 .kb-toc li a:hover{text-decoration:underline}
-.kb-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-top:14px}
-.kb-thumb{border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;background:#fff;padding:0}
-.kb-thumb img{display:block;width:100%;height:100%;object-fit:cover}
 .kb-related{margin-top:28px}
 .kb-related-title{font-weight:700;margin-bottom:10px}
 .kb-related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
