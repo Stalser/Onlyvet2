@@ -2,11 +2,14 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, Suspense } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { articles, categories, allTags } from '@/lib/articles';
 
-function useUrlState() {
+// Disable prerender CSR bailout error
+export const dynamic = 'force-dynamic';
+
+function FiltersInner(){
   const router = useRouter();
   const pathname = usePathname();
   const search = useSearchParams();
@@ -34,15 +37,10 @@ function useUrlState() {
     if (urlQ !== q) setQ(urlQ);
     if (urlCat !== cat) setCat(urlCat);
     if (urlTag !== tag) setTag(urlTag);
-  }, [search]); // eslint-disable-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
 
   const clear = () => { setQ(''); setCat(''); setTag(''); };
-
-  return { q, setQ, cat, setCat, tag, setTag, clear };
-}
-
-export default function KnowledgePage(){
-  const { q, setQ, cat, setCat, tag, setTag, clear } = useUrlState();
 
   const list = useMemo(()=>{
     const qn = q.trim().toLowerCase();
@@ -110,5 +108,13 @@ export default function KnowledgePage(){
         )}
       </div>
     </section>
+  );
+}
+
+export default function KnowledgePageWrapper(){
+  return (
+    <Suspense fallback={<section className="container py-12 sm:py-16"><div className="opacity-60">Загрузка…</div></section>}>
+      <FiltersInner/>
+    </Suspense>
   );
 }
