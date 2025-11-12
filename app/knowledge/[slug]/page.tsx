@@ -5,7 +5,8 @@ import { articles } from '@/lib/articles';
 import ArticleBody from '@/components/ArticleBody';
 import ShareBar from '@/components/ShareBar';
 import TOC from '@/components/TOC';
-import s from './article.v20.module.css';
+import ArticleHeroRow from '@/components/ArticleHeroRow';
+import s from './article.v20.module.css';  // можно оставить текущий модуль для body/buttons
 
 export const dynamic = 'force-dynamic';
 
@@ -25,15 +26,9 @@ function parseContent(content:string){
   let idx = 0;
   for(const raw of content.split('\n')){
     const line = raw.trim();
-    if(line.startsWith('### ')){
-      const text = line.replace(/^###\s+/, '');
-      const id = 'h3-' + (++idx);
-      parts.push({type:'h3',text,id}); items.push({id,text,level:3});
-    } else if(line.startsWith('## ')){
-      const text = line.replace(/^##\s+/, '');
-      const id = 'h2-' + (++idx);
-      parts.push({type:'h2',text,id}); items.push({id,text,level:2});
-    } else if(line){ parts.push({type:'p',text:line}); }
+    if(line.startsWith('### ')){ const text=line.replace(/^###\s+/,''); const id='h3-'+(++idx); parts.push({type:'h3',text,id}); items.push({id,text,level:3}); }
+    else if(line.startsWith('## ')){ const text=line.replace(/^##\s+/,''); const id='h2-'+(++idx); parts.push({type:'h2',text,id}); items.push({id,text,level:2}); }
+    else if(line){ parts.push({type:'p',text:line}); }
   }
   return { parts, items };
 }
@@ -58,18 +53,10 @@ export default function ArticlePage({ params }:{ params:{slug:string} }){
           {art.tags?.map(t => <span key={t} className={s.tag}>#{t}</span>)}
         </div>
 
-        {/* Фото слева + TOC справа */}
-        <div className={s.heroRow}>
-          <figure className={s.figure}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={cover} alt={art.title} className={s.img}/>
-          </figure>
-          <nav className={s.tocSide}>
-            <div className={s.tocTitle}>Содержание</div>
-            <TOC items={items} className={s.tocList}/>
-          </nav>
-        </div>
+        {/* ЖЁСТКО: фото слева + TOC справа через клиентский компонент со своими стилями */}
+        <ArticleHeroRow cover={cover} alt={art.title} items={items}/>
 
+        {/* Текст — белая карточка */}
         <div className={s.body}>
           <ArticleBody parts={parts as any} images={art.images as any}/>
         </div>
