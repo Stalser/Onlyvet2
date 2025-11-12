@@ -7,33 +7,14 @@ import Stars from '@/components/Stars';
 import ReviewModal from '@/components/ReviewModal';
 import ReviewFullModal from '@/components/ReviewFullModal';
 
-type Review = {
-  id?: string;
-  name: string;
-  pet?: string;
-  rating: number;
-  text: string;
-  photo?: string;
-  photos?: string[];
-  createdAt?: string;
-};
+type Review = { id?: string; name: string; pet?: string; rating: number; text: string; photo?: string; photos?: string[]; createdAt?: string; };
 
-const FALLBACK_IMG =
-  'data:image/svg+xml;utf8,' +
-  encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600">
-      <rect width="100%" height="100%" fill="#eef2f7"/>
-      <text x="50%" y="52%" text-anchor="middle" font-family="Arial" font-size="18" fill="#9aa7b0">Фото</text>
-    </svg>`
-  );
+const FALLBACK_IMG = 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><rect width="100%" height="100%" fill="#eef2f7"/><text x="50%" y="52%" text-anchor="middle" font-family="Arial" font-size="18" fill="#9aa7b0">Фото</text></svg>`);
 
 const SEED: Review[] = [
-  { name: 'Екатерина и кот Мурзик', pet: 'Мурзик', rating: 5, photo: '/reviews/murzik.jpg',
-    text: 'У кота началась рвота, переживали. Врач попросил описать симптомы и прислать фото лотка, за 15 минут разобрались, что критичного нет. Объяснили, когда ехать в клинику, а когда достаточно наблюдать.' },
-  { name: 'Антон и пёс Рич', pet: 'Рич', rating: 5, photo: '/reviews/rich.jpg',
-    text: 'Сначала поддержали, потом дали чёткий план из трёх шагов. Через двое суток уточнили самочувствие — стало лучше.' },
-  { name: 'Марина и Луна', pet: 'Луна', rating: 4, photo: '/reviews/luna.jpg',
-    text: 'Длинный отзыв: хроническая дерматология... Понятный план ухода, список «красных флагов». Через пару недель состояние заметно улучшилось.' },
+  { name: 'Екатерина и кот Мурзик', pet: 'Мурзик', rating: 5, photo: '/reviews/murzik.jpg', text: 'У кота началась рвота, переживали...' },
+  { name: 'Антон и пёс Рич', pet: 'Рич', rating: 5, photo: '/reviews/rich.jpg', text: 'Сначала поддержали, потом дали чёткий план...' },
+  { name: 'Марина и Луна', pet: 'Луна', rating: 4, photo: '/reviews/luna.jpg', text: 'Длинный отзыв: хроническая дерматология...' },
 ];
 
 export default function Reviews() {
@@ -42,7 +23,6 @@ export default function Reviews() {
   const [showForm, setShowForm] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
 
-  // decide layout on client (чтобы точно отрисовать десктопную сетку)
   useEffect(() => {
     const check = () => setIsDesktop(typeof window !== 'undefined' && window.innerWidth >= 1024);
     check();
@@ -50,7 +30,6 @@ export default function Reviews() {
     return () => window.removeEventListener('resize', check as any);
   }, []);
 
-  // load
   useEffect(() => {
     (async () => {
       try {
@@ -61,9 +40,7 @@ export default function Reviews() {
         }));
         const local: Review[] = JSON.parse(localStorage.getItem('onlyvet:reviews') || '[]');
         setItems([...local, ...fromApi, ...SEED]);
-      } catch {
-        setItems(SEED);
-      }
+      } catch { setItems(SEED); }
     })();
   }, []);
 
@@ -72,30 +49,6 @@ export default function Reviews() {
     const sum = items.reduce((acc, r) => acc + (r.rating || 5), 0);
     return Math.round((sum / items.length) * 10) / 10;
   }, [items]);
-
-  const onImgError = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    (e.currentTarget as HTMLImageElement).src = FALLBACK_IMG;
-  };
-
-  const Header = () => (
-    <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-      <div className="flex items-center gap-3">
-        <h2 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--navy)', fontFamily: 'var(--font-montserrat)' }}>
-          Отзывы
-        </h2>
-        <div className="text-sm text-gray-500 flex items-center gap-1">
-          <span className="font-semibold" style={{ color: 'var(--navy)' }}>{avg}</span>
-          <span className="text-xs">/ 5</span>
-          <span className="ml-2"><Stars value={avg} /></span>
-          <span className="ml-2 opacity-80">· {items.length}</span>
-        </div>
-      </div>
-      <div className="flex items-center gap-3">
-        <Link href="/reviews" className="btn bg-white border border-gray-300 rounded-xl px-3 sm:px-4">Смотреть все</Link>
-        <button className="btn btn-primary" onClick={() => setShowForm(true)}>Написать отзыв</button>
-      </div>
-    </div>
-  );
 
   const Card = ({ r }: { r: Review }) => {
     const text = r.text || '';
@@ -108,7 +61,7 @@ export default function Reviews() {
           <div className="ml-2"><Stars value={r.rating} /></div>
         </div>
         <div className="mt-3 w-full h-36 rounded-xl overflow-hidden" style={{ background: 'var(--cloud)' }}>
-          <img src={r.photo || FALLBACK_IMG} onError={onImgError} alt={r.pet ? `Фото ${r.pet}` : 'Фото питомца'} className="w-full h-full object-cover" />
+          <img src={r.photo || FALLBACK_IMG} onError={(e)=>((e.currentTarget as HTMLImageElement).src=FALLBACK_IMG)} alt={r.pet ? `Фото ${r.pet}` : 'Фото питомца'} className="w-full h-full object-cover" />
         </div>
         <p className="mt-3 text-sm text-gray-800 leading-6">{preview}</p>
         {long && <button className="text-teal text-sm mt-2" onClick={() => setFull(r)}>Читать полностью</button>}
@@ -116,7 +69,7 @@ export default function Reviews() {
     );
   };
 
-  // mobile carousel
+  // mobile carousel state
   const trackRef = useRef<HTMLDivElement | null>(null);
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(true);
@@ -126,36 +79,43 @@ export default function Reviews() {
     setCanPrev(el.scrollLeft > 8);
     setCanNext(el.scrollLeft + el.clientWidth < el.scrollWidth - 8);
   };
-  const scroll = (dir: 'left' | 'right') => {
+  const scroll = (dir: 'left'|'right') => {
     if (!trackRef.current) return;
     const step = 320;
-    trackRef.current.scrollBy({ left: dir === 'left' ? -step : step, behavior: 'smooth' });
+    trackRef.current.scrollBy({ left: dir==='left' ? -step : step, behavior:'smooth' });
   };
 
   return (
     <section className="container py-12 sm:py-16">
-      <Header />
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <h2 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--navy)', fontFamily: 'var(--font-montserrat)' }}>Отзывы</h2>
+          <div className="text-sm text-gray-500 flex items-center gap-1">
+            <span className="font-semibold" style={{ color: 'var(--navy)' }}>{avg}</span>
+            <span className="text-xs">/ 5</span>
+            <span className="ml-2"><Stars value={avg} /></span>
+            <span className="ml-2 opacity-80">· {items.length}</span>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <Link href="/reviews" className="btn bg-white border border-gray-300 rounded-xl px-3 sm:px-4">
+            Смотреть все ({items.length})
+          </Link>
+          <button className="btn btn-primary" onClick={() => setShowForm(true)}>Написать отзыв</button>
+        </div>
+      </div>
 
       {isDesktop ? (
-        // строгая десктопная сетка
         <div className="grid grid-cols-3 gap-6">
-          {items.slice(0, 9).map((r, i) => <Card key={r.id ?? `desk-${i}`} r={r} />)}
+          {items.slice(0, 12).map((r, i) => <Card key={r.id ?? `desk-${i}`} r={r} />)}
         </div>
       ) : (
-        // мобильная лента со стрелками
         <>
           <div className="mb-3 flex items-center gap-2">
-            <button className={`btn ${canPrev ? 'bg-white border border-gray-300' : 'opacity-40 cursor-not-allowed'} rounded-xl px-3 sm:px-4`}
-              onClick={() => canPrev && scroll('left')} aria-label="Предыдущие">‹</button>
-            <button className={`btn btn-secondary ${!canNext ? 'opacity-40 cursor-not-allowed' : ''}`}
-              onClick={() => canNext && scroll('right')} aria-label="Следующие">›</button>
+            <button className={`btn ${canPrev ? 'bg-white border border-gray-300' : 'opacity-40 cursor-not-allowed'} rounded-xl px-3 sm:px-4`} onClick={() => canPrev && scroll('left')} aria-label="Назад">‹</button>
+            <button className={`btn btn-secondary ${!canNext ? 'opacity-40 cursor-not-allowed' : ''}`} onClick={() => canNext && scroll('right')} aria-label="Вперёд">›</button>
           </div>
-          <div
-            ref={trackRef}
-            onScroll={onScroll}
-            className="no-scrollbar flex gap-3 sm:gap-6 overflow-x-auto snap-x snap-mandatory -mx-2 px-2 sm:mx-0 sm:px-0"
-            style={{ scrollSnapType: 'x mandatory', scrollbarWidth: 'none' }}
-          >
+          <div ref={trackRef} onScroll={onScroll} className="no-scrollbar flex gap-3 sm:gap-6 overflow-x-auto snap-x snap-mandatory -mx-2 px-2 sm:mx-0 sm:px-0" style={{ scrollSnapType:'x mandatory', scrollbarWidth:'none' }}>
             {items.map((r, i) => (
               <div key={r.id ?? `mob-${i}`} className="snap-start min-w-[320px] max-w-[320px]">
                 <Card r={r} />
