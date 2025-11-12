@@ -15,6 +15,11 @@ export default function Navbar(){
   const [hidden,setHidden]=useState(false);
   const [scrolled,setScrolled]=useState(false);
 
+  // swipe-to-close state
+  const startY = useRef<number|null>(null);
+  const [pull, setPull] = useState(0);
+  const THRESH = 80;
+
   useEffect(()=>{
     const read=()=>{
       try{const raw=localStorage.getItem(STORAGE_KEY);const acc:Acc|null=raw?JSON.parse(raw):null;setAuth(!!acc?.user);}catch{setAuth(false);}
@@ -63,6 +68,13 @@ export default function Navbar(){
     };
   },[menu]);
 
+  // Close on ESC
+  useEffect(()=>{
+    const onKey=(e:KeyboardEvent)=>{ if(e.key==='Escape' && menu) setMenu(false); };
+    window.addEventListener('keydown', onKey);
+    return ()=>window.removeEventListener('keydown', onKey);
+  },[menu]);
+
   const baseHeader='sticky top-0 z-50 transition-transform duration-200';
   const transform=hidden?'-translate-y-full':'translate-y-0';
   const chromeStyle:React.CSSProperties = scrolled
@@ -87,6 +99,24 @@ export default function Navbar(){
     </div>
   );
 
+  // Touch handlers for drawer
+  const onTouchStart=(e:React.TouchEvent)=>{
+    startY.current = e.touches[0].clientY;
+    setPull(0);
+  };
+  const onTouchMove=(e:React.TouchEvent)=>{
+    if(startY.current==null) return;
+    const dy = e.touches[0].clientY - startY.current;
+    if(dy>0){
+      e.preventDefault(); // avoid rubber scroll
+      setPull(Math.min(dy, 120));
+    }
+  };
+  const onTouchEnd=()=>{
+    if(pull>=THRESH) setMenu(false);
+    setPull(0); startY.current=null;
+  };
+
   return (
     <header className={baseHeader+' '+transform} style={chromeStyle}>
       <div className="container flex items-center justify-between h-16">
@@ -102,10 +132,21 @@ export default function Navbar(){
         </button>
       </div>
 
-      {/* Mobile drawer — FULL opaque, very high z-index */}
+      {/* Mobile drawer overlay — tap outside to close */}
       {menu && (
-        <div className="fixed inset-0 z-[9999] bg-white" role="dialog" aria-modal="true">
-          <div className="container pt-[max(16px,env(safe-area-inset-top))] pb-[max(20px,env(safe-area-inset-bottom))] flex flex-col min-h-screen overflow-y-auto">
+        <div
+          className="fixed inset-0 z-[9999] bg-white"
+          role="dialog" aria-modal="true"
+          onClick={()=>setMenu(false)} // tap outside closes
+        >
+          <div
+            className="container pt-[max(16px,env(safe-area-inset-top))] pb-[max(20px,env(safe-area-inset-bottom))] flex flex-col min-h-screen overflow-y-auto"
+            onClick={(e)=>e.stopPropagation()} // prevent close when tapping content
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+            style={{ transform: pull?`translateY(${pull}px)`:'translateY(0)', transition: pull? 'none' : 'transform .15s ease-out' }}
+          >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Image src="/logo-icon.svg" alt="OnlyVet" width={28} height={28} />
