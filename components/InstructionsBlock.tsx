@@ -1,39 +1,27 @@
-// components/InstructionsBlock.tsx
 'use client';
-
 import Image from 'next/image';
 import Link from 'next/link';
 
 const items = [
   { id: 'contact', title: 'Как с нами связаться', img: '/instructions/contact.svg',
-    bullets: ['Нажмите «Записаться» — укажите контакт и кратко опишите ситуацию.',
-              'Или напишите нам в Telegram/VK (кнопки в шапке).',
-              'Экстренно? При угрозе жизни — сразу в клинику.'],
+    bullets: ['Нажмите «Записаться» — укажите контакт и кратко опишите ситуацию.','Или напишите нам в Telegram/VK (кнопки в шапке).','Экстренно? При угрозе жизни — сразу в клинику.'],
     cta: { label: 'Связаться', href: '/booking' } },
   { id: 'register', title: 'Регистрация/вход', img: '/instructions/register.svg',
-    bullets: ['Откройте «Войти», введите e‑mail и код из письма.',
-              'В кабинете добавьте питомца: порода, вес, возраст.'],
+    bullets: ['Откройте «Войти», введите e‑mail и код из письма.','В кабинете добавьте питомца: порода, вес, возраст.'],
     cta: { label: 'Войти', href: '/auth/login' } },
   { id: 'payment', title: 'Оплата', img: '/instructions/payment.svg',
-    bullets: ['Стоимость видна при выборе услуги и врача.',
-              'Оплата картой/СБП, чек — на e‑mail.',
-              'Переносы/возвраты — по правилам клиники.'],
+    bullets: ['Стоимость видна при выборе услуги и врача.','Оплата картой/СБП, чек — на e‑mail.','Переносы/возвраты — по правилам клиники.'],
     cta: { label: 'Оплатить при записи', href: '/booking' } },
   { id: 'booking', title: 'Запись на консультацию', img: '/instructions/booking.svg',
-    bullets: ['Выберите формат: чат или видео.',
-              'Загрузите фото/анализы — так быстрее и точнее.',
-              'За 5–10 минут до старта придёт напоминание.'],
+    bullets: ['Выберите формат: чат или видео.','Загрузите фото/анализы — так быстрее и точнее.','За 5–10 минут до старта придёт напоминание.'],
     cta: { label: 'Записаться', href: '/booking' } },
+  { id: 'prepare', title: 'Подготовка', img: '/instructions/prepare.svg',
+    bullets: ['Фото проблемы при свете + общий вид.','Температура/вес/ЧДД (если можно).','Список лекарств/доз.'],
+    cta: { label: 'Чек‑лист', href: '/instructions#prepare' } },
   { id: 'video', title: 'FAQ по видеосвязи', img: '/instructions/video.svg',
-    bullets: ['Переход по ссылке из кабинета — 1 клик.',
-              'Работают Chrome/Safari/Edge, обновите их до последней версии.',
-              'Разрешите доступ к камере и микрофону.'],
+    bullets: ['Ссылка — в «Личном кабинете».','Chrome/Safari/Edge, доступ к камере/микро.','Наушники — лучше звук.'],
     cta: { label: 'Открыть FAQ', href: '/instructions#video' } },
-  { id: 'flags', title: 'Красные флаги', img: '/instructions/flags.svg',
-    bullets: ['Состояния, когда онлайн недостаточно.', 'Если есть флаг — сразу в клинику.'],
-    cta: { label: 'Смотреть', href: '/instructions#flags' } },
 ];
-
 export default function InstructionsBlock(){
   return (
     <section className="container py-12 sm:py-16">
