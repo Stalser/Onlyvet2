@@ -1,15 +1,17 @@
 'use client';
 import { useEffect, useState } from 'react';
 type Item = { id: string; text: string; level: 2|3 };
+
 export default function TOC({ items, className }:{ items: Item[]; className?: string }){
   const [active, setActive] = useState('');
   useEffect(()=>{
-    const poll = setInterval(()=>{
+    const id = setInterval(()=>{
       const cur = document.body.dataset.kbActive || '';
       if(cur !== active) setActive(cur);
     }, 200);
-    return ()=>clearInterval(poll);
+    return ()=>clearInterval(id);
   }, [active]);
+
   const onClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault();
     const el = document.getElementById(id);
@@ -18,6 +20,7 @@ export default function TOC({ items, className }:{ items: Item[]; className?: st
     window.scrollTo({ top: y, behavior: 'smooth' });
     history.replaceState(null,'',`#${id}`);
   };
+
   return (
     <ul className={className}>
       {items.length ? items.map(i => (
@@ -26,7 +29,7 @@ export default function TOC({ items, className }:{ items: Item[]; className?: st
             {i.text}
           </a>
         </li>
-      )) : <li><span className="opacity-60">Нет оглавления</span></li>}
+      )) : <li><span className="opacity-70 text-sm">Нет оглавления</span></li>}
     </ul>
   );
 }
