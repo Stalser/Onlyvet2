@@ -1,0 +1,6 @@
+// PATCH: components/Navbar.tsx
+// Замените пункт меню «База знаний» на «Инструкции» и добавьте «Документы»
+/*
+  <Link href="/instructions" onClick={()=>setMenu(false)}>Инструкции</Link>
+  <Link href="/docs" onClick={()=>setMenu(false)}>Документы</Link>
+*/

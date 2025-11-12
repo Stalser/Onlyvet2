@@ -1,0 +1,10 @@
+// PATCH: app/services/page.tsx
+// Добавьте в конце страницы блок быстрых ссылок:
+/*
+<section className="container py-12">
+  <div className="rounded-2xl border border-gray-200 bg-white p-4 flex flex-wrap gap-3 justify-end">
+    <Link href="/instructions" className="btn bg-white border border-gray-300 rounded-xl px-4">Инструкции</Link>
+    <Link href="/docs" className="btn btn-primary rounded-xl px-4">Документы</Link>
+  </div>
+</section>
+*/
