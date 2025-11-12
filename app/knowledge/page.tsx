@@ -6,7 +6,6 @@ import { useMemo, useState, useEffect, Suspense } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { articles, categories, allTags } from '@/lib/articles';
 
-// Disable prerender CSR bailout error
 export const dynamic = 'force-dynamic';
 
 function FiltersInner(){
@@ -37,8 +36,7 @@ function FiltersInner(){
     if (urlQ !== q) setQ(urlQ);
     if (urlCat !== cat) setCat(urlCat);
     if (urlTag !== tag) setTag(urlTag);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search]);
+  }, [search]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const clear = () => { setQ(''); setCat(''); setTag(''); };
 
@@ -56,7 +54,6 @@ function FiltersInner(){
     <section className="container py-12 sm:py-16">
       <h1 className="text-3xl font-bold mb-6" style={{fontFamily:'var(--font-montserrat)'}}>База знаний</h1>
 
-      {/* Фильтры */}
       <div className="card mb-6">
         <div className="grid md:grid-cols-4 gap-3">
           <div className="md:col-span-2">
@@ -86,7 +83,6 @@ function FiltersInner(){
         </div>
       </div>
 
-      {/* Список статей */}
       <div className="grid gap-4">
         {list.map(a => (
           <article key={a.slug} className="card">
@@ -97,7 +93,7 @@ function FiltersInner(){
             <div className="mt-1 flex flex-wrap gap-2 text-xs opacity-70">
               {a.tags.map(t => <span key={t} className="px-2 py-1 rounded-full border">{t}</span>)}
             </div>
-            <p className="text-sm opacity-80 mt-2">{a.excerpt}</p>
+            <p className="text-sm opacity-80 mt-2">{a.excerpt || a.content.replace(/\s+/g,' ').slice(0,120)+'…'}</p>
             <div className="mt-3 flex gap-2">
               <Link href={`/knowledge/${a.slug}`} className="btn bg-white border border-gray-300 rounded-xl px-4">Читать статью</Link>
             </div>
