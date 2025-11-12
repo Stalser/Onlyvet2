@@ -11,18 +11,24 @@ export default function Navbar(){
   const [menu,setMenu]=useState(false);
   const [auth,setAuth]=useState(false);
   const [mounted,setMounted]=useState(false);
-  const lastY=useRef(0); const [hidden,setHidden]=useState(false);
+  const lastY=useRef(0); 
+  const [hidden,setHidden]=useState(false);
+  const [scrolled,setScrolled]=useState(false);
 
   useEffect(()=>{
-    const read=()=>{try{const raw=localStorage.getItem(STORAGE_KEY);const acc:Acc|null=raw?JSON.parse(raw):null;setAuth(!!acc?.user);}catch{setAuth(false);}};
+    const read=()=>{
+      try{const raw=localStorage.getItem(STORAGE_KEY);const acc:Acc|null=raw?JSON.parse(raw):null;setAuth(!!acc?.user);}catch{setAuth(false);}
+    };
     read(); setMounted(true);
     const onStorage=(e:StorageEvent)=>{ if(e.key===STORAGE_KEY) read(); };
-    window.addEventListener('storage', onStorage);
-    return ()=>window.removeEventListener('storage', onStorage);
+    window.addEventListener('storage',onStorage);
+    return ()=>window.removeEventListener('storage',onStorage);
   },[]);
 
+  // Header behavior
   useEffect(()=>{
     const onScroll=()=>{
+      setScrolled(window.scrollY>4);
       if(menu) return;
       if(window.innerWidth>=768) return;
       const y=window.scrollY; const dy=y-lastY.current; lastY.current=y;
@@ -30,10 +36,38 @@ export default function Navbar(){
       setHidden(dy>0 && y>24);
     };
     window.addEventListener('scroll', onScroll as any, { passive:true } as any);
+    onScroll();
     return ()=>window.removeEventListener('scroll', onScroll as any);
   },[menu]);
 
-  const headerClass='bg-white sticky top-0 z-50 shadow-soft transition-transform duration-200 '+(hidden?'-translate-y-full':'translate-y-0');
+  // Lock scroll when menu open
+  useEffect(()=>{
+    const html = document.documentElement;
+    const body = document.body;
+    if(menu){
+      html.style.overscrollBehavior = 'none';
+      body.style.overflow = 'hidden';
+      body.style.position = 'fixed';
+      body.style.width = '100%';
+    }else{
+      html.style.overscrollBehavior = '';
+      body.style.overflow = '';
+      body.style.position = '';
+      body.style.width = '';
+    }
+    return ()=>{
+      html.style.overscrollBehavior = '';
+      body.style.overflow = '';
+      body.style.position = '';
+      body.style.width = '';
+    };
+  },[menu]);
+
+  const baseHeader='sticky top-0 z-50 transition-transform duration-200';
+  const transform=hidden?'-translate-y-full':'translate-y-0';
+  const chromeStyle:React.CSSProperties = scrolled
+    ? { background:'#fff', boxShadow:'0 8px 24px rgba(26,37,48,.08)' }
+    : { background:'#fff' };
 
   const Links = ({vertical=false}:{vertical?:boolean}) => (
     <div className={vertical?'flex flex-col gap-3':'flex items-center gap-6 text-sm'}>
@@ -54,7 +88,7 @@ export default function Navbar(){
   );
 
   return (
-    <header className={headerClass}>
+    <header className={baseHeader+' '+transform} style={chromeStyle}>
       <div className="container flex items-center justify-between h-16">
         <Link href="/" className="flex items-center gap-2">
           <Image src="/logo-icon.svg" alt="OnlyVet" width={40} height={40} priority />
@@ -63,13 +97,15 @@ export default function Navbar(){
         <nav className="hidden md:block">
           <Links />
         </nav>
-        <button className="md:hidden p-3 rounded-xl" onClick={()=>setMenu(v=>!v)} aria-label="Меню">
+        <button className="md:hidden p-3 rounded-xl" onClick={()=>setMenu(true)} aria-label="Меню">
           <svg width="26" height="26" fill="none" stroke="currentColor"><path d="M3 6h20M3 13h20M3 20h20"/></svg>
         </button>
       </div>
+
+      {/* Mobile drawer — FULL opaque, very high z-index */}
       {menu && (
-        <div className="md:hidden fixed inset-0 z-[100] bg-white">
-          <div className="container pt-4 pb-[max(20px,env(safe-area-inset-bottom))] flex flex-col min-h-screen overflow-y-auto">
+        <div className="fixed inset-0 z-[9999] bg-white" role="dialog" aria-modal="true">
+          <div className="container pt-[max(16px,env(safe-area-inset-top))] pb-[max(20px,env(safe-area-inset-bottom))] flex flex-col min-h-screen overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Image src="/logo-icon.svg" alt="OnlyVet" width={28} height={28} />
