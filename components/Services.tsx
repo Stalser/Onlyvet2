@@ -26,7 +26,7 @@ export default function Services() {
         >
           Все услуги ({countLabel})
         </Link>
-  <Link href="/docs" onClick={()=>setMenu && setMenu(false)}>Документы</Link>
+  <Link href="/docs" >Документы</Link>
 </div>
 
       <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 -mx-2 px-2 sm:mx-0 sm:px-0 mb-4 sm:mb-6">
