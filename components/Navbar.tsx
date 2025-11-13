@@ -1,16 +1,15 @@
 // components/Navbar.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 
-export default function Navbar() {
-  const [menuOpen, setMenuOpen] = useState(false);
+export default function Navbar(){
   const [hidden, setHidden] = useState(false);
   const [lastY, setLastY] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  // автоскрытие шапки при скролле вниз (мягко)
   useEffect(() => {
     const onScroll = () => {
       const y = window.scrollY || 0;
@@ -23,22 +22,25 @@ export default function Navbar() {
 
   const closeMenu = () => setMenuOpen(false);
 
-  const NavLinks = ({ vertical = false }: { vertical?: boolean }) => {
-    return (
-      <div className={vertical ? 'flex flex-col gap-3' : 'flex items-center gap-5'}>
-        <Link href="/about" onClick={closeMenu}>О нас</Link>
-        <Link href="/pricing" onClick={closeMenu}>Цены</Link>
-        <Link href="/services" onClick={closeMenu}>Услуги</Link>
-        <Link href="/instructions" onClick={closeMenu}>Инструкции</Link>
-        <Link href="/docs" onClick={closeMenu}>Документы</Link>
-        <Link href="/contacts" onClick={closeMenu}>Контакты</Link>
-        <Link href="/auth/login" className="btn btn-primary" onClick={closeMenu}>Войти</Link>
-      </div>
-    );
-  };
+  const NavLinks = ({ vertical = false }: { vertical?: boolean }) => (
+    <div className={vertical ? 'flex flex-col gap-3' : 'flex items-center gap-5'}>
+      <Link href="/" onClick={closeMenu}>Главная</Link>
+      <Link href="/doctors" onClick={closeMenu}>Врачи</Link>
+      <Link href="/services" onClick={closeMenu}>Услуги и цены</Link>
+      <Link href="/instructions" onClick={closeMenu}>Инструкции</Link>
+      <Link href="/docs" onClick={closeMenu}>Документы</Link>
+      <Link href="/auth/login" className="btn btn-primary rounded-xl px-4 text-sm" onClick={closeMenu}>
+        Войти
+      </Link>
+    </div>
+  );
 
   return (
-    <header className={`bg-white shadow-soft sticky top-0 z-50 transition-transform duration-200 ${hidden ? '-translate-y-full' : 'translate-y-0'}`}>
+    <header className={
+      `bg-white shadow-soft sticky top-0 z-50 transition-transform duration-200 ${
+        hidden ? '-translate-y-full' : 'translate-y-0'
+      }`
+    }>
       <div className="container flex items-center justify-between h-16">
         <Link href="/" className="flex items-center gap-2" onClick={closeMenu}>
           <Image src="/logo.svg" alt="OnlyVet" width={32} height={32} className="sm:w-9 sm:h-9" />

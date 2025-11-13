@@ -1,4 +1,5 @@
 // lib/pricing.ts
+// Единый источник данных по услугам и ценам OnlyVet.
 
 export type ServiceItem = {
   code: string;
@@ -45,7 +46,7 @@ export const servicesPricing: ServiceItem[] = [
   },
 ];
 
-// Услуги по врачам (привязка по email)
+// Привязка услуг к конкретным врачам по email.
 export const doctorServicesMap: Record<string, string[]> = {
   "ivanova@example.com": ["OC1","OC2","OC3"],
   "petrov@example.com": ["SM1"],
