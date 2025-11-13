@@ -1,25 +1,32 @@
-// components/doctor/AppointmentsList.tsx
-'use client';
-import { appointments, patients } from '@/lib/doctor';
-function fmtTime(dt: string){ return new Date(dt).toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'}); }
-export default function AppointmentsList(){
+"use client";
+
+import React from "react";
+
+/**
+ * Заглушка списка ближайших приёмов.
+ */
+export default function AppointmentsList() {
+  const demo = [
+    { id: "1", time: "10:00", patient: "Мурзик", type: "Онлайн" },
+    { id: "2", time: "11:30", patient: "Бобик", type: "Клиника" },
+  ];
+
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-4">
-      <h3 className="font-semibold mb-3" style={{color:'var(--navy)'}}>Сегодня</h3>
-      <div className="space-y-2">
-        {appointments.map(a=>{
-          const p = patients[a.patientId];
-          return (
-            <div key={a.id} className="flex items-center justify-between gap-3 border rounded-xl p-3">
-              <div>
-                <div className="font-medium">{fmtTime(a.startsAt)}–{fmtTime(a.endsAt)} · {a.service}</div>
-                <div className="text-sm opacity-80">{p?.name} · {p?.owner?.name}</div>
-              </div>
-              <a className="btn bg-white border border-gray-300 rounded-xl px-3" href={`/doctor/appointment/${a.id}`}>Открыть карту</a>
+    <ul className="space-y-2 text-sm text-gray-700">
+      {demo.map((a) => (
+        <li
+          key={a.id}
+          className="flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-3 py-2"
+        >
+          <div>
+            <div className="font-medium">{a.time}</div>
+            <div className="text-xs text-gray-500">
+              {a.patient} • {a.type}
             </div>
-          );
-        })}
-      </div>
-    </div>
+          </div>
+          <span className="text-xs text-gray-400">#{a.id}</span>
+        </li>
+      ))}
+    </ul>
   );
 }
