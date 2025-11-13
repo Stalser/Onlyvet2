@@ -1,4 +1,4 @@
-// lib/vetmanager.ts — совместимая версия с vmRequest(path, body, method) и pushToVetmanager
+// lib/vetmanager.ts
 const BASE = process.env.VETMANAGER_BASE_URL || '';
 const TOKEN = process.env.VETMANAGER_TOKEN || '';
 
@@ -14,7 +14,7 @@ export async function vmFetch(path: string, init?: RequestInit) {
   const headers = {
     'Authorization': `Bearer ${TOKEN}`,
     'Content-Type': 'application/json',
-    ...(init?.headers || {})
+    ...(init?.headers || {}),
   };
   const res = await fetch(url, { ...init, headers });
   if (!res.ok) {
@@ -28,17 +28,15 @@ export async function vmPing() {
   return { ok: !!BASE && !!TOKEN, base: !!BASE, token: !!TOKEN };
 }
 
-// --- vmRequest: 1) vmRequest(path, {method, body})  2) vmRequest(path, body, method) ---
+// vmRequest: поддерживает vmRequest(path, {method, body}) и vmRequest(path, body, method)
 export async function vmRequest(path: string, bodyOrOptions?: any, method?: string) {
   let init: RequestInit = {};
   if (typeof bodyOrOptions === 'object' && (bodyOrOptions?.method || bodyOrOptions?.body)) {
-    // стиль vmRequest('/path', { method, body })
     init.method = bodyOrOptions.method || 'GET';
     if (bodyOrOptions.body !== undefined) {
       init.body = typeof bodyOrOptions.body === 'string' ? bodyOrOptions.body : JSON.stringify(bodyOrOptions.body);
     }
   } else {
-    // стиль vmRequest('/path', body, 'POST')
     init.method = method || 'GET';
     if (bodyOrOptions !== undefined) {
       init.body = typeof bodyOrOptions === 'string' ? bodyOrOptions : JSON.stringify(bodyOrOptions);
@@ -47,7 +45,6 @@ export async function vmRequest(path: string, bodyOrOptions?: any, method?: stri
   return vmFetch(path, init);
 }
 
-// --- pushToVetmanager: заглушка бронирования (адаптируем под реальный эндпоинт) ---
 export async function pushToVetmanager(payload: any) {
   try {
     await vmFetch('/booking', {
@@ -61,21 +58,19 @@ export async function pushToVetmanager(payload: any) {
   }
 }
 
-// --- Врачи (пример) ---
 export type VmDoctor = { id: string; name: string; email?: string; specialty?: string };
 
 export async function vmListDoctors(): Promise<VmDoctor[]> {
-  const data = await vmFetch('/staff'); // TODO: реальный путь Vetmanager
+  const data = await vmFetch('/staff');
   const raw = (data.items || data.staff || []) as any[];
   return raw.map((d) => ({
     id: String(d.id),
     name: d.name || d.fullName || d.title || 'Врач',
     email: d.email || d.emailAddress || '',
-    specialty: d.specialty || d.position || ''
+    specialty: d.specialty || d.position || '',
   }));
 }
 
-// --- Расписание врача (пример) ---
 export type VmAppointment = {
   id: string;
   doctorId: string;

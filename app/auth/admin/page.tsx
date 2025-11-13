@@ -8,8 +8,12 @@ export default function AdminLoginPage(){
   const [email, setEmail] = useState('admin@onlyvet.ru');
   const [code, setCode] = useState('');
   const [mode, setMode] = useState<'email'|'code'>('email');
+
   const send = async ()=>{ setMode('code'); };
-  const verify = async ()=>{ await fetch('/api/admin/session', { method:'POST' }); router.replace('/admin'); };
+  const verify = async ()=>{
+    await fetch('/api/admin/session',{method:'POST'});
+    router.replace('/admin');
+  };
 
   return (
     <section className="container py-12 sm:py-16">

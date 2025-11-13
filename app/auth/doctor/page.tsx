@@ -10,13 +10,18 @@ export default function DoctorLoginPage(){
   const [code, setCode] = useState('');
 
   const send = async ()=>{
-    const res = await fetch('/api/doctor/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email }) });
+    const res = await fetch('/api/doctor/login', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email }),
+    });
     const data = await res.json();
     if(res.ok) setSent(true); else alert(data?.error||'Ошибка');
   };
+
   const verify = async ()=>{
     if(code.trim()!=='111111'){ alert('Неверный код'); return; }
-    await fetch('/api/doctor/session', { method:'POST' });
+    await fetch('/api/doctor/session',{method:'POST'});
     router.replace('/doctor');
   };
 
@@ -27,7 +32,7 @@ export default function DoctorLoginPage(){
         {!sent ? (
           <div className="space-y-3">
             <label className="block text-sm">E-mail сотрудника</label>
-            <input className="input w-full" value={email} onChange={e=>setEmail(e.target.value)} placeholder="doctor@onlyvet.ru"/>
+            <input className="input w-full" value={email} onChange={e=>setEmail(e.target.value)} />
             <button className="btn btn-primary rounded-xl px-4" onClick={send}>Получить код</button>
           </div>
         ) : (
