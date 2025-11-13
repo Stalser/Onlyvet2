@@ -3,6 +3,7 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { doctors } from '@/lib/data';
 import { servicesPricing, doctorServicesMap } from '@/lib/pricing';
 
@@ -103,20 +104,33 @@ export default function Doctors(){
             key={doctor.id}
             className="rounded-2xl border border-gray-200 bg-white p-4 flex flex-col gap-3"
           >
-            <div className="flex items-center justify-between gap-2">
-              <div>
-                <h3
-                  className="font-semibold text-lg"
-                  style={{ color: 'var(--navy)' }}
-                >
-                  {doctor.name}
-                </h3>
-                <div className="text-sm opacity-80">{doctor.specialty}</div>
-                {doctor.experience && (
-                  <div className="text-xs opacity-70">
-                    Стаж: {doctor.experience} лет
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                {doctor.photo && (
+                  <div className="w-14 h-14 rounded-full overflow-hidden bg-[var(--cloud)]">
+                    <Image
+                      src={doctor.photo}
+                      alt={doctor.name}
+                      width={56}
+                      height={56}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                 )}
+                <div>
+                  <h3
+                    className="font-semibold text-lg"
+                    style={{ color: 'var(--navy)' }}
+                  >
+                    {doctor.name}
+                  </h3>
+                  <div className="text-sm opacity-80">{doctor.specialty}</div>
+                  {doctor.experience && (
+                    <div className="text-xs opacity-70">
+                      Стаж: {doctor.experience} лет
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
