@@ -1,61 +1,76 @@
-// components/DoctorCard.tsx
-import { servicesPricing, doctorServicesMap } from '@/lib/pricing';
+"use client";
 
-type Doctor = {
-  id: string;
-  name: string;
-  email: string;
-  specialty: string;
-  // добавьте сюда остальные нужные поля (фото, стаж и т.д.)
+import Link from "next/link";
+import Stars from "@/components/Stars";
+import type { Doctor } from "@/lib/data";
+import {
+  doctorServicesMap,
+  servicesPricing,
+  type PriceItem,
+} from "@/lib/pricing";
+
+type Props = {
+  doctor: Doctor;
 };
 
-export default function DoctorCard({ doctor }: { doctor: Doctor }) {
-  const codes = doctorServicesMap[doctor.email] || [];
-  const items = servicesPricing.filter((s) => codes.includes(s.code));
+type FullPriceItem = PriceItem & {
+  priceRUB?: number;
+};
+
+export default function DoctorCard({ doctor }: Props) {
+  // Берём коды услуг для врача по его id
+  const codes = doctorServicesMap[doctor.id] ?? [];
+
+  const items = (servicesPricing as FullPriceItem[]).filter((s) =>
+    codes.length ? codes.includes(s.code) : true
+  );
 
   return (
     <article className="rounded-2xl border border-gray-200 bg-white p-4 flex flex-col gap-3">
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-start justify-between gap-3">
         <div>
-          <h3 className="font-semibold text-lg" style={{ color: 'var(--navy)' }}>
-            {doctor.name}
-          </h3>
-          <div className="text-sm opacity-80">{doctor.specialty}</div>
+          <h3 className="font-semibold text-base">{doctor.name}</h3>
+          <div className="text-xs text-gray-500 mt-0.5">
+            {doctor.speciality}
+          </div>
+          <div className="flex items-center gap-1 mt-1 text-xs text-gray-600">
+            <Stars value={doctor.rating ?? 5} />
+            <span>{doctor.rating?.toFixed(1) ?? "5.0"}</span>
+          </div>
         </div>
-        {/* Здесь можно добавить фото врача */}
       </div>
 
-      {/* Мини-прайс врача */}
       {items.length > 0 && (
-        <div className="rounded-xl bg-[var(--cloud)]/60 p-3">
-          <div
-            className="text-xs font-semibold mb-1"
-            style={{ color: 'var(--navy)' }}
-          >
-            Услуги врача
-          </div>
-          <ul className="text-xs space-y-1">
-            {items.map((s) => (
-              <li key={s.code} className="flex justify-between gap-2">
-                <span className="opacity-80">{s.name}</span>
-                <span className="font-semibold">
-                  {s.priceRUB !== undefined
-                    ? `${s.priceRUB.toLocaleString('ru-RU')} ₽`
-                    : 'уточняется'}
-                </span>
-              </li>
-            ))}
-          </ul>
+        <div className="mt-1 space-y-1">
+          {items.map((s) => (
+            <div
+              key={s.id}
+              className="flex items-center justify-between text-xs"
+            >
+              <span className="opacity-80">{s.name}</span>
+              <span className="font-semibold">
+                {s.priceRUB !== undefined
+                  ? `${s.priceRUB.toLocaleString("ru-RU")} ₽`
+                  : "уточняется"}
+              </span>
+            </div>
+          ))}
         </div>
       )}
 
-      <div className="flex justify-end gap-2 mt-2">
-        <button className="btn bg-white border border-gray-300 rounded-xl px-3 text-sm">
-          Подробнее
-        </button>
-        <button className="btn btn-primary rounded-xl px-3 text-sm">
+      <div className="mt-2 flex justify-between items-center">
+        <Link
+          href={`/doctors/${doctor.id}`}
+          className="text-xs text-blue-600 underline underline-offset-2"
+        >
+          Подробнее о враче
+        </Link>
+        <Link
+          href={`/booking?doctor=${doctor.id}`}
+          className="px-3 py-1.5 rounded-xl bg-black text-white text-xs"
+        >
           Записаться
-        </button>
+        </Link>
       </div>
     </article>
   );
