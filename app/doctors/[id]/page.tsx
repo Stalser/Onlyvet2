@@ -1,216 +1,80 @@
 // app/doctors/[id]/page.tsx
 'use client';
 
-import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
-import Image from 'next/image';
-import { doctors } from '@/lib/data';
-import { servicesPricing, doctorServicesMap } from '@/lib/pricing';
-import { doctorSlots } from '@/lib/doctorSchedule';
+import { useParams } from 'next/navigation';
+import { doctors, getDoctorById } from '../../../lib/data';
+import { getDoctorSchedule } from '../../../lib/doctorSchedule';
+import { getDoctorPricing } from '../../../lib/pricing';
+import Stars from '../../../components/Stars';
 
-type Doctor = (typeof doctors)[number];
-
-export default function DoctorPage() {
-  const params = useParams();
-  const router = useRouter();
-
-  const id =
-    typeof params?.id === 'string'
-      ? params.id
-      : Array.isArray(params?.id)
-      ? params.id[0]
-      : '';
-
-  const doctor: Doctor | undefined = doctors.find(
-    (d) => String(d.id) === String(id)
-  );
+export default function DoctorPublicPage() {
+  const { id } = useParams<{ id: string }>();
+  const doctor = getDoctorById(id as string);
 
   if (!doctor) {
     return (
-      <section className="container py-12 sm:py-16">
-        <h1
-          className="text-2xl font-semibold mb-4"
-          style={{ color: 'var(--navy)' }}
-        >
-          Врач не найден
-        </h1>
-        <button
-          className="btn bg-white border border-gray-300 rounded-xl px-4"
-          onClick={() => router.back()}
-        >
-          Назад
-        </button>
-      </section>
+      <div className="container py-12">
+        <h1 className="text-2xl font-semibold mb-4">Врач не найден</h1>
+      </div>
     );
   }
 
-  const codes = doctor.email ? (doctorServicesMap[doctor.email] || []) : [];
-  const items = servicesPricing.filter((s) => codes.includes(s.code));
-
-  const upcomingSlots = doctorSlots
-    .filter((slot) => slot.doctorEmail === doctor.email)
-    .sort(
-      (a, b) =>
-        new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime()
-    )
-    .slice(0, 3);
+  const schedule = getDoctorSchedule(doctor.id);
+  const pricing = getDoctorPricing(doctor.id);
 
   return (
-    <section className="container py-12 sm:py-16">
-      <button
-        className="text-sm opacity-70 hover:opacity-100 mb-4"
-        onClick={() => router.back()}
-      >
-        ← Назад
-      </button>
+    <div className="container py-12 space-y-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold">{doctor.name}</h1>
+          <div className="text-gray-600 text-sm mt-1">{doctor.speciality}</div>
+          <div className="mt-2 flex items-center gap-2 text-sm text-gray-700">
+            <Stars value={doctor.rating ?? 5} />
+            <span>{doctor.rating?.toFixed(1) ?? '5.0'}</span>
+          </div>
+        </div>
+        <button className="px-4 py-2 rounded-xl bg-black text-white text-sm">
+          Записаться на консультацию
+        </button>
+      </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-4">
-          <div className="rounded-2xl border bg-white border-gray-200 p-4 sm:p-6 flex gap-4 items-center">
-            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden bg-[var(--cloud)] shrink-0">
-              {doctor.photo ? (
-                <Image
-                  src={doctor.photo}
-                  alt={doctor.name}
-                  width={112}
-                  height={112}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-2xl opacity-60">
-                  {doctor.name.charAt(0)}
-                </div>
-              )}
-            </div>
-            <div>
-              <h1
-                className="text-2xl sm:text-3xl font-bold mb-1"
-                style={{ color: 'var(--navy)' }}
-              >
-                {doctor.name}
-              </h1>
-              <div className="text-sm opacity-80">{doctor.specialty}</div>
-              {doctor.experience && (
-                <div className="text-sm opacity-70 mt-1">
-                  Стаж: {doctor.experience} лет
-                </div>
-              )}
-            </div>
+      <div className="grid md:grid-cols-3 gap-4">
+        <div className="md:col-span-2 space-y-4">
+          <div className="rounded-2xl border border-gray-200 bg-white p-4">
+            <h2 className="font-medium mb-2">О враче</h2>
+            <p className="text-sm text-gray-700">
+              {doctor.bio ||
+                'Здесь будет расширенное описание врача, его подходы и опыт работы.'}
+            </p>
           </div>
 
-          <div className="rounded-2xl border bg-white border-gray-200 p-4 sm:p-6">
-            <h2
-              className="text-lg font-semibold mb-2"
-              style={{ color: 'var(--navy)' }}
-            >
-              О враче
-            </h2>
-            <p className="text-sm opacity-80">
-              {doctor.bio || 'Описание врача появится позже.'}
-            </p>
+          <div className="rounded-2xl border border-gray-200 bg-white p-4">
+            <h2 className="font-medium mb-2">Ближайшие слоты</h2>
+            <ul className="text-sm text-gray-700 space-y-1">
+              {schedule.map((slot) => (
+                <li key={slot.id} className="flex justify-between">
+                  <span>{slot.label}</span>
+                  <span className="text-xs text-gray-500">{slot.type}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
 
         <div className="space-y-4">
-          <div className="rounded-2xl border bg-white border-gray-200 p-4 sm:p-5">
-            <h2
-              className="text-lg font-semibold mb-2"
-              style={{ color: 'var(--navy)' }}
-            >
-              Услуги врача
-            </h2>
-            {items.length === 0 ? (
-              <div className="text-sm opacity-70">
-                Услуги для этого врача пока не указаны.
-              </div>
-            ) : (
-              <ul className="text-sm space-y-2">
-                {items.map((s) => (
-                  <li key={s.code} className="flex justify-between gap-2">
-                    <span className="opacity-80">{s.name}</span>
-                    <span className="font-semibold">
-                      {s.priceRUB !== undefined
-                        ? `${s.priceRUB.toLocaleString('ru-RU')} ₽`
-                        : 'уточняется'}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <div className="mt-4">
-              <Link
-                href="/services"
-                className="text-xs opacity-70 hover:opacity-100 underline"
-              >
-                Смотреть все услуги и цены
-              </Link>
-            </div>
-          </div>
-
-          {upcomingSlots.length > 0 && (
-            <div className="rounded-2xl border bg-white border-gray-200 p-4 sm:p-5">
-              <h2
-                className="text-lg font-semibold mb-2"
-                style={{ color: 'var(--navy)' }}
-              >
-                Ближайшие онлайн-слоты
-              </h2>
-              <ul className="text-sm space-y-2">
-                {upcomingSlots.map((slot) => {
-                  const start = new Date(slot.startsAt);
-                  const end = new Date(slot.endsAt);
-                  return (
-                    <li
-                      key={slot.id}
-                      className="flex items-center justify-between gap-2"
-                    >
-                      <span className="opacity-80">
-                        {start.toLocaleDateString('ru-RU', {
-                          weekday: 'short',
-                          day: '2-digit',
-                          month: '2-digit',
-                        })}{' '}
-                        {start.toLocaleTimeString('ru-RU', {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </span>
-                      <span className="text-xs opacity-70">
-                        до{' '}
-                        {end.toLocaleTimeString('ru-RU', {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
-              <div className="mt-3 text-xs opacity-70">
-                В реальной интеграции слоты приходят из Vetmanager.
-              </div>
-            </div>
-          )}
-
-          <div className="rounded-2xl border bg-white border-gray-200 p-4 sm:p-5">
-            <h2
-              className="text-lg font-semibold mb-2"
-              style={{ color: 'var(--navy)' }}
-            >
-              Записаться к врачу
-            </h2>
-            <p className="text-sm opacity-80 mb-3">
-              Вы можете выбрать формат консультации (чат/видео) и удобное время.
-            </p>
-            <Link
-              href={{ pathname: '/booking', query: { doctorEmail: doctor.email } }}
-              className="btn btn-primary rounded-xl px-4 w-full text-sm sm:text-base text-center block"
-            >
-              Записаться на онлайн-консультацию
-            </Link>
+          <div className="rounded-2xl border border-gray-200 bg-white p-4">
+            <h2 className="font-medium mb-2">Услуги и цены</h2>
+            <ul className="text-sm text-gray-700 space-y-1">
+              {pricing.map((item) => (
+                <li key={item.id} className="flex justify-between">
+                  <span>{item.name}</span>
+                  <span className="text-xs text-gray-500">{item.price} ₽</span>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
