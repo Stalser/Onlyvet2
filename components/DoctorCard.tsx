@@ -3,25 +3,18 @@
 import Link from "next/link";
 import Stars from "@/components/Stars";
 import type { Doctor } from "@/lib/data";
-import {
-  doctorServicesMap,
-  servicesPricing,
-  type PriceItem,
-} from "@/lib/pricing";
+import { doctorServicesMap, servicesPricing } from "@/lib/pricing";
 
 type Props = {
   doctor: Doctor;
 };
 
-type FullPriceItem = PriceItem & {
-  priceRUB?: number;
-};
-
 export default function DoctorCard({ doctor }: Props) {
-  // Берём коды услуг для врача по его id
-  const codes = doctorServicesMap[doctor.id] ?? [];
+  // Берём коды услуг для врача (по id)
+  const codes: string[] = doctorServicesMap[doctor.id] ?? [];
 
-  const items = (servicesPricing as FullPriceItem[]).filter((s) =>
+  // Фильтруем прайсы по этим кодам, без строгой типизации
+  const items = servicesPricing.filter((s: any) =>
     codes.length ? codes.includes(s.code) : true
   );
 
@@ -42,7 +35,7 @@ export default function DoctorCard({ doctor }: Props) {
 
       {items.length > 0 && (
         <div className="mt-1 space-y-1">
-          {items.map((s) => (
+          {items.map((s: any) => (
             <div
               key={s.id}
               className="flex items-center justify-between text-xs"
