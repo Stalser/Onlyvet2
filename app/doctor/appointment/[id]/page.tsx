@@ -13,8 +13,17 @@ function fmt(dt: string) {
 export default function AppointmentDetail() {
   const { id } = useParams<{ id: string }>();
 
-  const a = useMemo(() => appointments.find((x) => x.id === id), [id]);
-  const p = a ? patients[a.patientId] : undefined;
+  // Находим приём по id
+  const a = useMemo(
+    () => appointments.find((x) => x.id === id),
+    [id]
+  );
+
+  // Находим пациента по patientId из приёма
+  const p = useMemo(
+    () => (a ? patients.find((pt) => pt.id === a.patientId) : undefined),
+    [a]
+  );
 
   if (!a || !p) {
     return <section className="container py-12">Запись не найдена</section>;
