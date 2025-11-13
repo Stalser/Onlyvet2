@@ -1,3 +1,3 @@
-# INTEGRATION_VETMANAGER.md
+# DOCTOR_PORTAL_DESIGN.md
 
 (Сокращённая версия. Вставьте полный текст позже.)
