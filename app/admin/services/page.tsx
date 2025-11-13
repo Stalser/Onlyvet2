@@ -23,7 +23,11 @@ export default function AdminServicesPage() {
               <tr key={s.id} className="border-b last:border-b-0">
                 <td className="py-2 pr-4 text-xs text-gray-500">{s.id}</td>
                 <td className="py-2">{s.name}</td>
-                <td className="py-2 text-right text-gray-700">{s.price}</td>
+                <td className="py-2 text-right text-gray-700">
+                  {s.priceRUB !== undefined
+                    ? `${s.priceRUB.toLocaleString('ru-RU')} ₽`
+                    : 'уточняется'}
+                </td>
               </tr>
             ))}
           </tbody>
