@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { doctors } from '@/lib/data';
 import { servicesPricing, doctorServicesMap } from '@/lib/pricing';
+import { doctorSlots } from '@/lib/doctorSchedule';
 
 type Doctor = (typeof doctors)[number];
 
@@ -27,6 +28,11 @@ export default function DoctorPage(){
 
   const codes = doctorServicesMap[doctor.email] || [];
   const items = servicesPricing.filter((s) => codes.includes(s.code));
+
+  const upcomingSlots = doctorSlots
+    .filter((slot) => slot.doctorEmail === doctor.email)
+    .sort((a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime())
+    .slice(0, 3);
 
   return (
     <section className="container py-12 sm:py-16">
@@ -83,6 +89,37 @@ export default function DoctorPage(){
               </Link>
             </div>
           </div>
+
+          {upcomingSlots.length > 0 && (
+            <div className="rounded-2xl border bg-white border-gray-200 p-4 sm:p-5">
+              <h2 className="text-lg font-semibold mb-2" style={{color:'var(--navy)'}}>Ближайшие онлайн-слоты</h2>
+              <ul className="text-sm space-y-2">
+                {upcomingSlots.map((slot) => (
+                  <li key={slot.id} className="flex items-center justify-between gap-2">
+                    <span className="opacity-80">
+                      {new Date(slot.startsAt).toLocaleString('ru-RU', {
+                        weekday: 'short',
+                        day: '2-digit',
+                        month: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </span>
+                    <span className="text-xs opacity-70">
+                      до{' '}
+                      {new Date(slot.endsAt).toLocaleTimeString('ru-RU', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-3 text-xs opacity-70">
+                В реальной интеграции слоты приходят из Vetmanager.
+              </div>
+            </div>
+          )}
 
           <div className="rounded-2xl border bg-white border-gray-200 p-4 sm:p-5">
             <h2 className="text-lg font-semibold mb-2" style={{color:'var(--navy)'}}>Записаться к врачу</h2>
