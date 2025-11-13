@@ -5,9 +5,6 @@ import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { servicesPricing } from '@/lib/pricing';
 
-// ВАЖНО: metadata должен быть только в серверном компоненте (без 'use client'),
-// поэтому здесь мы его убрали, чтобы не ломать билд.
-
 export default function ServicesPage(){
   const [sectionFilter, setSectionFilter] = useState<string | 'all'>('all');
   const [query, setQuery] = useState('');
@@ -16,6 +13,8 @@ export default function ServicesPage(){
     () => Array.from(new Set(servicesPricing.map((s) => s.section))),
     []
   );
+
+  const totalCount = servicesPricing.length;
 
   const filtered = useMemo(() => {
     let list = servicesPricing;
@@ -44,57 +43,61 @@ export default function ServicesPage(){
 
   return (
     <section className="container py-12 sm:py-16">
-      <h1
-        className="text-3xl font-bold mb-2"
-        style={{ color: 'var(--navy)' }}
-      >
-        Услуги и цены
-      </h1>
+      <div className="flex items-center justify-between gap-3 mb-6 flex-wrap">
+        <h1
+          className="text-3xl font-bold"
+          style={{ color: 'var(--navy)' }}
+        >
+          Услуги и цены
+        </h1>
+        <Link
+          href="/docs"
+          className="text-sm opacity-80 hover:opacity-100 underline"
+        >
+          Документы
+        </Link>
+      </div>
+
       <p className="opacity-80 mb-2 max-w-2xl text-sm sm:text-base">
-        OnlyVet — онлайн-ветеринарная клиника. Ниже представлены основные
-        форматы консультаций и сервисов, которые мы предоставляем.
+        OnlyVet — онлайн-ветеринарная клиника. Ниже представлены основные форматы онлайн-консультаций и сервисов, которые доступны для ваших питомцев.
       </p>
       <p className="opacity-80 mb-6 max-w-2xl text-sm sm:text-base">
-        Список и стоимость услуг вы можете обновлять в файле
-        <code className="ml-1">lib/pricing.ts</code>. Изменения автоматически
-        подхватываются на сайте.
+        Стоимость услуг зависит от формата, продолжительности и сложности случая. При оформлении заявки администратор уточнит детали и подберёт оптимальное решение.
       </p>
 
-      {/* Панель фильтров */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-4 mb-6 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => setSectionFilter('all')}
-            className={`text-xs sm:text-sm px-3 py-1 rounded-full border ${
-              sectionFilter === 'all'
-                ? 'bg-[var(--teal)] text-white border-[var(--teal)]'
-                : 'bg-[var(--cloud)] hover:bg-white'
-            }`}
-          >
-            Все разделы
-          </button>
-          {sections.map((sec) => (
-            <button
-              key={sec}
-              onClick={() => setSectionFilter(sec)}
-              className={`text-xs sm:text-sm px-3 py-1 rounded-full border ${
-                sectionFilter === sec
-                  ? 'bg-[var(--teal)] text-white border-[var(--teal)]'
-                  : 'bg-[var(--cloud)] hover:bg-white'
-              }`}
-            >
-              {sec}
-            </button>
-          ))}
-        </div>
-        <div className="w-full sm:w-64">
+      {/* Верхняя кнопка "Все услуги" и поиск */}
+      <div className="flex flex-col gap-3 mb-4 sm:flex-row sm:items-center sm:justify-between">
+        <button
+          onClick={() => setSectionFilter('all')}
+          className="mx-auto sm:mx-0 inline-flex items-center justify-center px-4 py-1.5 rounded-full border bg-white text-sm font-medium"
+        >
+          Все услуги ({totalCount})
+        </button>
+        <div className="w-full sm:w-72">
           <input
             className="input w-full text-sm"
-            placeholder="Поиск по названию, коду или описанию…"
+            placeholder="Поиск по названию или описанию…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
         </div>
+      </div>
+
+      {/* Чипы категорий (большие разделы) */}
+      <div className="rounded-2xl border border-gray-200 bg-white p-3 mb-6 flex flex-wrap gap-2">
+        {sections.map((sec) => (
+          <button
+            key={sec}
+            onClick={() => setSectionFilter(sec)}
+            className={`text-xs sm:text-sm px-3 py-1 rounded-full border ${
+              sectionFilter === sec
+                ? 'bg-[var(--teal)] text-white border-[var(--teal)]'
+                : 'bg-[var(--cloud)] hover:bg-white'
+            }`}
+          >
+            {sec}
+          </button>
+        ))}
       </div>
 
       {/* Список услуг по разделам */}
@@ -107,7 +110,7 @@ export default function ServicesPage(){
             >
               {sec}
             </h2>
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-3 gap-4">
               {filtered
                 .filter((s) => s.section === sec)
                 .map((s) => (
@@ -116,43 +119,38 @@ export default function ServicesPage(){
                     className="rounded-2xl border border-gray-200 bg-white p-4 flex flex-col justify-between"
                   >
                     <div>
-                      <div className="flex items-center justify-between gap-2 mb-1">
+                      <div className="flex items-center justify-between gap-2 mb-2">
                         <h3
                           className="font-semibold text-base sm:text-lg"
                           style={{ color: 'var(--navy)' }}
                         >
                           {s.name}
                         </h3>
-                        <span className="text-xs opacity-60">{s.code}</span>
                       </div>
-                      <p className="text-sm opacity-80 mb-2">
+                      <p className="text-sm opacity-80 mb-3">
                         {s.description}
                       </p>
-                      <div className="text-sm opacity-70 space-y-1">
-                        {s.duration && (
-                          <div>
-                            <span className="opacity-60">Длительность: </span>
-                            {s.duration}
-                          </div>
-                        )}
+                      <div className="text-sm opacity-80 flex items-center justify-between gap-2">
                         <div>
-                          <span className="opacity-60">Цена: </span>
+                          <span className="opacity-60">от </span>
                           {s.priceRUB !== undefined
                             ? `${s.priceRUB.toLocaleString('ru-RU')} ₽`
                             : 'уточняется'}
                         </div>
-                        {s.note && (
-                          <div className="opacity-70 text-xs">{s.note}</div>
+                        {s.duration && (
+                          <div className="text-xs opacity-70">
+                            {s.duration}
+                          </div>
                         )}
                       </div>
                     </div>
-                    <div className="mt-3 flex justify-end">
+                    <div className="mt-4 flex justify-end">
                       <Link
                         href={{
                           pathname: '/booking',
                           query: { serviceCode: s.code },
                         }}
-                        className="btn btn-primary rounded-xl px-4 text-sm"
+                        className="btn btn-primary rounded-xl px-4 text-sm w-full text-center"
                       >
                         Записаться
                       </Link>
@@ -164,8 +162,7 @@ export default function ServicesPage(){
         ))}
         {filteredSections.length === 0 && (
           <div className="opacity-70 text-sm">
-            По выбранным фильтрам ничего не найдено. Попробуйте изменить запрос
-            или раздел.
+            По выбранным фильтрам ничего не найдено. Попробуйте изменить запрос или категорию.
           </div>
         )}
       </div>
