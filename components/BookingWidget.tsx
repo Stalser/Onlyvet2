@@ -5,6 +5,7 @@ import { useState, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { doctors } from '@/lib/data';
 import { servicesPricing } from '@/lib/pricing';
+import { doctorSlots } from '@/lib/doctorSchedule';
 
 export default function BookingWidget(){
   const searchParams = useSearchParams();
@@ -13,6 +14,7 @@ export default function BookingWidget(){
 
   const [doctorEmail, setDoctorEmail] = useState(initialDoctorEmail);
   const [serviceCode, setServiceCode] = useState(initialServiceCode);
+  const [slotId, setSlotId] = useState<string>(''); // выбранный слот
   const [petName, setPetName] = useState('');
   const [contact, setContact] = useState('');
   const [comment, setComment] = useState('');
@@ -28,6 +30,13 @@ export default function BookingWidget(){
     [serviceCode]
   );
 
+  const availableSlots = useMemo(() => {
+    if (!doctorEmail) return [];
+    return doctorSlots
+      .filter(s => s.doctorEmail === doctorEmail)
+      .sort((a,b)=> new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime());
+  }, [doctorEmail]);
+
   const submit = async () => {
     setSending(true);
     setResult(null);
@@ -38,16 +47,18 @@ export default function BookingWidget(){
         body: JSON.stringify({
           doctorEmail: doctorEmail || null,
           serviceCode: serviceCode || null,
+          slotId: slotId || null,
           petName,
           contact,
           comment,
         }),
       });
       if(res.ok){
-        setResult('Заявка отправлена. Администратор свяжется с вами для подтверждения.');
+        setResult('Заявка отправлена. Администратор свяжется с вами для подтверждения времени консультации.');
         setPetName('');
         setContact('');
         setComment('');
+        setSlotId('');
       }else{
         const data = await res.json().catch(()=>({}));
         setResult(data?.error || 'Не удалось отправить заявку. Попробуйте позже.');
@@ -71,7 +82,7 @@ export default function BookingWidget(){
           <select
             className="input w-full"
             value={doctorEmail}
-            onChange={e=>setDoctorEmail(e.target.value)}
+            onChange={e=>{ setDoctorEmail(e.target.value); setSlotId(''); }}
           >
             <option value="">Любой подходящий</option>
             {doctors.map(d=>(
@@ -92,10 +103,45 @@ export default function BookingWidget(){
             <option value="">Выберите услугу</option>
             {servicesPricing.map(s=>(
               <option key={s.code} value={s.code}>
-                {s.name} {s.priceRUB !== undefined ? `— ${s.priceRUB.toLocaleString('ru-RU')} ₽` : ''}
+                {s.name}{' '}
+                {s.priceRUB !== undefined ? `— ${s.priceRUB.toLocaleString('ru-RU')} ₽` : ''}
               </option>
             ))}
           </select>
+        </div>
+
+        <div>
+          <label className="block mb-1">Время консультации</label>
+          {doctorEmail ? (
+            availableSlots.length > 0 ? (
+              <select
+                className="input w-full"
+                value={slotId}
+                onChange={e=>setSlotId(e.target.value)}
+              >
+                <option value="">Выберите удобное время</option>
+                {availableSlots.map(slot => (
+                  <option key={slot.id} value={slot.id}>
+                    {new Date(slot.startsAt).toLocaleString('ru-RU', {
+                      weekday: 'short',
+                      day: '2-digit',
+                      month: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <div className="text-xs opacity-70">
+                Для выбранного врача нет заранее заданных онлайн-слотов. Администратор подберёт время вручную.
+              </div>
+            )
+          ) : (
+            <div className="text-xs opacity-70">
+              Сначала выберите врача — после этого появится список доступных слотов, если они заданы.
+            </div>
+          )}
         </div>
 
         <div>
@@ -128,11 +174,11 @@ export default function BookingWidget(){
           />
         </div>
 
-        {selectedDoctor || selectedService ? (
+        {(selectedDoctor || selectedService) && (
           <div className="rounded-xl bg-[var(--cloud)]/60 p-3 text-xs opacity-80">
             {selectedDoctor && (
               <div>
-                <span className="font-semibold">Выбран врач: </span>
+                <span className="font-semibold">Врач: </span>
                 {selectedDoctor.name} · {selectedDoctor.specialty}
               </div>
             )}
@@ -144,8 +190,24 @@ export default function BookingWidget(){
                   ` — ${selectedService.priceRUB.toLocaleString('ru-RU')} ₽`}
               </div>
             )}
+            {slotId && (
+              <div>
+                <span className="font-semibold">Время: </span>
+                {availableSlots.find(s=>s.id===slotId) &&
+                  new Date(
+                    availableSlots.find(s=>s.id===slotId)!.startsAt
+                  ).toLocaleString('ru-RU', {
+                    weekday: 'short',
+                    day: '2-digit',
+                    month: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })
+                }
+              </div>
+            )}
           </div>
-        ) : null}
+        )}
 
         <div className="pt-2 flex justify-end">
           <button
