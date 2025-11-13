@@ -14,8 +14,16 @@ export default function DoctorPage() {
   const params = useParams();
   const router = useRouter();
 
-  const id = typeof params?.id === 'string' ? params.id : Array.isArray(params?.id) ? params.id[0] : '';
-  const doctor: Doctor | undefined = doctors.find((d) => String(d.id) === String(id));
+  const id =
+    typeof params?.id === 'string'
+      ? params.id
+      : Array.isArray(params?.id)
+      ? params.id[0]
+      : '';
+
+  const doctor: Doctor | undefined = doctors.find(
+    (d) => String(d.id) === String(id)
+  );
 
   if (!doctor) {
     return (
@@ -36,7 +44,7 @@ export default function DoctorPage() {
     );
   }
 
-  const codes = doctorServicesMap[doctor.email] || [];
+  const codes = doctor.email ? (doctorServicesMap[doctor.email] || []) : [];
   const items = servicesPricing.filter((s) => codes.includes(s.code));
 
   const upcomingSlots = doctorSlots
@@ -57,15 +65,16 @@ export default function DoctorPage() {
       </button>
 
       <div className="grid lg:grid-cols-3 gap-6">
+        {/* Левая часть: фото + текст */}
         <div className="lg:col-span-2 space-y-4">
           <div className="rounded-2xl border bg-white border-gray-200 p-4 sm:p-6 flex gap-4 items-center">
             {doctor.photo && (
-              <div className="w-24 h-24 rounded-full overflow-hidden bg-[var(--cloud)] shrink-0">
+              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden bg-[var(--cloud)] shrink-0">
                 <Image
                   src={doctor.photo}
                   alt={doctor.name}
-                  width={96}
-                  height={96}
+                  width={112}
+                  height={112}
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -99,6 +108,7 @@ export default function DoctorPage() {
           </div>
         </div>
 
+        {/* Правая часть: услуги, слоты, запись */}
         <div className="space-y-4">
           <div className="rounded-2xl border bg-white border-gray-200 p-4 sm:p-5">
             <h2
@@ -144,29 +154,35 @@ export default function DoctorPage() {
                 Ближайшие онлайн-слоты
               </h2>
               <ul className="text-sm space-y-2">
-                {upcomingSlots.map((slot) => (
-                  <li
-                    key={slot.id}
-                    className="flex items-center justify-between gap-2"
-                  >
-                    <span className="opacity-80">
-                      {new Date(slot.startsAt).toLocaleString('ru-RU', {
-                        weekday: 'short',
-                        day: '2-digit',
-                        month: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </span>
-                    <span className="text-xs opacity-70">
-                      до{' '}
-                      {new Date(slot.endsAt).toLocaleTimeString('ru-RU', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </span>
-                  </li>
-                ))}
+                {upcomingSlots.map((slot) => {
+                  const start = new Date(slot.startsAt);
+                  const end = new Date(slot.endsAt);
+                  return (
+                    <li
+                      key={slot.id}
+                      className="flex items-center justify-between gap-2"
+                    >
+                      <span className="opacity-80">
+                        {start.toLocaleDateString('ru-RU', {
+                          weekday: 'short',
+                          day: '2-digit',
+                          month: '2-digit',
+                        })}{' '}
+                        {start.toLocaleTimeString('ru-RU', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </span>
+                      <span className="text-xs opacity-70">
+                        до{' '}
+                        {end.toLocaleTimeString('ru-RU', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </span>
+                    </li>
+                  );
+                })}
               </ul>
               <div className="mt-3 text-xs opacity-70">
                 В реальной интеграции слоты приходят из Vetmanager.
