@@ -51,3 +51,10 @@ export const servicesPricing: ServiceItem[] = [
     duration: '30–40 мин',
   },
 ];
+
+// Какие коды услуг доступны конкретным врачам (по email/идентификатору)
+export const doctorServicesMap: Record<string, string[]> = {
+  // пример: используйте реальные e-mail или id врачей
+  'doctor@example.com': ['OC1', 'OC2', 'OC3'],
+  'cardio@example.com': ['SM1'],
+};
