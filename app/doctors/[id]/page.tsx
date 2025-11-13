@@ -65,11 +65,10 @@ export default function DoctorPage() {
       </button>
 
       <div className="grid lg:grid-cols-3 gap-6">
-        {/* Левая часть: фото + текст */}
         <div className="lg:col-span-2 space-y-4">
           <div className="rounded-2xl border bg-white border-gray-200 p-4 sm:p-6 flex gap-4 items-center">
-            {doctor.photo && (
-              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden bg-[var(--cloud)] shrink-0">
+            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden bg-[var(--cloud)] shrink-0">
+              {doctor.photo ? (
                 <Image
                   src={doctor.photo}
                   alt={doctor.name}
@@ -77,8 +76,12 @@ export default function DoctorPage() {
                   height={112}
                   className="w-full h-full object-cover"
                 />
-              </div>
-            )}
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-2xl opacity-60">
+                  {doctor.name.charAt(0)}
+                </div>
+              )}
+            </div>
             <div>
               <h1
                 className="text-2xl sm:text-3xl font-bold mb-1"
@@ -108,7 +111,6 @@ export default function DoctorPage() {
           </div>
         </div>
 
-        {/* Правая часть: услуги, слоты, запись */}
         <div className="space-y-4">
           <div className="rounded-2xl border bg-white border-gray-200 p-4 sm:p-5">
             <h2

@@ -68,7 +68,6 @@ export default function ServicesPage() {
         Выберите подходящий формат и при необходимости врача.
       </p>
 
-      {/* Верхняя панель: "Все услуги" и поиск */}
       <div className="flex flex-col gap-3 mb-4 sm:flex-row sm:items-center sm:justify-between">
         <button
           onClick={() => setSectionFilter('all')}
@@ -86,7 +85,6 @@ export default function ServicesPage() {
         </div>
       </div>
 
-      {/* Чипы категорий (разделов) */}
       <div className="rounded-2xl border border-gray-200 bg-white p-3 mb-6 flex flex-wrap gap-2">
         {sections.map((sec) => (
           <button
@@ -103,7 +101,6 @@ export default function ServicesPage() {
         ))}
       </div>
 
-      {/* Список услуг по разделам */}
       <div className="space-y-8">
         {filteredSections.map((sec) => (
           <section key={sec} id={sec}>

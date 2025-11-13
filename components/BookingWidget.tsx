@@ -26,7 +26,6 @@ export default function BookingWidget(){
     [serviceCode]
   );
 
-  // Фильтруем врачей: если выбрана услуга, остаются только те, кто её оказывает
   const filteredDoctors = useMemo(() => {
     if (!serviceCode) return doctors;
     return doctors.filter(d => {
@@ -35,7 +34,6 @@ export default function BookingWidget(){
     });
   }, [serviceCode]);
 
-  // Если выбран врач, но он не подходит под выбранную услугу — сбрасываем врача
   const safeDoctorEmail = useMemo(() => {
     if (!doctorEmail) return '';
     const ok = filteredDoctors.some(d => d.email === doctorEmail);
@@ -182,7 +180,7 @@ export default function BookingWidget(){
             className="input w-full"
             value={contact}
             onChange={e=>setContact(e.target.value)}
-            placeholder="+7 ___ ___‑__‑__ или @username"
+            placeholder="+7 ___ ___-__-__ или @username"
           />
         </div>
 

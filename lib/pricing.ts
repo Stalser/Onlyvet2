@@ -1,5 +1,5 @@
 // lib/pricing.ts
-// Единый источник данных по услугам и ценам OnlyVet.
+// Единый список услуг OnlyVet + привязка к врачам (по email).
 
 export type ServiceItem = {
   code: string;
@@ -13,42 +13,51 @@ export type ServiceItem = {
 
 export const servicesPricing: ServiceItem[] = [
   {
-    code: "OC1",
+    code: "CHAT",
     section: "Онлайн-консультации",
-    name: "Первичная онлайн-консультация",
-    description: "Видеозвонок/чат, один пациент",
+    name: "Чат-консультация",
+    description:
+      "Быстрый старт, первичная текстовая консультация: оценка состояния, маршрутизация и ответы на вопросы.",
+    priceRUB: 900,
+    duration: "до 30 мин",
+  },
+  {
+    code: "VIDEO",
+    section: "Онлайн-консультации",
+    name: "Видео-консультация",
+    description:
+      "Полноценная онлайн-консультация с видеосвязью: разбор жалоб, план обследования и терапии.",
     priceRUB: 1500,
     duration: "30 мин",
   },
   {
-    code: "OC2",
+    code: "TRIAGE",
     section: "Онлайн-консультации",
-    name: "Повторная консультация",
-    description: "С тем же врачом по текущему случаю",
+    name: "Срочный триаж",
+    description:
+      "Оценка срочности состояния, алгоритм действий на ближайшие часы и решение — онлайн или срочно в клинику.",
     priceRUB: 1200,
-    duration: "20 мин",
+    duration: "15–20 мин",
   },
   {
-    code: "OC3",
-    section: "Онлайн-консультации",
-    name: "Разбор анализов",
-    description: "Интерпретация загруженных результатов",
-    priceRUB: 1000,
-    duration: "20–30 мин",
-  },
-  {
-    code: "SM1",
+    code: "SECOND",
     section: "Второе мнение",
-    name: "Второе мнение по диагнозу",
-    description: "Анализ истории и заключений других специалистов",
-    priceRUB: 2000,
+    name: "Второе мнение",
+    description:
+      "Независимый разбор сложного случая: анализ назначений, обследований и уже поставленного диагноза.",
+    priceRUB: 1900,
     duration: "30–40 мин",
   },
 ];
 
-// Привязка услуг к конкретным врачам по email.
+// Привязка: какой врач какие услуги оказывает (по email врача)
 export const doctorServicesMap: Record<string, string[]> = {
-  "ivanova@example.com": ["OC1","OC2","OC3"],
-  "petrov@example.com": ["SM1"],
-  "sidorova@example.com": ["OC1","OC3"],
+  "ivanova@example.com": ["CHAT", "VIDEO", "TRIAGE"],
+  "kuznetsov@example.com": ["CHAT", "TRIAGE"],
+  "petrov@example.com": ["VIDEO", "SECOND"],
+  "orlov@example.com": ["VIDEO", "SECOND"],
+  "sidorova@example.com": ["CHAT", "VIDEO"],
+  "kozlova@example.com": ["CHAT", "VIDEO"],
+  "smirnova@example.com": ["CHAT", "VIDEO"],
+  "borisov@example.com": ["CHAT", "TRIAGE"],
 };
