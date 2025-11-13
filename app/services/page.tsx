@@ -49,9 +49,13 @@ export default function ServicesPage(){
       >
         Услуги и цены
       </h1>
+      <p className="opacity-80 mb-2 max-w-2xl text-sm sm:text-base">
+        OnlyVet — онлайн-ветеринарная клиника. Ниже перечислены основные
+        форматы консультаций и сервисов, которые мы предоставляем в удалённом формате.
+      </p>
       <p className="opacity-80 mb-6 max-w-2xl text-sm sm:text-base">
-        Здесь представлен перечень онлайн-услуг OnlyVet. Цены и список услуг
-        обновляются в одном месте — в файле <code>lib/pricing.ts</code>.
+        Список и стоимость услуг вы можете гибко обновлять в файле
+        <code className="ml-1">lib/pricing.ts</code>. На сайте информация подхватывается автоматически.
       </p>
 
       {/* Панель фильтров */}
@@ -142,7 +146,10 @@ export default function ServicesPage(){
                     </div>
                     <div className="mt-3 flex justify-end">
                       <Link
-                        href="/booking"
+                        href={{
+                          pathname: '/booking',
+                          query: { serviceCode: s.code },
+                        }}
                         className="btn btn-primary rounded-xl px-4 text-sm"
                       >
                         Записаться
@@ -155,7 +162,8 @@ export default function ServicesPage(){
         ))}
         {filteredSections.length === 0 && (
           <div className="opacity-70 text-sm">
-            По выбранным фильтрам ничего не найдено.
+            По выбранным фильтрам ничего не найдено. Попробуйте изменить запрос
+            или раздел.
           </div>
         )}
       </div>
