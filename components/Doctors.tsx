@@ -9,7 +9,7 @@ import { servicesPricing, doctorServicesMap } from '@/lib/pricing';
 
 type Doctor = (typeof doctors)[number];
 
-function MiniPrice({ doctor }: { doctor: Doctor }) {
+function MiniPrice({ doctor }: { doctor: Doctor }){
   const codes = doctorServicesMap[doctor.email] || [];
   const items = servicesPricing.filter((s) => codes.includes(s.code));
 
@@ -17,10 +17,7 @@ function MiniPrice({ doctor }: { doctor: Doctor }) {
 
   return (
     <div className="rounded-xl bg-[var(--cloud)]/60 p-3 mt-2">
-      <div
-        className="text-xs font-semibold mb-1"
-        style={{ color: 'var(--navy)' }}
-      >
+      <div className="text-xs font-semibold mb-1" style={{ color: 'var(--navy)' }}>
         Услуги врача
       </div>
       <ul className="text-xs space-y-1">
@@ -39,7 +36,7 @@ function MiniPrice({ doctor }: { doctor: Doctor }) {
   );
 }
 
-export default function Doctors() {
+export default function Doctors(){
   const [specialtyFilter, setSpecialtyFilter] = useState<string | 'all'>('all');
 
   const specialties = useMemo(
@@ -54,6 +51,8 @@ export default function Doctors() {
         : doctors.filter((d) => d.specialty === specialtyFilter),
     [specialtyFilter]
   );
+
+  const totalCount = doctors.length;
 
   return (
     <section className="container py-12 sm:py-16">
@@ -70,12 +69,20 @@ export default function Doctors() {
             услуги, которые он оказывает.
           </p>
         </div>
-        <Link
-          href="/services"
-          className="btn bg-white border border-gray-300 rounded-xl px-4 text-sm sm:text-base"
-        >
-          Услуги и цены
-        </Link>
+        <div className="flex flex-wrap gap-2 items-center">
+          <Link
+            href="/doctors"
+            className="btn bg-white border border-gray-300 rounded-xl px-4 text-sm sm:text-base"
+          >
+            Все врачи ({totalCount})
+          </Link>
+          <Link
+            href="/services"
+            className="btn bg-white border border-gray-300 rounded-xl px-4 text-sm sm:text-base"
+          >
+            Услуги и цены
+          </Link>
+        </div>
       </div>
 
       <div className="rounded-2xl border border-gray-200 bg-white p-4 mb-6 flex flex-wrap gap-2">
