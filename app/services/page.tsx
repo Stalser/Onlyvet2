@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { servicesPricing } from '@/lib/pricing';
 
-export const metadata = { title: 'Услуги и цены — OnlyVet' };
+// ВАЖНО: metadata должен быть только в серверном компоненте (без 'use client'),
+// поэтому здесь мы его убрали, чтобы не ломать билд.
 
 export default function ServicesPage(){
   const [sectionFilter, setSectionFilter] = useState<string | 'all'>('all');
@@ -50,12 +51,13 @@ export default function ServicesPage(){
         Услуги и цены
       </h1>
       <p className="opacity-80 mb-2 max-w-2xl text-sm sm:text-base">
-        OnlyVet — онлайн-ветеринарная клиника. Ниже перечислены основные
-        форматы консультаций и сервисов, которые мы предоставляем в удалённом формате.
+        OnlyVet — онлайн-ветеринарная клиника. Ниже представлены основные
+        форматы консультаций и сервисов, которые мы предоставляем.
       </p>
       <p className="opacity-80 mb-6 max-w-2xl text-sm sm:text-base">
-        Список и стоимость услуг вы можете гибко обновлять в файле
-        <code className="ml-1">lib/pricing.ts</code>. На сайте информация подхватывается автоматически.
+        Список и стоимость услуг вы можете обновлять в файле
+        <code className="ml-1">lib/pricing.ts</code>. Изменения автоматически
+        подхватываются на сайте.
       </p>
 
       {/* Панель фильтров */}
