@@ -1,17 +1,44 @@
-// components/doctor/AppointmentActions.tsx
-'use client';
-import { useState } from 'react';
-export default function AppointmentActions({ id }:{ id: string }){
-  const [status, setStatus] = useState<'scheduled'|'done'|'cancelled'>('scheduled');
+"use client";
+
+import React from "react";
+
+type AppointmentActionsProps = {
+  appointmentId: string;
+};
+
+/**
+ * Заглушка панели действий для приёма.
+ * Сейчас просто показывает пару кнопок без логики.
+ */
+export default function AppointmentActions({ appointmentId }: AppointmentActionsProps) {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-4">
-      <div className="font-semibold mb-2" style={{color:'var(--navy)'}}>Статус приёма</div>
-      <div className="flex flex-wrap gap-2">
-        <button className={`btn ${status==='scheduled'?'btn-primary':'bg-white border border-gray-300'} rounded-xl px-3`} onClick={()=>setStatus('scheduled')}>Запланирован</button>
-        <button className={`btn ${status==='done'?'btn-primary':'bg-white border border-gray-300'} rounded-xl px-3`} onClick={()=>setStatus('done')}>Завершён</button>
-        <button className={`btn ${status==='cancelled'?'btn-primary':'bg-white border border-gray-300'} rounded-xl px-3`} onClick={()=>setStatus('cancelled')}>Отменён</button>
-      </div>
-      <div className="text-xs opacity-70 mt-2">Демо: статус хранится локально. Подключим API при интеграции CRM.</div>
+    <div style={{ marginTop: 16, display: "flex", gap: 8, flexWrap: "wrap" }}>
+      <button
+        type="button"
+        style={{
+          padding: "6px 12px",
+          borderRadius: 999,
+          border: "1px solid #e5e7eb",
+          background: "white",
+          fontSize: 12,
+          cursor: "pointer",
+        }}
+      >
+        Открыть чат (#{appointmentId})
+      </button>
+      <button
+        type="button"
+        style={{
+          padding: "6px 12px",
+          borderRadius: 999,
+          border: "1px solid #e5e7eb",
+          background: "white",
+          fontSize: 12,
+          cursor: "pointer",
+        }}
+      >
+        Завершить приём
+      </button>
     </div>
   );
 }
