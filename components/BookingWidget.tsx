@@ -4,7 +4,7 @@
 import { useState, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { doctors } from '@/lib/data';
-import { servicesPricing } from '@/lib/pricing';
+import { servicesPricing, doctorServicesMap } from '@/lib/pricing';
 import { doctorSlots } from '@/lib/doctorSchedule';
 
 export default function BookingWidget(){
@@ -14,28 +14,45 @@ export default function BookingWidget(){
 
   const [doctorEmail, setDoctorEmail] = useState(initialDoctorEmail);
   const [serviceCode, setServiceCode] = useState(initialServiceCode);
-  const [slotId, setSlotId] = useState<string>(''); // выбранный слот
+  const [slotId, setSlotId] = useState<string>('');
   const [petName, setPetName] = useState('');
   const [contact, setContact] = useState('');
   const [comment, setComment] = useState('');
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<string | null>(null);
 
-  const selectedDoctor = useMemo(
-    () => doctors.find(d => d.email === doctorEmail),
-    [doctorEmail]
-  );
   const selectedService = useMemo(
     () => servicesPricing.find(s => s.code === serviceCode),
     [serviceCode]
   );
 
+  // Фильтруем врачей: если выбрана услуга, остаются только те, кто её оказывает
+  const filteredDoctors = useMemo(() => {
+    if (!serviceCode) return doctors;
+    return doctors.filter(d => {
+      const codes = doctorServicesMap[d.email] || [];
+      return codes.includes(serviceCode);
+    });
+  }, [serviceCode]);
+
+  // Если выбран врач, но он не подходит под выбранную услугу — сбрасываем врача
+  const safeDoctorEmail = useMemo(() => {
+    if (!doctorEmail) return '';
+    const ok = filteredDoctors.some(d => d.email === doctorEmail);
+    return ok ? doctorEmail : '';
+  }, [doctorEmail, filteredDoctors]);
+
+  const selectedDoctor = useMemo(
+    () => filteredDoctors.find(d => d.email === safeDoctorEmail),
+    [filteredDoctors, safeDoctorEmail]
+  );
+
   const availableSlots = useMemo(() => {
-    if (!doctorEmail) return [];
+    if (!safeDoctorEmail) return [];
     return doctorSlots
-      .filter(s => s.doctorEmail === doctorEmail)
+      .filter(s => s.doctorEmail === safeDoctorEmail)
       .sort((a,b)=> new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime());
-  }, [doctorEmail]);
+  }, [safeDoctorEmail]);
 
   const submit = async () => {
     setSending(true);
@@ -45,7 +62,7 @@ export default function BookingWidget(){
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          doctorEmail: doctorEmail || null,
+          doctorEmail: safeDoctorEmail || null,
           serviceCode: serviceCode || null,
           slotId: slotId || null,
           petName,
@@ -78,27 +95,11 @@ export default function BookingWidget(){
 
       <div className="space-y-3 text-sm">
         <div>
-          <label className="block mb-1">Врач</label>
-          <select
-            className="input w-full"
-            value={doctorEmail}
-            onChange={e=>{ setDoctorEmail(e.target.value); setSlotId(''); }}
-          >
-            <option value="">Любой подходящий</option>
-            {doctors.map(d=>(
-              <option key={d.id} value={d.email}>
-                {d.name} · {d.specialty}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
           <label className="block mb-1">Услуга</label>
           <select
             className="input w-full"
             value={serviceCode}
-            onChange={e=>setServiceCode(e.target.value)}
+            onChange={e=>{ setServiceCode(e.target.value); setSlotId(''); }}
           >
             <option value="">Выберите услугу</option>
             {servicesPricing.map(s=>(
@@ -111,8 +112,29 @@ export default function BookingWidget(){
         </div>
 
         <div>
+          <label className="block mb-1">Врач</label>
+          <select
+            className="input w-full"
+            value={safeDoctorEmail}
+            onChange={e=>{ setDoctorEmail(e.target.value); setSlotId(''); }}
+            disabled={!serviceCode}
+          >
+            <option value="">
+              {serviceCode
+                ? 'Любой врач, оказывающий эту услугу'
+                : 'Сначала выберите услугу'}
+            </option>
+            {filteredDoctors.map(d=>(
+              <option key={d.id} value={d.email}>
+                {d.name} · {d.specialty}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
           <label className="block mb-1">Время консультации</label>
-          {doctorEmail ? (
+          {safeDoctorEmail ? (
             availableSlots.length > 0 ? (
               <select
                 className="input w-full"
@@ -139,7 +161,7 @@ export default function BookingWidget(){
             )
           ) : (
             <div className="text-xs opacity-70">
-              Сначала выберите врача — после этого появится список доступных слотов, если они заданы.
+              Сначала выберите услугу и врача — после этого появится список доступных слотов, если они заданы.
             </div>
           )}
         </div>
@@ -174,20 +196,20 @@ export default function BookingWidget(){
           />
         </div>
 
-        {(selectedDoctor || selectedService) && (
+        {(selectedService || selectedDoctor || slotId) && (
           <div className="rounded-xl bg-[var(--cloud)]/60 p-3 text-xs opacity-80">
+            {selectedService && (
+              <div>
+                <span className="font-semibold">Услуга: </span>
+                {selectedService.name}{' '}
+                {selectedService.priceRUB !== undefined &&
+                  `— ${selectedService.priceRUB.toLocaleString('ru-RU')} ₽`}
+              </div>
+            )}
             {selectedDoctor && (
               <div>
                 <span className="font-semibold">Врач: </span>
                 {selectedDoctor.name} · {selectedDoctor.specialty}
-              </div>
-            )}
-            {selectedService && (
-              <div>
-                <span className="font-semibold">Услуга: </span>
-                {selectedService.name}
-                {selectedService.priceRUB !== undefined &&
-                  ` — ${selectedService.priceRUB.toLocaleString('ru-RU')} ₽`}
               </div>
             )}
             {slotId && (
