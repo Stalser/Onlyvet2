@@ -14,7 +14,7 @@ export default function DoctorCard({ doctor }: Props) {
   const codes: string[] = doctorServicesMap[doctor.id] ?? [];
 
   // Фильтруем прайсы по этим кодам, без строгой типизации
-  const items = servicesPricing.filter((s: any) =>
+  const items = (servicesPricing as any[]).filter((s: any) =>
     codes.length ? codes.includes(s.code) : true
   );
 
