@@ -2,8 +2,8 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import PullToRefresh from '@/components/PullToRefresh';
-import Reveal from '@/components/Reveal';
+import PullToRefresh from "../../components/PullToRefresh";
+import Reveal from "../../components/Reveal";
 
 type Pet = { id:number; name:string; species?:string; sex?:string; birth?:string; notes?:string };
 type Consultation = { id:number; date:string; doctor_name?:string; service?:string; summary?:string; recommendations?:string };
