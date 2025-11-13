@@ -15,18 +15,22 @@ export default function AppointmentDetail() {
 
   // Находим приём по id
   const a = useMemo(
-    () => appointments.find((x) => x.id === id),
+    () => appointments.find((item) => item.id === id),
     [id]
   );
 
-  // Находим пациента по patientId из приёма
+  // Ищем пациента по patientId
   const p = useMemo(
     () => (a ? patients.find((pt) => pt.id === a.patientId) : undefined),
     [a]
   );
 
   if (!a || !p) {
-    return <section className="container py-12">Запись не найдена</section>;
+    return (
+      <section className="container py-12">
+        Запись не найдена
+      </section>
+    );
   }
 
   const [note, setNote] = useState('');
@@ -34,11 +38,14 @@ export default function AppointmentDetail() {
   return (
     <section className="container py-12">
       <div className="grid lg:grid-cols-3 gap-4">
+
+        {/* Основной блок */}
         <div className="lg:col-span-2 space-y-4">
           <div className="rounded-2xl border border-gray-200 bg-white p-4">
             <div className="flex items-center justify-between">
               <div className="font-semibold text-xl">Запись #{a.id}</div>
             </div>
+
             <div className="mt-2 text-gray-600">
               <div>Пациент: {p.name}</div>
               <div>
@@ -48,6 +55,7 @@ export default function AppointmentDetail() {
             </div>
           </div>
 
+          {/* Заметка */}
           <div className="rounded-2xl border border-gray-200 bg-white p-4 space-y-2">
             <div className="font-medium">Заметка</div>
             <textarea
@@ -64,6 +72,7 @@ export default function AppointmentDetail() {
           </div>
         </div>
 
+        {/* Правая колонка */}
         <div className="space-y-4">
           <div className="rounded-2xl border border-gray-200 bg-white p-4">
             <div className="font-medium text-lg mb-3">Действия</div>
@@ -79,6 +88,7 @@ export default function AppointmentDetail() {
             </div>
           </div>
         </div>
+
       </div>
     </section>
   );
