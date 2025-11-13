@@ -1,0 +1,103 @@
+// app/doctors/[id]/page.tsx
+'use client';
+
+import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { doctors } from '@/lib/data';
+import { servicesPricing, doctorServicesMap } from '@/lib/pricing';
+
+type Doctor = (typeof doctors)[number];
+
+export default function DoctorPage(){
+  const { id } = useParams<{ id: string }>();
+  const router = useRouter();
+
+  const doctor: Doctor | undefined = doctors.find((d) => String(d.id) === String(id));
+
+  if (!doctor){
+    return (
+      <section className="container py-12 sm:py-16">
+        <h1 className="text-2xl font-semibold mb-4" style={{color:'var(--navy)'}}>Врач не найден</h1>
+        <button className="btn bg-white border border-gray-300 rounded-xl px-4" onClick={()=>router.back()}>
+          Назад
+        </button>
+      </section>
+    );
+  }
+
+  const codes = doctorServicesMap[doctor.email] || [];
+  const items = servicesPricing.filter((s) => codes.includes(s.code));
+
+  return (
+    <section className="container py-12 sm:py-16">
+      <button className="text-sm opacity-70 hover:opacity-100 mb-4" onClick={()=>router.back()}>
+        ← Назад
+      </button>
+
+      <div className="grid lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-4">
+          <div className="rounded-2xl border bg-white border-gray-200 p-4 sm:p-6">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-1" style={{color:'var(--navy)'}}>
+              {doctor.name}
+            </h1>
+            <div className="text-sm opacity-80">{doctor.specialty}</div>
+            {doctor.experience && (
+              <div className="text-sm opacity-70 mt-1">
+                Стаж: {doctor.experience} лет
+              </div>
+            )}
+          </div>
+
+          <div className="rounded-2xl border bg-white border-gray-200 p-4 sm:p-6">
+            <h2 className="text-lg font-semibold mb-2" style={{color:'var(--navy)'}}>О враче</h2>
+            <p className="text-sm opacity-80">
+              {doctor.bio || 'Описание врача появится позже.'}
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div className="rounded-2xl border bg-white border-gray-200 p-4 sm:p-5">
+            <h2 className="text-lg font-semibold mb-2" style={{color:'var(--navy)'}}>Услуги врача</h2>
+            {items.length === 0 ? (
+              <div className="text-sm opacity-70">
+                Услуги для этого врача пока не указаны.
+              </div>
+            ) : (
+              <ul className="text-sm space-y-2">
+                {items.map((s) => (
+                  <li key={s.code} className="flex justify-between gap-2">
+                    <span className="opacity-80">{s.name}</span>
+                    <span className="font-semibold">
+                      {s.priceRUB !== undefined
+                        ? `${s.priceRUB.toLocaleString('ru-RU')} ₽`
+                        : 'уточняется'}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <div className="mt-4">
+              <Link href="/services" className="text-xs opacity-70 hover:opacity-100 underline">
+                Смотреть все услуги и цены
+              </Link>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border bg-white border-gray-200 p-4 sm:p-5">
+            <h2 className="text-lg font-semibold mb-2" style={{color:'var(--navy)'}}>Записаться к врачу</h2>
+            <p className="text-sm opacity-80 mb-3">
+              Вы можете выбрать формат консультации (чат/видео) и удобное время.
+            </p>
+            <Link
+              href={{ pathname: '/booking', query: { doctorEmail: doctor.email } }}
+              className="btn btn-primary rounded-xl px-4 w-full text-sm sm:text-base text-center block"
+            >
+              Записаться на онлайн-консультацию
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

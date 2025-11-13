@@ -1,65 +1,144 @@
 // components/Doctors.tsx
 'use client';
 
-import Image from 'next/image';
-import Link from 'next/link';
 import { useMemo, useState } from 'react';
+import Link from 'next/link';
 import { doctors } from '@/lib/data';
-import { services } from '@/components/servicesData';
-import DoctorDetailsModal from '@/components/DoctorDetailsModal';
-import ScheduleModal from '@/components/ScheduleModal';
+import { servicesPricing, doctorServicesMap } from '@/lib/pricing';
 
-export default function Doctors() {
-  const [detailsId, setDetailsId] = useState<string | null>(null);
-  const [scheduleFor, setScheduleFor] = useState<string | null>(null);
-  const doc = useMemo(()=> doctors.find(d => d.id === detailsId), [detailsId]);
+type Doctor = (typeof doctors)[number];
 
-  function chips(slugs?: string[]) {
-    if (!slugs?.length) return null;
-    const list = slugs.map(s => services.find(x => x.slug === s)).filter(Boolean).slice(0, 3) as {slug:string,name:string,icon?:string}[];
-    return (
-      <div className="mt-3 flex flex-wrap gap-2">
-        {list.map(s => (
-          <span key={s.slug} className="px-2 py-1 rounded-lg border bg-[var(--cloud)] text-xs inline-flex items-center gap-1">
-            <span>{s.icon ?? '🐾'}</span>
-            <span className="truncate max-w-[10rem]">{s.name}</span>
-          </span>
-        ))}
-  <Link href="/docs" >Документы</Link>
-</div>
-    );
-  }
+function MiniPrice({ doctor }: { doctor: Doctor }){
+  const codes = doctorServicesMap[doctor.email] || [];
+  const items = servicesPricing.filter((s) => codes.includes(s.code));
+
+  if (!items.length) return null;
 
   return (
-    <section id="doctors" className="container py-12 sm:py-16">
-      <div className="mb-6 flex items-center justify-between gap-3 flex-wrap">
-        <h2 className="text-2xl sm:text-3xl font-bold" style={{fontFamily:'var(--font-montserrat)'}}>Наши врачи</h2>
-        <Link href="/doctors" className="btn bg-white border border-gray-300 rounded-xl px-4">Смотреть всех</Link>
+    <div className="rounded-xl bg-[var(--cloud)]/60 p-3 mt-2">
+      <div className="text-xs font-semibold mb-1" style={{ color: 'var(--navy)' }}>
+        Услуги врача
+      </div>
+      <ul className="text-xs space-y-1">
+        {items.map((s) => (
+          <li key={s.code} className="flex justify-between gap-2">
+            <span className="opacity-80">{s.name}</span>
+            <span className="font-semibold">
+              {s.priceRUB !== undefined
+                ? `${s.priceRUB.toLocaleString('ru-RU')} ₽`
+                : 'уточняется'}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default function Doctors(){
+  const [specialtyFilter, setSpecialtyFilter] = useState<string | 'all'>('all');
+
+  const specialties = useMemo(
+    () => Array.from(new Set(doctors.map((d) => d.specialty))),
+    []
+  );
+
+  const filtered = useMemo(
+    () =>
+      specialtyFilter === 'all'
+        ? doctors
+        : doctors.filter((d) => d.specialty === specialtyFilter),
+    [specialtyFilter]
+  );
+
+  return (
+    <section className="container py-12 sm:py-16">
+      <div className="flex items-end justify-between gap-3 mb-6 flex-wrap">
+        <div>
+          <h2 className="text-3xl font-bold" style={{ color: 'var(--navy)' }}>
+            Врачи OnlyVet
+          </h2>
+          <p className="opacity-80 text-sm sm:text-base max-w-xl mt-1">
+            Выберите врача по специализации. В мини-прайсе указаны основные
+            услуги, которые он оказывает.
+          </p>
+        </div>
+        <Link
+          href="/services"
+          className="btn bg-white border border-gray-300 rounded-xl px-4 text-sm sm:text-base"
+        >
+          Услуги и цены
+        </Link>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        {doctors.slice(0,6).map((d) => (
-          <div key={d.id} className="card">
-            <div className="flex items-center gap-3 sm:gap-4">
-              <Image src={d.photo} alt={d.name} width={64} height={64} className="rounded-full" />
-              <div>
-                <div className="font-semibold">{d.name}</div>
-                <div className="text-sm opacity-80">{d.specialty}</div>
-                <div className="text-xs opacity-60">Стаж: {d.experience} лет</div>
-              </div>
-            </div>
-            {chips(d.allowedServices)}
-            <p className="text-sm opacity-80 mt-3">{d.bio}</p>
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              <button className="btn btn-secondary" onClick={()=>setDetailsId(d.id)}>Подробнее</button>
-              <button className="btn btn-primary" onClick={()=>setScheduleFor(d.id)}>Записаться</button>
-            </div>
-          </div>
+      <div className="rounded-2xl border border-gray-200 bg-white p-4 mb-6 flex flex-wrap gap-2">
+        <button
+          onClick={() => setSpecialtyFilter('all')}
+          className={`text-xs sm:text-sm px-3 py-1 rounded-full border ${
+            specialtyFilter === 'all'
+              ? 'bg-[var(--teal)] text-white border-[var(--teal)]'
+              : 'bg-[var(--cloud)] hover:bg-white'
+          }`}
+        >
+          Все специальности
+        </button>
+        {specialties.map((sp) => (
+          <button
+            key={sp}
+            onClick={() => setSpecialtyFilter(sp)}
+            className={`text-xs sm:text-sm px-3 py-1 rounded-full border ${
+              specialtyFilter === sp
+                ? 'bg-[var(--teal)] text-white border-[var(--teal)]'
+                : 'bg-[var(--cloud)] hover:bg-white'
+            }`}
+          >
+            {sp}
+          </button>
         ))}
       </div>
 
-      {doc && <DoctorDetailsModal doctor={doc as any} onClose={()=>setDetailsId(null)} onBook={(id)=>{ setDetailsId(null); setScheduleFor(id); }} />}
-      {scheduleFor && <ScheduleModal doctorId={scheduleFor} onClose={()=>setScheduleFor(null)} />}
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filtered.map((doctor) => (
+          <article
+            key={doctor.id}
+            className="rounded-2xl border border-gray-200 bg-white p-4 flex flex-col gap-3"
+          >
+            <div className="flex items-center justify-between gap-2">
+              <div>
+                <h3
+                  className="font-semibold text-lg"
+                  style={{ color: 'var(--navy)' }}
+                >
+                  {doctor.name}
+                </h3>
+                <div className="text-sm opacity-80">{doctor.specialty}</div>
+                {doctor.experience && (
+                  <div className="text-xs opacity-70">
+                    Стаж: {doctor.experience} лет
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <MiniPrice doctor={doctor} />
+
+            <div className="flex justify-end gap-2 mt-2">
+              <Link
+                href={`/doctors/${doctor.id}`}
+                className="btn bg-white border border-gray-300 rounded-xl px-3 text-sm"
+              >
+                Подробнее
+              </Link>
+              <Link
+                href={{ pathname: '/booking', query: { doctorEmail: doctor.email } }}
+                className="btn btn-primary rounded-xl px-3 text-sm"
+              >
+                Записаться
+              </Link>
+            </div>
+          </article>
+        ))}
+      </div>
     </section>
   );
 }
